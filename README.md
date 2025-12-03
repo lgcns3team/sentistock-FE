@@ -1,3 +1,5 @@
+# sentistock 프론트엔드🪩
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
