@@ -1,12 +1,13 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function SignupHeader() {
   return (
     <header className="border-b border-border bg-white">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="object-contain">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="object-contain cursor-pointer">
             <Image
               src="/logo.png"
               alt="SentiStock Logo"
@@ -14,7 +15,7 @@ export default function SignupHeader() {
               height={150}
             />
           </div>
-        </div>
+        </Link>
 
         {/* Navigation */}
         <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-700">
