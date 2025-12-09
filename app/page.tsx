@@ -25,9 +25,6 @@ export default function Home() {
     if (isScrolling.current) return
 
     isScrolling.current = true
-    setTimeout(() => {
-      isScrolling.current = false
-    }, 800)
 
     e.preventDefault()
     if (e.deltaY > 0) {
@@ -65,7 +62,7 @@ export default function Home() {
         {pages.map((page, index) => {
           const Component = page.component
           return (
-            <div key={index} className="w-screen h-screen flex-shrink-0 overflow-hidden">
+            <div key={index} className="w-screen h-screen shrink-0 overflow-hidden">
               <Component />
             </div>
           )
