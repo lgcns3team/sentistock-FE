@@ -12,6 +12,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const isScrolling = useRef(false)
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const pages = [
     { component: LoginSection, name: "Login" },
@@ -22,24 +23,40 @@ export default function Home() {
   ]
 
   const handleScroll = (e: WheelEvent) => {
-    if (isScrolling.current) return
+    if (isScrolling.current) {
+      e.preventDefault()
+      return
+    }
 
     isScrolling.current = true
-
     e.preventDefault()
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+
     if (e.deltaY > 0) {
       setCurrentPage((prev) => Math.min(prev + 1, pages.length - 1))
     } else {
       setCurrentPage((prev) => Math.max(prev - 1, 0))
     }
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      isScrolling.current = false
+    }, 1200)
   }
 
   const handleDotClick = (index: number) => {
     isScrolling.current = true
     setCurrentPage(index)
-    setTimeout(() => {
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+
+    scrollTimeoutRef.current = setTimeout(() => {
       isScrolling.current = false
-    }, 500)
+    }, 600)
   }
 
   useEffect(() => {
@@ -47,7 +64,13 @@ export default function Home() {
     if (!container) return
 
     container.addEventListener("wheel", handleScroll, { passive: false })
-    return () => container.removeEventListener("wheel", handleScroll)
+
+    return () => {
+      container.removeEventListener("wheel", handleScroll)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
   }, [])
 
   return (
@@ -62,7 +85,7 @@ export default function Home() {
         {pages.map((page, index) => {
           const Component = page.component
           return (
-            <div key={index} className="w-screen h-screen shrink-0 overflow-hidden">
+            <div key={index} className="w-screen h-screen flex-shrink-0 overflow-hidden">
               <Component />
             </div>
           )
