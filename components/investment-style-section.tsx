@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function InvestmentStyleSection() {
   return (
-    <div className="w-full h-screen bg-sky-100 px-20 py-15 flex flex-col">
+    <div className="w-full h-screen bg-gradient-to-b from-white via-sky-100 to-white px-20 py-15 flex flex-col">
 
       <div className="max-w-6xl w-full">
         <h2 className="text-[70px] font-extrabold text-gray-900 mb-5 text-left">
