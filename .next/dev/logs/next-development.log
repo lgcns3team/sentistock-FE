@@ -1,42 +1,58 @@
-[00:00:00.574] Server  LOG      ✓ Ready in 376ms
-[00:00:03.467] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.548] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.619] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:03.619] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:03.619] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:03.619] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765244055465}
-[00:00:03.755] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:00:00.686] Server  LOG      ✓ Ready in 485ms
+[00:00:04.623] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:04.750] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:04.256] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:04.257] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:04.257] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:04.257] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765244055519}
-[00:00:04.257] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:00:04.750] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:04.750] Browser WARN    Image with src "http://localhost:3000/kakao_login_medium_narrow.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:04.750] Browser WARN    Image with src "http://localhost:3000/investment.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:04.750] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:04.750] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:04.750] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765257222849}
+[00:00:29.007] Server  LOG      ✓ Compiled in 59ms
+[00:00:29.080] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [0] []
+[00:00:32.861] Server  LOG      ✓ Compiled in 30ms
+[00:01:58.745] Server  LOG      ✓ Compiled in 67ms
+[00:01:58.820] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [] [1]
+[00:02:36.433] Server  LOG      ✓ Compiled in 50ms
+[00:02:42.568] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:42.691] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:02:42.691] Browser WARN    Image with src "http://localhost:3000/kakao_login_medium_narrow.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:02:42.691] Browser WARN    Image with src "http://localhost:3000/investment.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:02:42.691] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:50.773] Server  LOG      ✓ Compiled in 139ms
-[00:06:58.292] Server  LOG      ✓ Compiled in 118ms
-[00:07:02.891] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:07:03.014] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:07:03.014] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:07:03.014] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765244474854}
-[00:07:44.694] Server  LOG      ✓ Compiled in 90ms
-[00:09:37.836] Server  LOG      ✓ Compiled in 102ms
-[00:10:33.281] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:11:23.263] Server  LOG      ✓ Compiled in 62ms
-[00:11:26.036] Server  LOG      ✓ Compiled in 24ms
-[00:12:52.114] Server  LOG      ✓ Compiled in 170ms
-[00:12:58.746] Server  LOG      ✓ Compiled in 48ms
-[00:13:03.366] Server  LOG      ✓ Compiled in 50ms
-[00:13:08.493] Server  LOG      ✓ Compiled in 29ms
-[00:13:10.549] Server  LOG      ✓ Compiled in 40ms
-[00:13:18.309] Server  LOG      ✓ Compiled in 56ms
-[00:13:32.874] Server  LOG      ✓ Compiled in 61ms
-[00:15:15.153] Server  LOG      ✓ Compiled in 48ms
-[00:15:24.435] Server  LOG      ✓ Compiled in 49ms
-[00:15:31.074] Server  LOG      ✓ Compiled in 105ms
-[00:15:55.377] Server  LOG      ✓ Compiled in 46ms
-[00:16:00.507] Server  LOG      ✓ Compiled in 28ms
-[00:16:08.294] Server  LOG      ✓ Compiled in 86ms
-[00:17:10.012] Server  LOG      ✓ Compiled in 57ms
-[00:17:15.091] Server  LOG      ✓ Compiled in 47ms
-[00:18:48.272] Server  LOG      ✓ Compiled in 112ms
+[00:02:42.691] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:02:42.691] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:02:42.691] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765257380788}
+[00:07:26.845] Server  LOG      ✓ Compiled in 104ms
+[00:10:36.635] Server  LOG      ✓ Compiled in 119ms
+[00:10:36.717] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [5] []
+[00:16:50.163] Server  LOG      ✓ Compiled in 375ms
+[00:18:36.746] Server  LOG      ✓ Compiled in 121ms
+[00:18:45.530] Server  LOG      ✓ Compiled in 49ms
+[00:19:02.588] Server  LOG      ✓ Compiled in 256ms
+[00:19:18.282] Server  LOG      ✓ Compiled in 57ms
+[00:19:21.370] Server  LOG      ✓ Compiled in 30ms
+[00:20:10.963] Server  LOG      ✓ Compiled in 106ms
+[00:21:21.065] Server  LOG      ✓ Compiled in 175ms
+[00:21:45.488] Server  LOG      ✓ Compiled in 170ms
+[00:21:50.724] Server  LOG      ✓ Compiled in 114ms
+[00:21:54.909] Server  LOG      ✓ Compiled in 91ms
+[00:21:59.994] Server  LOG      ✓ Compiled in 102ms
+[00:22:02.713] Server  LOG      ✓ Compiled in 91ms
+[00:22:19.640] Server  LOG      ✓ Compiled in 149ms
+[00:22:24.699] Server  LOG      ✓ Compiled in 28ms
+[00:22:46.700] Server  LOG      ✓ Compiled in 52ms
+[00:24:22.390] Server  LOG      ✓ Compiled in 60ms
+[00:24:41.492] Server  LOG      ✓ Compiled in 105ms
+[00:24:49.118] Server  LOG      ✓ Compiled in 102ms
+[00:25:06.726] Server  LOG      ✓ Compiled in 51ms
+[00:25:29.798] Server  LOG      ✓ Compiled in 34ms

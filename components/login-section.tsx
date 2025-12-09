@@ -63,19 +63,21 @@ export default function LoginSection() {
                   />
                 </div>
 
-                <button className="w-80 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
-                  로그인
-                </button>
+                <div className="flex items-center gap-4">
+                  <button className="w-[150px] h-[37px] bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-sm transition items-center justify-center">
+                    로그인
+                  </button>
 
-                <button className="py-3 transition ">
-                  <Image
+                  <button className="py-1 transition">
+                    <Image
                       src="/kakao_login_medium_narrow.png"
                       alt="kakao login"
                       width={150}
                       height={150}
                       className="object-contain"
-                  />
-                </button>
+                    />
+                  </button>
+                </div>
 
                 <div className="flex gap-4 text-sm text-gray-600">
                   <span>회원이 아니신가요?</span>
