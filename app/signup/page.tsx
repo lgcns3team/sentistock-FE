@@ -93,16 +93,16 @@ export default function SignupPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         {!inSignup && (
-          <div className="max-w-xl mx-auto mt-24 text-center">
-            <h1 className="text-4xl font-bold text-primary mb-12">회원가입</h1>
+          <div className="max-w-xl mx-auto mt-18 text-center">
+            <h1 className="text-3xl font-bold text-[#000000] mb-5">회원가입</h1>
 
-            <div className="bg-white rounded-lg border border-border p-8 shadow-sm max-w-md mx-auto">
+            <div className="bg-white rounded-lg p-8 max-w-md mx-auto">
               <div className="space-y-6">
 
                 {/* sentistock signup */}
                 <button
                   onClick={() => router.push("/signup?method=self")}
-                  className="w-full bg-primary hover:bg-[#004280] text-white py-4 px-6 rounded-lg font-semibold text-lg flex items-center justify-center gap-3 transition-colors"
+                  className="w-full bg-primary hover:bg-[#004280] text-white py-2.5 px-6 rounded-lg font-semibold text-lg flex items-center justify-center gap-3 transition-colors"
                 >
                   <Image
                     src="/sentistock-white.png"
@@ -123,7 +123,7 @@ export default function SignupPage() {
                 {/* kakao signup*/}
                 <button
                   onClick={() => router.push("/signup?method=kakao")}
-                  className="relative w-full bg-[#FFE812] hover:bg-[#FFD800] text-black py-4 px-6 rounded-lg font-semibold text-lg transition-colors text-center"
+                  className="relative w-full bg-[#FFE812] hover:bg-[#FFD800] text-black py-2.5 px-6 rounded-lg font-semibold text-lg transition-colors text-center"
                 >
                   <div className="absolute left-6 top-1/2 -translate-y-1/2">
                     <Image
