@@ -29,10 +29,10 @@ export default function LoginSection() {
             <a href="#" className="hover:text-blue-600 transition">
               공지사항
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/customer-center" className="hover:text-blue-600 transition">
               고객센터
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/faq" className="hover:text-blue-600 transition">
               자주 묻는 질문
             </a>
           </nav>
