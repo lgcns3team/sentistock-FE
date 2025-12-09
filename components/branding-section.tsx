@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function BrandingSection() {
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-white to-blue-300 px-30 py-20 flex flex-col">
+    <div className="w-full h-screen bg-gradient-to-b from-white to-sky-100 px-30 py-20 flex flex-col">
       <div className="max-w-6xl w-full">
         <h2 className="text-[70px] font-extrabold text-gray-900 mb-5 text-right">
           종목을 입체적으로 해석
