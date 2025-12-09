@@ -9,7 +9,7 @@ export default function LoginSection() {
           backgroundImage: "url(/main-background.png)",
         }}
       />
-      
+
       <div className="relative z-10 w-full h-full flex flex-col">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-12 py-4 flex justify-between items-center">
@@ -63,14 +63,15 @@ export default function LoginSection() {
                   />
                 </div>
 
+                <button className="w-80 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition mt-5">
+                  로그인
+                </button>
+
                 <div className="flex gap-4 text-sm text-gray-600 pt-4">
                   <span>회원이 아니신가요?</span>
                   <button className="text-blue-600 font-medium hover:underline transition">회원가입</button>
                 </div>
 
-                <button className="w-80 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition mt-5">
-                  로그인
-                </button>
               </div>
             </div>
           </div>
