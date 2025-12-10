@@ -35,7 +35,7 @@ export default function Header() {
           <Link href="#" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
             회사소개
           </Link>
-          <Link href="#" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
+          <Link href="/notice" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
             공지사항
           </Link>
           <Link href="/customer-center" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
