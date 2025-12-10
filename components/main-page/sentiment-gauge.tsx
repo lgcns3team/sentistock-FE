@@ -29,11 +29,11 @@ export default function SentimentGauge({
   }
 
   const getDescription = (score: number): string => {
-    if (score >= 80) return "강한 매수 심리"
-    if (score >= 70) return "긍정 강한 매수 심리"
-    if (score >= 60) return "약세 관망 심리"
-    if (score >= 50) return "혼조 심리"
-    return "약세 심리"
+    if (score >= 80) return "매우 긍정 - 강한 매수 심리"
+    if (score >= 70) return "긍정 - 강한 매수 심리"
+    if (score >= 60) return "약한 긍정 - 약세 관망 심리"
+    if (score >= 50) return "중립 - 혼조 심리"
+    return "부정 -약세 심리"
   }
 
   const displayData = selectedStock
@@ -54,7 +54,7 @@ export default function SentimentGauge({
 
   return (
     <div className="flex-1 bg-white dark:bg-gray-950 px-6 py-4 flex flex-col items-center justify-start">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 mt-2">
         감정분석 게이지
       </h2>
 
@@ -94,20 +94,6 @@ export default function SentimentGauge({
             strokeDasharray={`${percentage * 282} 282`}
             style={{ transition: "stroke-dasharray 0.6s ease-in-out" }}
           />
-
-          {/* Needle */}
-          {/* <g transform={`translate(100 110) rotate(${needleAngle})`}>
-            <line
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="-70"
-              stroke="#1f2937"
-              strokeWidth="4"
-              strokeLinecap="round"
-            />
-            <circle cx="0" cy="0" r="6" fill="#1f2937" />
-          </g> */}
         </svg>
 
         {/* Center Content: 큰 점수 + 작은 전체 */}
@@ -122,7 +108,7 @@ export default function SentimentGauge({
       </div>
 
       <div className="text-center w-full">
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-5">
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-10">
           {displayData.name}
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">

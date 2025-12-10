@@ -78,6 +78,10 @@ export default function RealtimeChart({ category, sortOrder, onSortChange }: Rea
           </Button>
         </div>
       </div>
+      
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-xs font-right text-gray-500 dark:text-gray-100">종목을 클릭하면 해당 종목의 상세페이지로 이동합니다.</h4>
+      </div>
 
       <div className="space-y-3">
         {sortedData.map((stock, idx) => (
