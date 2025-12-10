@@ -1,7 +1,7 @@
 "use client"
 
 import  Header from "@/components/header"
-import { FAQItem } from "@/components/faq-item"
+import { FAQItem } from "@/components/faq/faq-item"
 import { Search } from "lucide-react"
 import { useState, useMemo } from "react"
 
