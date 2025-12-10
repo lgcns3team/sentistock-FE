@@ -22,7 +22,6 @@ export function NotificationModal({
 }: NotificationModalProps) {
   const [activeTab, setActiveTab] = useState<"전체" | "매수" | "매도">("전체")
 
-
   const initialNotifications: Notification[] = [
     {
       type: "알림1",
@@ -38,12 +37,10 @@ export function NotificationModal({
     },
   ]
 
-
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications)
 
   if (!open) return null
-
 
   const handleClickNotification = (index: number) => {
     setNotifications((prev) =>
@@ -51,7 +48,9 @@ export function NotificationModal({
     )
   }
 
-
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isNew: false })))
+    onMarkAllRead() 
   }
 
   return (
@@ -131,4 +130,4 @@ export function NotificationModal({
       </div>
     </>
   )
-
+}
