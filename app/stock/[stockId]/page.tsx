@@ -16,7 +16,9 @@ type StockDetailPageProps = {
 }
 
 export default async function StockDetailPage({ params }: StockDetailPageProps) {
+  
   const { stockId } = await params
+  
 
   const stock = stocksData[stockId]
 

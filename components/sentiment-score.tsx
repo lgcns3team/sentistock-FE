@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { HelpCircle, X } from "lucide-react"
 
 interface SentimentData {
@@ -16,6 +16,16 @@ interface SentimentScoreProps {
 
 export default function SentimentScore({ sentiment }: SentimentScoreProps) {
   const [showHelp, setShowHelp] = useState(false)
+
+  useEffect(() => {
+    if (showHelp) {
+      const original = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      return () => {
+        document.body.style.overflow = original
+      }
+    }
+  }, [showHelp])
 
   return (
     <>
@@ -58,7 +68,7 @@ export default function SentimentScore({ sentiment }: SentimentScoreProps) {
       {/* Help Modal */}
       {showHelp && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-md p-4 sm:p-6 relative">
+          <div className="bg-white rounded-lg w-full max-w-[470px] p-4 sm:p-6 relative">
             <button
               onClick={() => setShowHelp(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -68,8 +78,8 @@ export default function SentimentScore({ sentiment }: SentimentScoreProps) {
 
             <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">도움말</h2>
             <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-              해당 감정 점수는 KR-FinBERT 금융 감성 분석 모델을 기반으로 뉴스 본문을 분석해 산출되었습니다. 모델의 긍정,
-              부정, 중립 값(-1 부터 +1 까지)을 백분율로 환산하였습니다.
+              해당 감정 점수는 KR-FinBERT 금융 감정 분석 모델을 기반으로 뉴스 본문을 분석해 산출되었습니다.<br/> 
+              모델의 긍정, 부정, 중립 값(-1 부터 +1 까지)을 백분율로 환산하였습니다.
             </p>
 
             <button
