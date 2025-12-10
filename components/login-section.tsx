@@ -27,7 +27,7 @@ export default function LoginSection() {
             <a href="#" className="hover:text-blue-600 transition">
               회사소개
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/notice" className="hover:text-blue-600 transition">
               공지사항
             </a>
             <a href="/customer-center" className="hover:text-blue-600 transition">

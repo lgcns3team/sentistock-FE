@@ -52,7 +52,7 @@ export default async function NoticeDetailPage({ params }: NoticeDetailProps) {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="container mx-auto px-4 py-16 md:py-10 max-w-3xl">
-        <div className="text-center mb-12 md:mb-5">
+        <div className="text-center mb-12 md:mb-10">
           <h1 className="text-3xl md:text-3xl font-bold text-[rgb(6,31,91)]">공지사항</h1>
         </div>
 
