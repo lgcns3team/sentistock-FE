@@ -18,9 +18,9 @@ export default function InvestmentStyleSection() {
 
       <div className="mt-auto w-full flex  md:justify-end">
         <Image
-          src="/investment.png" 
+          src="/personal_type.png" 
           alt="투자 스타일 설명 이미지"
-          width={700}
+          width={600}
           height={300}
           className="object-contain"
         />
