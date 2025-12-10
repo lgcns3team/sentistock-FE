@@ -145,3 +145,6 @@
 .delay-200 {
   animation-delay: 0.2s;
 }
+html {
+  scrollbar-gutter: stable;
+}
