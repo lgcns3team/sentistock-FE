@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginSection() {
   return (
@@ -26,13 +27,13 @@ export default function LoginSection() {
             <a href="#" className="hover:text-blue-600 transition">
               회사소개
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/notice" className="hover:text-blue-600 transition">
               공지사항
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/customer-center" className="hover:text-blue-600 transition">
               고객센터
             </a>
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/faq" className="hover:text-blue-600 transition">
               자주 묻는 질문
             </a>
           </nav>
@@ -81,7 +82,7 @@ export default function LoginSection() {
 
                 <div className="flex gap-4 text-sm text-gray-600">
                   <span>회원이 아니신가요?</span>
-                  <button className="text-blue-600 font-medium hover:underline transition">회원가입</button>
+                  <Link href="/signup" className="text-blue-600 font-medium hover:underline transition">회원가입</Link>
                 </div>
 
               </div>

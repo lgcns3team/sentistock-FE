@@ -22,7 +22,7 @@ export function NotificationModal({
 }: NotificationModalProps) {
   const [activeTab, setActiveTab] = useState<"전체" | "매수" | "매도">("전체")
 
-  // 🔹 최초 알림 목록
+
   const initialNotifications: Notification[] = [
     {
       type: "알림1",
@@ -38,23 +38,20 @@ export function NotificationModal({
     },
   ]
 
-  // 🔹 상태로 관리
+
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications)
 
   if (!open) return null
 
-  //  개별 알림 클릭 시 읽음 처리
+
   const handleClickNotification = (index: number) => {
     setNotifications((prev) =>
       prev.map((n, i) => (i === index ? { ...n, isNew: false } : n)),
     )
   }
 
-  //  상단 "모두 읽음 처리" 버튼 클릭 시 전체 읽음 처리
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isNew: false })))
-    onMarkAllRead() // 부모 쪽에서도 뭔가 갱신하고 싶을 수 있으니 그대로 호출
+
   }
 
   return (
@@ -134,4 +131,4 @@ export function NotificationModal({
       </div>
     </>
   )
-}
+
