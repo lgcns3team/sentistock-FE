@@ -12,10 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export default function Header() {
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [hasUnread, setHasUnread] = useState(true)
-
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -35,7 +31,7 @@ export default function Header() {
           <Link href="#" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
             회사소개
           </Link>
-          <Link href="/notice" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
+
             공지사항
           </Link>
           <Link href="/customer-center" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
@@ -71,9 +67,6 @@ export default function Header() {
               </button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="px-3 py-2 text-sm font-medium text-gray-900 border-b">OOO 님</div>
-
               <DropdownMenuItem asChild>
                 <Link href="/my-page" className="cursor-pointer">
                   마이페이지
@@ -102,4 +95,4 @@ export default function Header() {
       />
     </header>
   )
-}
+
