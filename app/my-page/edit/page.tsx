@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"              // 계정 보안 탭으로 이동
 import { Sidebar } from "@/components/sidebar"
 import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
@@ -15,7 +16,6 @@ interface User {
 }
 
 export default function EditProfilePage() {
-  // 실제로는 여기서 /api/me 같은 곳에서 유저 정보 가져오면 됨
   const [user, setUser] = useState<User | null>(null)
 
   const [formData, setFormData] = useState({
@@ -27,17 +27,14 @@ export default function EditProfilePage() {
   })
 
   useEffect(() => {
-    // 👉 TODO: 나중에 실제 API 호출로 교체
-    // provider를 "KAKAO" 로 바꾸면 카카오 로그인 화면 모양 확인 가능
     setUser({
       name: "admin",
       nickname: "관리자",
       email: "admin@gmail.com",
-      provider: "KAKAO", // or "KAKAO"
+      provider: "KAKAO", // LOCAL or KAKAO 
     })
   }, [])
 
-  // user 정보 들어오면 form에 초기값 세팅
   useEffect(() => {
     if (!user) return
     setFormData(prev => ({
@@ -71,20 +68,15 @@ export default function EditProfilePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 간단 예시: 비밀번호 검증
     if (!isKakao && formData.password !== formData.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.")
       return
     }
 
-    // 👉 TODO: 여기에 실제 업데이트 API 호출
-    // fetch("/api/me", { method: "PUT", body: JSON.stringify(formData) ... })
-
     alert("회원정보가 수정되었습니다. (실제에선 API 호출)")
   }
 
   const handleCancel = () => {
-    // 취소 시, user 기준으로 다시 초기화
     setFormData({
       name: user.name ?? "",
       nickname: user.nickname ?? "",
@@ -96,21 +88,18 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <Header />
 
-      {/* Main Content */}
       <div className="flex">
         <Sidebar />
 
-        {/* Content Area */}
         <div className="flex-1 p-8">
-          <h2 className="text-xl font-semibold mb-2">회원정보 수정</h2>
+          <h2 className="text-xl font-semibold mb-8">회원정보 수정</h2>
 
           {isKakao && (
             <p className="mb-6 text-sm text-gray-500">
               이 계정은 <span className="font-semibold">카카오 로그인</span>으로 사용 중이에요. <br />
-              이메일 등 기본 계정 정보는 카카오에서만 변경할 수 있어요.
+              기본 계정 정보는 카카오에서만 변경할 수 있어요.
             </p>
           )}
 
@@ -136,38 +125,47 @@ export default function EditProfilePage() {
                 className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            
+{/* 이메일 (모든 로그인 타입에서 수정 불가) */}
+<div className="flex items-center gap-4">
+  <label className="w-24 text-sm text-gray-700">이메일</label>
+  <input
+    type="email"
+    value={formData.email}
+    readOnly
+    disabled
+    className="flex-1 px-4 py-2 border border-gray-300 rounded bg-gray-100 text-gray-500 cursor-not-allowed"
+  />
+</div>
 
-            {/* 이메일 (카카오는 수정 불가) */}
-            <div className="flex items-center gap-4">
-              <label className="w-24 text-sm text-gray-700">이메일</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={handleChange("email")}
-                disabled={isKakao}
-                className={`flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  isKakao ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""
-                }`}
-              />
-            </div>
 
-      
+            {/* 버튼 영역 */}
+            <div className="flex flex-col items-end gap-2 pt-4">
+              {/* 윗줄: 취소 / 수정 버튼 */}
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="px-12 py-2 bg-transparent"
+                  onClick={handleCancel}
+                >
+                  취소
+                </Button>
+                <Button
+                  type="submit"
+                  className="px-12 py-2 bg-gray-800 hover:bg-gray-700 text-white"
+                >
+                  수정
+                </Button>
+              </div>
 
-            <div className="flex justify-end gap-4 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="px-12 py-2 bg-transparent"
-                onClick={handleCancel}
+              {/* 아랫줄: 작은 비밀번호 변경 링크 */}
+              <Link
+                href="/my-page/security"
+                className="mt-7 text-xs text-gray-500 hover:text-blue-600"
               >
-                취소
-              </Button>
-              <Button
-                type="submit"
-                className="px-12 py-2 bg-gray-800 hover:bg-gray-700 text-white"
-              >
-                수정
-              </Button>
+                비밀번호 변경이 필요하신가요? 여기에서 진행할 수 있어요.
+              </Link>
             </div>
           </form>
         </div>
