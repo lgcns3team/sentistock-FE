@@ -37,7 +37,7 @@ export default function NoticePage() {
       id: 5,
       category: "공지",
       title: "모바일 환경 UI/UX 개선 적용 안내",
-      date: "2025.12.01",
+      date: "2025.12.01.",
     },
     {
       id: 6,
