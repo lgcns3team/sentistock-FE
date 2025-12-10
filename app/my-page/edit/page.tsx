@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"              // 계정 보안 탭으로 이동
+import Link from "next/link" // 계정 보안 탭으로 이동
 import { Sidebar } from "@/components/sidebar"
 import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
@@ -31,7 +31,7 @@ export default function EditProfilePage() {
       name: "admin",
       nickname: "관리자",
       email: "admin@gmail.com",
-      provider: "KAKAO", // LOCAL or KAKAO 
+      provider: "KAKAO", // LOCAL or KAKAO
     })
   }, [])
 
@@ -125,19 +125,18 @@ export default function EditProfilePage() {
                 className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
-{/* 이메일 (모든 로그인 타입에서 수정 불가) */}
-<div className="flex items-center gap-4">
-  <label className="w-24 text-sm text-gray-700">이메일</label>
-  <input
-    type="email"
-    value={formData.email}
-    readOnly
-    disabled
-    className="flex-1 px-4 py-2 border border-gray-300 rounded bg-gray-100 text-gray-500 cursor-not-allowed"
-  />
-</div>
 
+            {/* 이메일 (모든 로그인 타입에서 수정 불가) */}
+            <div className="flex items-center gap-4">
+              <label className="w-24 text-sm text-gray-700">이메일</label>
+              <input
+                type="email"
+                value={formData.email}
+                readOnly
+                disabled
+                className="flex-1 px-4 py-2 border border-gray-300 rounded bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+            </div>
 
             {/* 버튼 영역 */}
             <div className="flex flex-col items-end gap-2 pt-4">
@@ -159,13 +158,16 @@ export default function EditProfilePage() {
                 </Button>
               </div>
 
-              {/* 아랫줄: 작은 비밀번호 변경 링크 */}
-              <Link
-                href="/my-page/security"
-                className="mt-7 text-xs text-gray-500 hover:text-blue-600"
-              >
-                비밀번호 변경이 필요하신가요? 여기에서 진행할 수 있어요.
-              </Link>
+              {/* 아랫줄: 비밀번호 변경 안내 + 링크 */}
+              <p className="mt-7 text-xs text-gray-500">
+                비밀번호 변경이 필요하신가요?{" "}
+                <Link
+                  href="/my-page/security"
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  비밀번호 변경
+                </Link>
+              </p>
             </div>
           </form>
         </div>
