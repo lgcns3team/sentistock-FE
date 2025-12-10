@@ -78,7 +78,7 @@ export default function SentimentScore({ sentiment }: SentimentScoreProps) {
 
             <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">도움말</h2>
             <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-              해당 감정 점수는 KR-FinBERT 금융 감정 분석 모델을 기반으로 뉴스 본문을 분석해 산출되었습니다.<br/> 
+              해당 감정 점수는 KR-FinBERT 금융 감정 분석 모델을 기반으로 뉴스 <br/>본문을 분석해 산출되었습니다.<br/> 
               모델의 긍정, 부정, 중립 값(-1 부터 +1 까지)을 백분율로 환산하였습니다.
             </p>
 
