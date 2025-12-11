@@ -15,32 +15,47 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-background">
       <Header />
-      <div className="mb-2">
-        <img src="../slogan_light.png" alt="slogan"/>
+
+      {/* 슬로건 */}
+      <div className="flex justify-center items-center mb-2">
+        <img src="../slogan_light.png" alt="slogan" />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+        
         {/* Sidebar */}
-        <Sidebar selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+        <Sidebar
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
 
         {/* Divider */}
-        <div className="w-px h-full bg-gray-200 dark:bg-gray-800" />
+        <div className="hidden lg:block w-px bg-gray-200 dark:bg-gray-800" />
 
         {/* Realtime Chart */}
-        <RealtimeChart category={selectedCategory} sortOrder={sortOrder} onSortChange={setSortOrder} />
+        <RealtimeChart
+          category={selectedCategory}
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
+        />
 
-        {/* Divider */}
-        <div className="w-px bg-gray-200 dark:bg-gray-800" />
+        <div className="hidden lg:block w-px bg-gray-200 dark:bg-gray-800" />
 
-        {/* Market Heatmap */}
-        <MarketHeatmap category={selectedCategory} onSelectStock={setSelectedStock} />
+        {/* Heatmap */}
+        <MarketHeatmap
+          category={selectedCategory}
+          onSelectStock={setSelectedStock}
+        />
 
-        {/* Divider */}
-        <div className="w-px bg-gray-200 dark:bg-gray-800" />
+        <div className="hidden lg:block w-px bg-gray-200 dark:bg-gray-800" />
 
         {/* Sentiment Gauge */}
-        <SentimentGauge category={selectedCategory} selectedStock={selectedStock} />
+        <SentimentGauge
+          category={selectedCategory}
+          selectedStock={selectedStock}
+        />
       </div>
     </main>
   )
 }
+

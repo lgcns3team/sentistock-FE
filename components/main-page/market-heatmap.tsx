@@ -114,13 +114,13 @@ export default function MarketHeatmap({ category, onSelectStock }: MarketHeatmap
   }
 
   return (
-    <div className="flex-1 bg-white dark:bg-gray-950 p-6 flex flex-col">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">시장 변동 히트맵</h2>
+    <div className="flex-1 bg-white dark:bg-gray-950 p-6 flex flex-col items-center">
+      <h2 className="self-start text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">시장 변동 히트맵</h2>
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="self-start flex items-center justify-between mb-4">
         <h4 className="text-xs font-right text-gray-500 dark:text-gray-100">종목을 클릭하면 해당 종목의 감정 분석 게이지를 확인할 수 있습니다.</h4>
       </div>
-      <div className="grid grid-cols-4 gap-1 ml-5 w-[310px] h-[310px] overflow-y-auto">
+      <div className="grid grid-cols-4 gap-1 w-[310px] h-[310px] overflow-y-auto">
         {data.map((item, idx) => (
           <div
             key={idx}
