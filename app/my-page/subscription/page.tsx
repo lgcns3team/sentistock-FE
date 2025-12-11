@@ -37,7 +37,7 @@ export default function SubscriptionManagementPage() {
           </p>
 
           {isSubscribed ? (
-            // ✅ 구독 중인 사용자 화면
+            //  구독 중인 사용자 화면
             <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
               {/* 왼쪽: 구독 상태 카드 */}
               <section className="rounded-xl border bg-white p-6 shadow-sm">
