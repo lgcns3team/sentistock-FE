@@ -28,15 +28,22 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
 
     if (!formData.nickname.trim()) {
       newErrors.nickname = "닉네임을 입력해주세요"
+    } else if (formData.nickname.length < 2 || formData.nickname.length > 10) {
+      newErrors.nickname = "닉네임은 2자 이상 10자 이하이어야 합니다"
     }
+
     if (!formData.userId.trim()) {
       newErrors.userId = "아이디를 입력해주세요"
+    } else if(!/^(?=.*[a-zA-Z])(?=.*[0-9]).{6,12}$/.test(formData.userId)) {
+      newErrors.userId = "아이디는 영문, 숫자 포함 6자 이상 12자 이하이어야 합니다"
     }
+
     if (!formData.password) {
       newErrors.password = "비밀번호를 입력해주세요"
-    } else if (formData.password.length < 8) {
-      newErrors.password = "비밀번호는 8자 이상이어야 합니다"
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,12}$/.test(formData.password)) {
+      newErrors.password = "비밀번호는 영문, 숫자, 특수문자 포함 8자 이상 12자 이하이어야 합니다"
     }
+
     if (formData.password !== formData.passwordConfirm) {
       newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다"
     }
@@ -53,7 +60,6 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    // 입력 시 에러 제거
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
