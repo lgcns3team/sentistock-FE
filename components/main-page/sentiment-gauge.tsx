@@ -11,50 +11,71 @@ export default function SentimentGauge({
 }: SentimentGaugeProps) {
   const sentimentData: Record<
     string,
-    { score: number; name: string; description: string }
+    { score: number; name: string }
   > = {
-    반도체: { score: 72, name: "삼성전자", description: "긍정 강한 매수 심리" },
-    모빌리티: { score: 65, name: "현대자동차", description: "약세 관망 심리" },
-    "2차전지": {
-      score: 85,
-      name: "SK이노베이션",
-      description: "강한 매수 심리",
-    },
-    재생에너지: { score: 58, name: "한화Q셀", description: "혼조 심리" },
-    원자력에너지: {
-      score: 75,
-      name: "한국수력원자력",
-      description: "긍정 강한 매수 심리",
-    },
+    반도체: { score: 72, name: "삼성전자" },
+    모빌리티: { score: 65, name: "현대자동차" },
+    "2차전지": { score: 85, name: "SK이노베이션" },
+    재생에너지: { score: 58, name: "한화Q셀" },
+    원자력에너지: { score: 75, name: "한국수력원자력" },
   }
 
-  const getDescription = (score: number): string => {
-    if (score >= 80) return "매우 긍정 - 강한 매수 심리"
-    if (score >= 70) return "긍정 - 강한 매수 심리"
-    if (score >= 60) return "약한 긍정 - 약세 관망 심리"
-    if (score >= 50) return "중립 - 혼조 심리"
-    return "부정 -약세 심리"
-  }
+  const sentimentLevels = [
+    {
+      min: 80,
+      label: "과열 / FOMO 경고",
+      color: "text-green-600",
+      sub: "과열 가능성이 있습니다.",
+    },
+    {
+      min: 60,
+      label: "긍정 우세",
+      color: "text-green-500",
+      sub: "긍정 뉴스·댓글이 우세합니다.",
+    },
+    {
+      min: 40,
+      label: "중립",
+      color: "text-gray-500",
+      sub: "감정 편향이 없습니다.",
+    },
+    {
+      min: 20,
+      label: "부정 우세",
+      color: "text-red-400",
+      sub: "부정 감정이 감지됩니다.",
+    },
+    {
+      min: 0,
+      label: "위험 경고",
+      color: "text-red-600",
+      sub: "감정 리스크 매우 높으므로 주의가 필요합니다.",
+    },
+  ]
 
+  const getSentimentInfo = (score: number) =>
+    sentimentLevels.find(level => score >= level.min)!
+
+  // 현재 선택된 종목 또는 카테고리 default
   const displayData = selectedStock
     ? {
         score: selectedStock.score,
         name: selectedStock.name,
-        description: getDescription(selectedStock.score),
       }
     : sentimentData[category] || {
         score: 50,
         name: "미정",
-        description: "분석 대기 중",
       }
 
-  const total = 100 // or 999, 또는 props로 전달 가능
+  // 레벨 정보 가져오기
+  const info = getSentimentInfo(displayData.score)
+
+  const total = 100
   const percentage = displayData.score / total
-  const needleAngle = percentage * 180 - 90
 
   return (
     <div className="flex-1 bg-white dark:bg-gray-950 px-6 py-4 flex flex-col items-center justify-start">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 mt-2">
+      <h2 className="self-start text-lg font-semibold text-gray-900 dark:text-gray-100 mb-8 mt-2">
         감정분석 게이지
       </h2>
 
@@ -96,7 +117,7 @@ export default function SentimentGauge({
           />
         </svg>
 
-        {/* Center Content: 큰 점수 + 작은 전체 */}
+        {/* Center Content */}
         <div className="absolute left-0 right-0 top-20 flex flex-col items-center justify-center pointer-events-none">
           <p className="text-7xl font-bold text-gray-900 dark:text-gray-100 leading-none">
             {displayData.score}
@@ -107,12 +128,25 @@ export default function SentimentGauge({
         </div>
       </div>
 
+      {/* Info Section */}
       <div className="text-center w-full">
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-10">
-          {displayData.name}
+        <div className="mt-5">
+          <div className="inline-block px-5 py-2 bg-[#EBF2FF] dark:bg-gray-800 rounded-sm border border-gray-300 dark:border-gray-700">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-100">
+              {displayData.name}
+            </p>
+          </div>
+        </div>
+
+
+        {/* 메인 레이블 */}
+        <p className={`text-sm font-semibold mt-4 ${info.color}`}>
+          {info.label}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          {displayData.description}
+
+        {/* 보조 문구 */}
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {info.sub}
         </p>
       </div>
     </div>

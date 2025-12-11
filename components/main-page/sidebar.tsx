@@ -52,8 +52,8 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
       </div>
 
       {/* SentiStock Logo */}
-      <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800">
-        <p className="text-gray-300 dark:text-gray-600 text-sm font-semibold">SentiStock</p>
+      <div className="mt-auto pt-4">
+        <p className="text-gray-300 dark:text-gray-600 text-sm font-semibold text-center">SentiStock</p>
       </div>
     </div>
   )

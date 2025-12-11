@@ -120,11 +120,11 @@ export default function MarketHeatmap({ category, onSelectStock }: MarketHeatmap
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-xs font-right text-gray-500 dark:text-gray-100">종목을 클릭하면 해당 종목의 감정 분석 게이지를 확인할 수 있습니다.</h4>
       </div>
-      <div className="grid grid-cols-4 gap-2 flex-1">
+      <div className="grid grid-cols-4 gap-1 ml-5 w-[310px] h-[310px] overflow-y-auto">
         {data.map((item, idx) => (
           <div
             key={idx}
-            className={`${getColor(item.change)} rounded-[20px] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity`}
+            className={`${getColor(item.change)} aspect-square rounded-[5px] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity`}
             title={`${item.name}: ${item.change > 0 ? "+" : ""}${item.change.toFixed(2)}%`}
             onClick={() => onSelectStock({ name: item.name, score: item.score })}
           >
