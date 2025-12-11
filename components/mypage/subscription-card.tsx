@@ -5,6 +5,27 @@ import { useState } from "react"
 type Step = 1 | 2 | 3 | null
 type PaymentMethod = "CARD" | "KAKAOPAY" | "NAVERPAY"
 
+// 🔍 유효성 검사 함수들
+const isValidCardNumber = (value: string) => {
+  const onlyDigits = value.replace(/\s/g, "")
+  return /^\d{16}$/.test(onlyDigits)
+}
+
+const isValidExpiry = (value: string) => {
+  // MM/YY, 월은 01~12
+  return /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
+}
+
+const isValidBirth = (value: string) => {
+  // YYMMDD 6자리 숫자
+  return /^\d{6}$/.test(value)
+}
+
+const isValidPassword = (value: string) => {
+  // 앞 2자리 숫자
+  return /^\d{2}$/.test(value)
+}
+
 export default function SubscriptionCard() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>(null)
@@ -43,15 +64,38 @@ export default function SubscriptionCard() {
     setStep(2)
   }
 
-  // STEP2 → STEP3
+  // STEP2 → STEP3 (유효성 포함)
   const handleNextFromStep2 = () => {
     if (paymentMethod === "CARD") {
+      // 1) 비어 있는지 체크
       if (!cardNumber || !cardExpiry || !cardBirth || !cardPassword) {
         alert("카드 정보를 모두 입력해주세요.")
         return
       }
+
+      // 2) 형식 체크
+      if (!isValidCardNumber(cardNumber)) {
+        alert("카드 번호를 16자리 숫자로 입력해주세요. (예: 1234 5678 9012 3456)")
+        return
+      }
+
+      if (!isValidExpiry(cardExpiry)) {
+        alert("유효기간은 MM/YY 형식으로 입력해주세요. (예: 09/27)")
+        return
+      }
+
+      if (!isValidBirth(cardBirth)) {
+        alert("생년월일 6자리를 숫자로 입력해주세요. (예: 990101)")
+        return
+      }
+
+      if (!isValidPassword(cardPassword)) {
+        alert("카드 비밀번호 앞 2자리를 숫자로 입력해주세요.")
+        return
+      }
     }
-    // 간편결제는 아직 더미라서 바로 넘어가도 됨
+
+    // 간편결제(Kakao/Naver)는 지금은 형식 체크 없이 바로 다음
     setStep(3)
   }
 
@@ -66,16 +110,16 @@ export default function SubscriptionCard() {
   return (
     <>
       {/* 오른쪽에 보이는 구독 카드 */}
-      <div className="border rounded-xl p-5 shadow-sm bg-white">
-        <h3 className="text-lg font-semibold mb-1">SentiStock 프리미엄</h3>
-        <p className="text-xs text-blue-600 font-medium mb-4">
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="mb-1 text-lg font-semibold">SentiStock 프리미엄</h3>
+        <p className="mb-4 text-xs font-medium text-blue-600">
           감정 기반 투자 인사이트를 풀로 활용해보세요.
         </p>
 
         <div className="mb-4">
           <div className="flex items-end gap-2">
             <span className="text-2xl font-bold">월 1,900원</span>
-            <span className="text-xs text-gray-500 mb-1">첫 달 100원 체험</span>
+            <span className="mb-1 text-xs text-gray-500">첫 달 100원 체험</span>
           </div>
           <div className="mt-2 inline-flex items-center rounded-full bg-blue-50 px-3 py-1">
             <span className="text-xs font-semibold text-blue-600">
@@ -87,7 +131,7 @@ export default function SubscriptionCard() {
         <div className="mb-4 space-y-2">
           <p className="text-xs font-semibold text-gray-500">구독 시 제공 기능</p>
           <ul className="space-y-1 text-sm text-gray-700">
-            <li>• 감정 추세 히스토리 전체 열람 </li>
+            <li>• 감정 추세 히스토리 전체 열람</li>
             <li>• 즐겨찾기 종목 수 무제한</li>
             <li>• 즐겨찾기 종목 매수 알림 기능</li>
           </ul>
@@ -100,14 +144,16 @@ export default function SubscriptionCard() {
         </div>
 
         <button
-          className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
           onClick={handleOpen}
         >
           첫 달 100원으로 시작하기
         </button>
 
         <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
-          첫 달 이후 해지하지 않으면 매월 1,900원이 자동 결제돼요.
+          첫 달 이후 해지하지 않으면 매월 1,900원이
+          <br />
+          자동 결제돼요.
           <br />
           결제 예정일 1주 전에 알림을 보내드릴 예정입니다.
         </p>
@@ -124,7 +170,7 @@ export default function SubscriptionCard() {
 
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-              {/* STEP 표시 (작게) */}
+              {/* STEP 표시 */}
               <div className="mb-3 flex items-center justify-between text-xs text-gray-400">
                 <span>
                   {step === 1 && "1/3 요금제 및 약관"}
@@ -136,7 +182,7 @@ export default function SubscriptionCard() {
               {/* STEP 1 – 요금제 & 약관 */}
               {step === 1 && (
                 <>
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="mb-4 flex items-start justify-between">
                     <div>
                       <h2 className="text-lg font-semibold">프리미엄 구독 시작</h2>
                       <p className="mt-1 text-sm text-gray-500">
@@ -144,14 +190,14 @@ export default function SubscriptionCard() {
                       </p>
                     </div>
                     <button
-                      className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
                       onClick={handleClose}
                     >
                       ×
                     </button>
                   </div>
 
-                  <div className="mb-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-800 space-y-1">
+                  <div className="mb-4 space-y-1 rounded-lg bg-gray-50 p-4 text-sm text-gray-800">
                     <p>
                       <span className="font-semibold">요금제:</span> 월 1,900원{" "}
                       <span className="text-gray-500">(첫 달 100원)</span>
@@ -170,26 +216,24 @@ export default function SubscriptionCard() {
                         type="checkbox"
                         className="mt-0.5"
                         checked={agree}
-                        onChange={(e) => setAgree(e.target.checked)}
+                        onChange={e => setAgree(e.target.checked)}
                       />
                       <span>
-                        자동 결제 및 이용 약관에 동의합니다.{" "}
-                        <span className="text-gray-400">
-                          (추후 약관 페이지로 연결 예정)
-                        </span>
+                        자동 결제 및 이용 약관에 동의합니다.
+                        {/* 필요하면 여기에 약관 링크 추가 */}
                       </span>
                     </label>
                   </div>
 
                   <div className="flex gap-2">
                     <button
-                      className="flex-1 py-2.5 rounded-lg border text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={handleClose}
                     >
                       취소
                     </button>
                     <button
-                      className="flex-1 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
                       onClick={handleNextFromStep1}
                     >
                       다음
@@ -201,7 +245,7 @@ export default function SubscriptionCard() {
               {/* STEP 2 – 결제 수단 입력 */}
               {step === 2 && (
                 <>
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="mb-4 flex items-start justify-between">
                     <div>
                       <h2 className="text-lg font-semibold">결제 수단 입력</h2>
                       <p className="mt-1 text-sm text-gray-500">
@@ -209,7 +253,7 @@ export default function SubscriptionCard() {
                       </p>
                     </div>
                     <button
-                      className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
                       onClick={handleClose}
                     >
                       ×
@@ -258,7 +302,7 @@ export default function SubscriptionCard() {
 
                   {/* 카드 정보 폼 (CARD 선택 시만) */}
                   {paymentMethod === "CARD" && (
-                    <div className="space-y-3 mb-4 text-sm">
+                    <div className="mb-4 space-y-3 text-sm">
                       <div>
                         <label className="mb-1 block text-xs text-gray-500">
                           카드 번호
@@ -266,8 +310,9 @@ export default function SubscriptionCard() {
                         <input
                           type="text"
                           value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
+                          onChange={e => setCardNumber(e.target.value)}
                           placeholder="1234 5678 9012 3456"
+                          maxLength={19}
                           className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                         />
                       </div>
@@ -280,8 +325,9 @@ export default function SubscriptionCard() {
                           <input
                             type="text"
                             value={cardExpiry}
-                            onChange={(e) => setCardExpiry(e.target.value)}
+                            onChange={e => setCardExpiry(e.target.value)}
                             placeholder="09/27"
+                            maxLength={5}
                             className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                           />
                         </div>
@@ -292,8 +338,9 @@ export default function SubscriptionCard() {
                           <input
                             type="text"
                             value={cardBirth}
-                            onChange={(e) => setCardBirth(e.target.value)}
+                            onChange={e => setCardBirth(e.target.value)}
                             placeholder="990101"
+                            maxLength={6}
                             className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                           />
                         </div>
@@ -306,31 +353,31 @@ export default function SubscriptionCard() {
                         <input
                           type="password"
                           value={cardPassword}
-                          onChange={(e) => setCardPassword(e.target.value)}
+                          onChange={e => setCardPassword(e.target.value)}
                           placeholder="**"
+                          maxLength={2}
                           className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
                         />
                       </div>
                     </div>
                   )}
 
-                  {/* 간편결제 선택 시 안내 */}
+                  {/* 간편결제 안내 (원하면 내용 추가) */}
                   {paymentMethod !== "CARD" && (
                     <p className="mb-4 text-xs text-gray-500">
-                      실제 간편결제 연동은 추후 PG사 연동 시 구현될 예정입니다. 현재는 UI
-                      데모 단계예요.
+                      현재는 테스트용 화면으로, 실제 간편결제 연동은 추후 진행될 예정이에요.
                     </p>
                   )}
 
                   <div className="flex gap-2">
                     <button
-                      className="flex-1 py-2.5 rounded-lg border text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setStep(1)}
                     >
                       이전
                     </button>
                     <button
-                      className="flex-1 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
                       onClick={handleNextFromStep2}
                     >
                       다음
@@ -342,7 +389,7 @@ export default function SubscriptionCard() {
               {/* STEP 3 – 최종 확인 */}
               {step === 3 && (
                 <>
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="mb-4 flex items-start justify-between">
                     <div>
                       <h2 className="text-lg font-semibold">신청 내용 확인</h2>
                       <p className="mt-1 text-sm text-gray-500">
@@ -350,14 +397,14 @@ export default function SubscriptionCard() {
                       </p>
                     </div>
                     <button
-                      className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
                       onClick={handleClose}
                     >
                       ×
                     </button>
                   </div>
 
-                  <div className="mb-4 rounded-lg bg-gray-50 p-4 text-sm space-y-2">
+                  <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
                     <p>
                       <span className="font-semibold">요금제:</span>{" "}
                       SentiStock 프리미엄 (월 1,900원, 첫 달 100원)
@@ -365,13 +412,12 @@ export default function SubscriptionCard() {
                     <p>
                       <span className="font-semibold">결제 수단:</span>{" "}
                       {paymentMethod === "CARD" && "신용/체크카드"}
-                      {paymentMethod === "KAKAOPAY" && "카카오페이 (더미)"}
-                      {paymentMethod === "NAVERPAY" && "네이버페이 (더미)"}
+                      {paymentMethod === "KAKAOPAY" && "카카오페이"}
+                      {paymentMethod === "NAVERPAY" && "네이버페이"}
                     </p>
                     {paymentMethod === "CARD" && (
                       <p className="text-xs text-gray-600">
-                        카드 번호: {cardNumber || "입력된 번호 사용"} (실제 결제는
-                        연결되지 않습니다)
+                        카드 번호: {cardNumber || "입력된 번호 사용"}
                       </p>
                     )}
                     <p className="text-xs text-gray-500">
@@ -381,13 +427,13 @@ export default function SubscriptionCard() {
 
                   <div className="flex gap-2">
                     <button
-                      className="flex-1 py-2.5 rounded-lg border text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setStep(2)}
                     >
                       이전
                     </button>
                     <button
-                      className="flex-1 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
                       onClick={handleConfirm}
                     >
                       구독 시작하기
@@ -402,4 +448,3 @@ export default function SubscriptionCard() {
     </>
   )
 }
-
