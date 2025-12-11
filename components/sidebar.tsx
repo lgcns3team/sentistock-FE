@@ -7,11 +7,13 @@ import clsx from "clsx"
 import { DeleteAccountModal } from "@/components/delete-account-modal" // 모달 import
 import Image from "next/image"
 
+
 const myPageItems = [
   { label: "회원정보 조회", href: "/my-page" },
   { label: "회원정보 수정", href: "/my-page/edit" },
   { label: "알림 설정", href: "/my-page/notifications" },
   { label: "계정 보안", href: "/my-page/security" },
+  { label: "구독 관리", href: "/my-page/subscription" }
   
 ]
 
