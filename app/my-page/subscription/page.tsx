@@ -6,7 +6,7 @@ import SubscriptionCard from "@/components/mypage/subscription-card"
 export default function SubscriptionManagementPage() {
   // TODO: 나중에 API로 실제 구독 정보 가져오기
   const subscription = {
-    status: "NONE" as "ACTIVE" | "NONE",
+    status: "ACTIVE" as "ACTIVE" | "NONE",
     planName: "SentiStock 프리미엄",
     price: 1900,
     firstMonthPrice: 100,
@@ -15,7 +15,7 @@ export default function SubscriptionManagementPage() {
     startedAt: "2024-12-15",
   }
 
-  const isSubscribed = subscription.status === "NONE"
+  const isSubscribed = subscription.status === "ACTIVE"
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
 
   return (
@@ -47,8 +47,8 @@ export default function SubscriptionManagementPage() {
                         {subscription.planName}
                       </h3>
                       <p className="mt-1 text-sm text-gray-500">
-                        감정 기반 투자 인사이트를 풀로 활용할 수 있는 월 구독
-                        상품이에요.
+                        감정 기반 투자 인사이트를 <br/>풀로 활용할 수 있는
+                        월 구독 상품이에요.
                       </p>
                     </div>
                   </div>
@@ -91,7 +91,7 @@ export default function SubscriptionManagementPage() {
                       onClick={() => setIsPaymentModalOpen(true)}
                     >
                       결제 수단 관리{" "}
-                      <span className="text-xs text-gray-400">(예정)</span>
+                      <span className="text-xs text-gray-400"></span>
                     </button>
 
                     <button
@@ -105,11 +105,12 @@ export default function SubscriptionManagementPage() {
                     </button>
                   </div>
 
-                  <p className="mt-4 text-xs leading-relaxed text-gray-400">
-                    첫 달 이후 해지하지 않으면 매월{" "}
-                    {subscription.price.toLocaleString()}원이 자동 결제돼요. 결제
-                    예정일 1주 전에 알림을 드릴 예정입니다.
-                  </p>
+                <p className="mt-4 text-xs leading-relaxed text-gray-400">
+                  첫 달 이후 해지하지 않으면 매월{" "}
+                   {subscription.price.toLocaleString()}원이 자동 결제돼요. <br/>
+                   결제 예정일 1주 전에 알림을 드릴 예정입니다.
+                    </p>
+
                 </div>
 
                 {/* 오른쪽에 추가 카드 필요하면 여기 */}
@@ -135,15 +136,12 @@ export default function SubscriptionManagementPage() {
                     </p>
                   </div>
 
-                  <ul className="mb-6 space-y-2 text-sm text-gray-700">
-                    <li>• 감정 추세 히스토리 전체 열람 (비구독자는 블러 처리)</li>
-                    <li>• 즐겨찾기 종목 수 무제한</li>
-                    <li>• 즐겨찾기 종목 매수 알림 기능</li>
-                  </ul>
+                 
 
                   <p className="mb-4 text-xs text-gray-400">
                     구독은 언제든 해지할 수 있고, 해지하더라도 남은 기간 동안은
-                    프리미엄 기능을 계속 이용할 수 있어요.
+                    <br/> 
+                    프리미엄기능을 계속 이용할 수 있어요.
                   </p>
 
                   <p className="text-xs text-gray-400">
@@ -213,7 +211,7 @@ export default function SubscriptionManagementPage() {
               </div>
 
               <p className="mb-4 text-xs text-gray-400">
-                결제 수단 변경은 다음 결제 시점부터 적용돼요. 이미 결제된 금액은
+                결제 수단 변경은 다음 결제 시점부터 적용돼요. <br/>이미 결제된 금액은
                 환불되지 않습니다.
               </p>
 
