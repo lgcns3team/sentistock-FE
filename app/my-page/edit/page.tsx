@@ -99,12 +99,13 @@ export default function EditProfilePage() {
       <form className="max-w-2xl space-y-6" onSubmit={handleSubmit}>
         {/* 이름 */}
         <div className="flex items-center gap-4">
-          <label className="w-24 text-sm text-gray-700">이름</label>
+          <label className="w-24 text-sm text-gray-700">아이디</label>
           <input
-            type="text"
-            value={formData.name}
-            onChange={handleChange("name")}
-            className="flex-1 rounded border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="email"
+            value={formData.email}
+            readOnly
+            disabled
+            className="flex-1 cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-4 py-2 text-gray-500"
           />
         </div>
 
