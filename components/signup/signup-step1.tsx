@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
+import { Eye, EyeOff } from "lucide-react"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -22,6 +23,16 @@ interface SignupStep1Props {
 export default function SignupStep1({ data, onNext }: SignupStep1Props) {
   const [formData, setFormData] = useState(data)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [isShowPwChecked, setShowPwChecked] = useState(false)
+  const handleShowPwChecked = () => {
+    setShowPwChecked((prev) => !prev)
+  }
+
+  const [isShowPwConfirmed, setShowPwConfirmed] = useState(false)
+  const handleShowPwConfirmed = () => {
+    setShowPwConfirmed((prev) => !prev)
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -113,28 +124,46 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
         {/* 비밀번호 */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">비밀번호</label>
+          <div className="relative">
           <Input
-            type="password"
+            type={isShowPwChecked ? "text" : "password"}
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="비밀번호를 입력해주세요"
             className={`bg-input border-border focus:ring-primary ${errors.password ? "border-red-500" : ""}`}
           />
+          <button
+            type="button"
+            onClick={handleShowPwChecked}
+            className="absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              {isShowPwChecked? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+          </div>
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
 
         {/* 비밀번호 확인 */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">비밀번호 확인</label>
+          <div className="relative">
           <Input
-            type="password"
+            type={isShowPwConfirmed ? "text" : "password"}
             name="passwordConfirm"
             value={formData.passwordConfirm}
             onChange={handleChange}
             placeholder="비밀번호를 다시 입력해주세요"
             className={`bg-input border-border focus:ring-primary ${errors.passwordConfirm ? "border-red-500" : ""}`}
           />
+          <button
+            type="button"
+            onClick={handleShowPwConfirmed}
+            className="absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              {isShowPwConfirmed ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+          </div>
           {errors.passwordConfirm && <p className="text-red-500 text-sm mt-1">{errors.passwordConfirm}</p>}
         </div>
 
