@@ -15,14 +15,16 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-background">
       <Header />
-      <img src="../slogan_light.png" alt="slogan"/>
+      <div className="mb-2">
+        <img src="../slogan_light.png" alt="slogan"/>
+      </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <Sidebar selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
         {/* Divider */}
-        <div className="w-px bg-gray-200 dark:bg-gray-800" />
+        <div className="w-px h-full bg-gray-200 dark:bg-gray-800" />
 
         {/* Realtime Chart */}
         <RealtimeChart category={selectedCategory} sortOrder={sortOrder} onSortChange={setSortOrder} />
