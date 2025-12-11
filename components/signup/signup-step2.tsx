@@ -252,6 +252,7 @@ export default function SignupStep2({
           onClick={currentQuestionIdx === 0 ? onPrevious : handlePrevQuestion}
           variant="outline"
           className="flex-1 h-12 bg-transparent"
+          disabled={currentQuestionIdx === 0}
         >
           {currentQuestionIdx === 0 ? "이전" : "이전 질문"}
         </Button>
