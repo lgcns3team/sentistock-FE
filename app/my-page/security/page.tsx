@@ -64,9 +64,9 @@ export default function AccountSecurityPage() {
                 {emailConnected ? "연결됨" : "미연결"}
               </span>
             </div>
-            <Button variant="link" className="text-blue-600">
+            {/* <Button variant="link" className="text-blue-600">
               {emailConnected ? "비밀번호 변경" : "연결하기"}
-            </Button>
+            </Button> */}
           </div>
 
           {/* 카카오 로그인 */}
@@ -83,9 +83,9 @@ export default function AccountSecurityPage() {
                 {kakaoConnected ? "연결됨" : "미연결"}
               </span>
             </div>
-            <Button variant="link" className="text-blue-600">
+            {/* <Button variant="link" className="text-blue-600">
               연결 관리
-            </Button>
+            </Button> */}
           </div>
         </section>
 
@@ -155,7 +155,7 @@ export default function AccountSecurityPage() {
         </section>
 
         {/* Section 3: 2단계 인증 */}
-        <section className="space-y-2">
+        {/* <section className="space-y-2">
           <div className="flex items-start justify-between">
             <div>
               <Label className="text-sm font-medium">2단계 인증 사용</Label>
@@ -165,10 +165,10 @@ export default function AccountSecurityPage() {
             </div>
             <Switch />
           </div>
-        </section>
+        </section> */}
 
         {/* Section 4: 최근 접속 기록 */}
-        <section>
+        {/* <section>
           <h3 className="mb-4 text-sm font-semibold">최근 접속 기록</h3>
           <div className="overflow-hidden rounded-lg border border-gray-200">
             <table className="w-full">
@@ -212,14 +212,14 @@ export default function AccountSecurityPage() {
               </tbody>
             </table>
           </div>
-        </section>
+        </section> */}
 
         {/* Section 5: 모든 기기 로그아웃 */}
-        <section className="pt-2">
+        {/* <section className="pt-2">
           <Button variant="link" className="text-red-600 hover:text-red-700">
             모든 기기에서 로그아웃
           </Button>
-        </section>
+        </section> */}
       </div>
     </div>
   )
