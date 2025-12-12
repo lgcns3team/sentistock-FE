@@ -23,7 +23,7 @@ export default function MyPageInfoPage() {
             <div className="flex items-center gap-4">
               <label className="w-24 text-sm text-gray-700">닉네임</label>
               <div className="flex-1 rounded border border-gray-300 bg-gray-50 px-4 py-2">
-                nickname
+                admin
               </div>
             </div>
 
