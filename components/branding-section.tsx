@@ -17,8 +17,8 @@ export default function BrandingSection() {
       
       <div className="mt-auto w-full flex">
         <Image
-          src="/personal_type.png" 
-          alt="투자 스타일 설명 이미지"
+          src="/detail_image.png" 
+          alt="상세 페이지 이미지"
           width={600}
           height={300}
           className="object-contain"
