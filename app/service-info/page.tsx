@@ -7,13 +7,12 @@ export default function ServiceIntro() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Main Content - Scrollable Sections */}
       <main className="max-w-6xl mx-auto">
-        {/* Section 1: Title and Introduction */}
+        {/* Section 1*/}
         <section id="about" className="px-6 py-20 scroll-mt-16">
           <h1 className="text-4xl font-bold text-foreground mb-10">회사소개</h1>
-          <div className="w-full h-px bg-gray-200 mb-10"></div>
-          <div className=" text-center space-y-6 mb-16">
+          <div className="w-full h-px bg-gray-200 mb-12"></div>
+          <div className=" text-center space-y-6 mb-13">
             <h2 className="text-2xl font-bold">
               <span className="text-[#0065F4]">감정 데이터</span>
               {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다.
@@ -22,7 +21,7 @@ export default function ServiceIntro() {
           </div>
         </section>
 
-        {/* Section 2: Company Goals */}
+        {/* Section 2*/}
         <section className="px-6 py-5">
           <div className="text-center space-y-8">
             <h2 className="text-3xl font-bold text-foreground">회사 목표</h2>
@@ -41,69 +40,78 @@ export default function ServiceIntro() {
           </div>
         </section>
 
-        {/* Section 3: Our Values */}
-        <section className="px-6 py-30">
-          <div className="text-center mb-16">
+        {/* Section 3*/}
+        <section className="px-6 py-60">
+          <Image
+            src="/info_image1.png"
+            alt="우리의 가치"
+            width={100}
+            height={100}
+            className="object-contain mx-auto mb-8"
+          />
+          <div className="text-center mb-30">
             <h2 className="text-3xl font-bold text-foreground">우리의 가치</h2>
           </div>
 
-          {/* Values Grid */}
           <div className="space-y-12 max-w-4xl mx-auto">
-            {/* Value 1 */}
             <div className="grid md:grid-cols-2 gap-8 items-start">
-              <div className="order-2 md:order-1">
-                <h3 className="text-2xl font-bold text-blue-600 mb-4">1. 데이터에 기반한 '근거 있는 선택'</h3>
-                <p className="text-gray-700 leading-relaxed">
-                  우리는 "느낌"이 아닌 <span className="font-bold">수치적 기준</span>으로 믿읍니다. 진정한 수익을 높을,
-                  최저 순위, 변동성, 적정 기기까지 투자자가 스스로 톱준 투자자가 스스로 큰 의도를 듣습니다.
+              <div className="md:col-start-1">
+                <h3 className="text-[23px] font-bold  text-black mb-4">
+                  1. 데이터에 기반한 <span className="text-[#0065F4]">'근거 있는 선택'</span>
+                </h3>
+                <p className="text-grey-700 leading-relaxed">
+                  우리는 "느낌"이 아닌 <span className="font-bold text-[#98C9EA]">수치와 기록</span>으로 말합니다.<br />
+                  전략의 수익률은 물론, 최대 손실, 변동성, 회복 기간까지 투명하게 <br />
+                  보여주며, 투자자가 <span className="font-bold text-[#98C9EA]">스스로 판단</span>할 수 있도록 돕습니다.
                 </p>
-              </div>
-              
+              </div>   
             </div>
 
-            {/* Value 2 */}
             <div className="grid md:grid-cols-2 gap-8 items-start">
-              
-              <div>
-                <h3 className="text-2xl font-bold text-blue-600 mb-4">2. '자족 가능한 투자 습관'</h3>
-                <p className="text-gray-700 leading-relaxed">
-                  오늘 하 번의 우의인 아니라, 10년 뒤에 계속 투자할 수 있는 계약과 습관을 위하여 감정의 페터닝을
-                  이해하고 그 인에서 나만의 원칙을 지켜나는 연습을 돕습니다.
+              <div className="md:col-start-2 text-right">
+                <h3 className="text-[23px] font-bold  text-black mb-4">
+                  2. <span className="text-[#0065F4]">'지속 가능한 투자 습관'</span>
+                </h3>
+                <p className="text-grey-700 leading-relaxed">
+                  오늘 한 번의 수익이 아니라, 10년 뒤에도 계속 투자할 수 있는<br /> 
+                  <span className="font-bold text-[#98C9EA]">체력과 습관</span>을 중요하게 여깁니다.<br />
+                  감정을 억누르기보다는, <span className="font-bold text-[#98C9EA]">감정의 패턴을 데이터로 이해</span>하고 <br />
+                  그 안에서 나만의 원칙을 지켜가는 연습을 돕습니다.
                 </p>
               </div>
             </div>
 
-            {/* Value 3 */}
             <div className="grid md:grid-cols-2 gap-8 items-start">
-              <div className="order-2 md:order-1">
-                <h3 className="text-2xl font-bold text-blue-600 mb-4">
-                  3. 누구나 이해할 수 있는 '실고 진정한 투자 정략'
+              <div className="md:col-start-1">
+                <h3 className="text-[23px] font-bold  text-black mb-4">
+                  3. 누구나 이해할 수 있는 <span className="text-[#0065F4]">'쉽고 친절한 투자 경험'</span>
+                </h3>
+                <p className="text-grey-700 leading-relaxed">
+                  복잡한 용어와 난해한 차트 대신, <span className="font-bold text-[#98C9EA]">보기 쉬운 지표와 시각화</span>로<br />
+                  투자 경험의 진입 장벽을 낮춥니다.<br />
+                  처음 투자하는 사람도, 이미 경험이 있는 투자자도<br />
+                  자신의 <span className="font-bold text-[#98C9EA]">전략을 직접 설계하고 확인</span>할 수 있습니다.
+                </p>
+              </div>              
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 items-start">
+              <div className="md:col-start-2 text-right">
+                <h3 className="text-[23px] font-bold  text-black mb-4">
+                  4. <span className="text-[#0065F4]">'투명성'</span>과 <span className="text-[#0065F4]">'정직함'</span>
                 </h3>
                 <p className="text-gray-700 leading-relaxed">
-                  복잡한 옮인 니세인 차트 데이터, <span className="font-bold">모기 차원 지표야로</span>
-                  투자 전략의 진정 정책에 높습니다. 자족 투자자는 시님도, 이머 경험이 있는 자신의{" "}
-                  <span className="font-bold">진칙을 찾을 설계하고 활용할 수</span> 있습니다.
-                </p>
-              </div>
-              
-            </div>
-
-            {/* Value 4 */}
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-              
-              <div>
-                <h3 className="text-2xl font-bold text-blue-600 mb-4">4. 투명성과 정직함</h3>
-                <p className="text-gray-700 leading-relaxed">
-                  원 나은 결과면 너비조 않습니다. 불릴인 구근, 손실이 없던 시기, 전략의 근린지 페인트한 시점에서 투자에
-                  가장 폐르스는 "모든 것"이라고 믿기 때문입니다.
+                  잘 나온 결과만 보여주지 않습니다.<br />
+                  불리한 구간, 손실이 났던 시기, <br />전략이 견디지 못했던 시장까지 그대로 드러냅니다.<br />
+                  투자에서 <span className="font-bold text-[#98C9EA]">가장 큰 리스크는 “모르는 것”</span>이라고 믿기 때문입니다.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Section 4: Vision and Mission */}
-        <section className="px-6 py-20 bg-gray-50">
+        {/* Section 4 */}
+        <section className="px-6 py-20">
           <div className="text-center space-y-6">
             <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center text-3xl">
               💡
