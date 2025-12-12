@@ -23,10 +23,10 @@ export default function FeaturesSection() {
             ‘맞춤형 투자 홈' 경험을 제공합니다.
           </p>
           <Image
-             src="/sector_image.png"
+             src="/fav_sector.png"
              alt="sector_image"
              width={300}
-             height={150}
+             height={400}
              className="object-contain"
           /> 
         </div>
