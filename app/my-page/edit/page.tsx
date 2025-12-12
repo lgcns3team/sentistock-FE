@@ -29,7 +29,7 @@ export default function EditProfilePage() {
     // TODO: 실제 API로 대체
     setUser({
       name: "admin",
-      nickname: "관리자",
+      nickname: "admin",
       email: "admin@gmail.com",
       provider: "LOCAL", // LOCAL or KAKAO
     })
@@ -97,12 +97,12 @@ export default function EditProfilePage() {
       )}
 
       <form className="max-w-2xl space-y-6" onSubmit={handleSubmit}>
-        {/* 이름 */}
+        {/* 아이디 */}
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">아이디</label>
           <input
             type="email"
-            value={formData.email}
+            value={formData.name}
             readOnly
             disabled
             className="flex-1 cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-4 py-2 text-gray-500"
