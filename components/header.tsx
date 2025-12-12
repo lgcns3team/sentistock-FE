@@ -32,7 +32,7 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8 ml-auto">
-          <Link href="#" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
+          <Link href="/service-info" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
             회사소개
           </Link>
           <Link href="/notice" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
