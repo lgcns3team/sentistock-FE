@@ -1,11 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { TermsDialog } from "@/components/mypage/terms-dialog"
 
 type Step = 1 | 2 | 3 | null
-type PaymentMethod = "CARD" | "KAKAOPAY" | "NAVERPAY"
+type PaymentMethod = "CARD"
 
-// 🔍 유효성 검사 함수들
+type CardField = "cardNumber" | "cardExpiry" | "cardBirth" | "cardPassword"
+type CardErrors = Partial<Record<CardField, string>>
+
+// 유효성 검사 함수들
 const isValidCardNumber = (value: string) => {
   const onlyDigits = value.replace(/\s/g, "")
   return /^\d{16}$/.test(onlyDigits)
@@ -30,80 +34,113 @@ export default function SubscriptionCard() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>(null)
 
+  // 약관 동의 상태(자동 체크 대상)
   const [agree, setAgree] = useState(false)
+  const [termsOpen, setTermsOpen] = useState(false)
 
+  // 에러 상태들
+  const [agreeError, setAgreeError] = useState<string | null>(null)
+  const [cardErrors, setCardErrors] = useState<CardErrors>({})
+
+  // 카드만 사용
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD")
   const [cardNumber, setCardNumber] = useState("")
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardBirth, setCardBirth] = useState("")
   const [cardPassword, setCardPassword] = useState("")
 
+  const resetPaymentInputs = () => {
+    setPaymentMethod("CARD")
+    setCardNumber("")
+    setCardExpiry("")
+    setCardBirth("")
+    setCardPassword("")
+    setCardErrors({})
+  }
+
   const handleOpen = () => {
     setOpen(true)
     setStep(1)
     setAgree(false)
+    setTermsOpen(false)
+    setAgreeError(null)
+    resetPaymentInputs()
   }
 
   const handleClose = () => {
     setOpen(false)
     setStep(null)
     setAgree(false)
-    setPaymentMethod("CARD")
-    setCardNumber("")
-    setCardExpiry("")
-    setCardBirth("")
-    setCardPassword("")
+    setTermsOpen(false)
+    setAgreeError(null)
+    resetPaymentInputs()
+  }
+
+  const inputBase =
+    "w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-0"
+  const inputClass = (hasError: boolean) =>
+    hasError
+      ? `${inputBase} border-red-400 focus:border-red-500`
+      : `${inputBase} border-gray-200 focus:border-blue-500`
+
+  const clearCardError = (key: CardField) => {
+    setCardErrors(prev => {
+      if (!prev[key]) return prev
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }
+
+  // Step2 카드 유효성 검증(에러 객체 반환)
+  const validateCard = (): CardErrors => {
+    const errors: CardErrors = {}
+
+    if (!cardNumber) errors.cardNumber = "카드 번호를 입력해주세요."
+    else if (!isValidCardNumber(cardNumber))
+      errors.cardNumber = "카드 번호는 16자리 숫자여야 해요."
+
+    if (!cardExpiry) errors.cardExpiry = "유효기간을 입력해주세요."
+    else if (!isValidExpiry(cardExpiry))
+      errors.cardExpiry = "유효기간은 MM/YY 형식이어야 해요. (예: 09/27)"
+
+    if (!cardBirth) errors.cardBirth = "생년월일 6자리를 입력해주세요."
+    else if (!isValidBirth(cardBirth))
+      errors.cardBirth = "생년월일은 6자리 숫자여야 해요. (예: 990101)"
+
+    if (!cardPassword) errors.cardPassword = "비밀번호 앞 2자리를 입력해주세요."
+    else if (!isValidPassword(cardPassword))
+      errors.cardPassword = "비밀번호 앞 2자리는 숫자 2자리여야 해요."
+
+    return errors
   }
 
   // STEP1 → STEP2
   const handleNextFromStep1 = () => {
     if (!agree) {
-      alert("자동 결제 및 이용 약관에 동의해주세요.")
+      setAgreeError("이용약관을 끝까지 확인하고 동의해주세요.")
       return
     }
+    setAgreeError(null)
     setStep(2)
   }
 
-  // STEP2 → STEP3 (유효성 포함)
+  // STEP2 → STEP3
   const handleNextFromStep2 = () => {
-    if (paymentMethod === "CARD") {
-      // 1) 비어 있는지 체크
-      if (!cardNumber || !cardExpiry || !cardBirth || !cardPassword) {
-        alert("카드 정보를 모두 입력해주세요.")
-        return
-      }
-
-      // 2) 형식 체크
-      if (!isValidCardNumber(cardNumber)) {
-        alert("카드 번호를 16자리 숫자로 입력해주세요. (예: 1234 5678 9012 3456)")
-        return
-      }
-
-      if (!isValidExpiry(cardExpiry)) {
-        alert("유효기간은 MM/YY 형식으로 입력해주세요. (예: 09/27)")
-        return
-      }
-
-      if (!isValidBirth(cardBirth)) {
-        alert("생년월일 6자리를 숫자로 입력해주세요. (예: 990101)")
-        return
-      }
-
-      if (!isValidPassword(cardPassword)) {
-        alert("카드 비밀번호 앞 2자리를 숫자로 입력해주세요.")
-        return
-      }
+    // 카드만 있으니까 카드 검증만 하면 됨
+    const errors = validateCard()
+    if (Object.keys(errors).length > 0) {
+      setCardErrors(errors)
+      return
     }
 
-    // 간편결제(Kakao/Naver)는 지금은 형식 체크 없이 바로 다음
+    setCardErrors({})
     setStep(3)
   }
 
   // 최종 구독 시작
   const handleConfirm = () => {
-    // TODO: 실제 구독/결제 API 호출 위치
     alert("구독 신청이 완료되었다고 가정하는 자리입니다. 나중에 PG 연동!")
-
     handleClose()
   }
 
@@ -159,14 +196,21 @@ export default function SubscriptionCard() {
         </p>
       </div>
 
-      {/* 모달 영역 */}
+      {/* 약관 모달: 끝까지 읽고 확인 누르면 setAgree(true) */}
+      <TermsDialog
+        open={termsOpen}
+        onOpenChange={setTermsOpen}
+        onAgree={() => {
+          setAgree(true)
+          setAgreeError(null)
+        }}
+      />
+
+      {/* 구독 모달 */}
       {open && (
         <>
           {/* 오버레이 */}
-          <div
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={handleClose}
-          />
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} />
 
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
@@ -179,7 +223,7 @@ export default function SubscriptionCard() {
                 </span>
               </div>
 
-              {/* STEP 1 – 요금제 & 약관 */}
+              {/* STEP 1 */}
               {step === 1 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -210,19 +254,33 @@ export default function SubscriptionCard() {
                     </p>
                   </div>
 
+                  {/* 약관 동의 */}
                   <div className="mb-6">
-                    <label className="flex items-start gap-2 text-xs text-gray-600">
+                    <div className="flex items-start gap-2 text-xs text-gray-600">
                       <input
                         type="checkbox"
-                        className="mt-0.5"
+                        className="mt-0.5 accent-blue-600"
                         checked={agree}
-                        onChange={e => setAgree(e.target.checked)}
+                        readOnly
                       />
-                      <span>
-                        자동 결제 및 이용 약관에 동의합니다.
-                        {/* 필요하면 여기에 약관 링크 추가 */}
-                      </span>
-                    </label>
+                      <div>
+                        <div>
+                          자동 결제 및{" "}
+                          <button
+                            type="button"
+                            className="text-blue-600 underline underline-offset-4 hover:text-blue-700"
+                            onClick={() => setTermsOpen(true)}
+                          >
+                            이용약관
+                          </button>
+                          에 동의합니다.
+                        </div>
+
+                        {agreeError && (
+                          <p className="mt-1 text-[11px] text-red-500">{agreeError}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex gap-2">
@@ -242,7 +300,7 @@ export default function SubscriptionCard() {
                 </>
               )}
 
-              {/* STEP 2 – 결제 수단 입력 */}
+              {/* STEP 2 */}
               {step === 2 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -260,114 +318,103 @@ export default function SubscriptionCard() {
                     </button>
                   </div>
 
-                  {/* 결제 수단 토글 */}
-                  <div className="mb-4 flex gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("CARD")}
-                      className={
-                        "flex-1 rounded-full border px-3 py-2 " +
-                        (paymentMethod === "CARD"
-                          ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
-                          : "border-gray-200 text-gray-600 hover:bg-gray-50")
-                      }
-                    >
+                  {/* 카드만 표시(카카오/네이버 삭제) */}
+                  <div className="mb-4 flex justify-start text-xs">
+                    <div className="inline-flex w-fit justify-start rounded-full border border-blue-500 bg-blue-50 px-4 py-2 font-medium text-blue-700">
                       신용/체크카드
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("KAKAOPAY")}
-                      className={
-                        "flex-1 rounded-full border px-3 py-2 " +
-                        (paymentMethod === "KAKAOPAY"
-                          ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
-                          : "border-gray-200 text-gray-600 hover:bg-gray-50")
-                      }
-                    >
-                      카카오페이
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("NAVERPAY")}
-                      className={
-                        "flex-1 rounded-full border px-3 py-2 " +
-                        (paymentMethod === "NAVERPAY"
-                          ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
-                          : "border-gray-200 text-gray-600 hover:bg-gray-50")
-                      }
-                    >
-                      네이버페이
-                    </button>
+                    </div>
                   </div>
 
-                  {/* 카드 정보 폼 (CARD 선택 시만) */}
-                  {paymentMethod === "CARD" && (
-                    <div className="mb-4 space-y-3 text-sm">
-                      <div>
+                  {/* 카드 정보 폼 */}
+                  <div className="mb-4 space-y-3 text-sm">
+                    <div>
+                      <label className="mb-1 block text-xs text-gray-500">카드 번호</label>
+                      <input
+                        type="text"
+                        value={cardNumber}
+                        onChange={e => {
+                          setCardNumber(e.target.value)
+                          clearCardError("cardNumber")
+                        }}
+                        placeholder="1234 5678 9012 3456"
+                        maxLength={19}
+                        className={inputClass(!!cardErrors.cardNumber)}
+                      />
+                      {cardErrors.cardNumber && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {cardErrors.cardNumber}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-1">
                         <label className="mb-1 block text-xs text-gray-500">
-                          카드 번호
+                          유효기간 (MM/YY)
                         </label>
                         <input
                           type="text"
-                          value={cardNumber}
-                          onChange={e => setCardNumber(e.target.value)}
-                          placeholder="1234 5678 9012 3456"
-                          maxLength={19}
-                          className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
+                          value={cardExpiry}
+                          onChange={e => {
+                            setCardExpiry(e.target.value)
+                            clearCardError("cardExpiry")
+                          }}
+                          placeholder="09/27"
+                          maxLength={5}
+                          className={inputClass(!!cardErrors.cardExpiry)}
                         />
+                        {cardErrors.cardExpiry && (
+                          <p className="mt-1 text-[11px] text-red-500">
+                            {cardErrors.cardExpiry}
+                          </p>
+                        )}
                       </div>
 
-                      <div className="flex gap-3">
-                        <div className="flex-1">
-                          <label className="mb-1 block text-xs text-gray-500">
-                            유효기간 (MM/YY)
-                          </label>
-                          <input
-                            type="text"
-                            value={cardExpiry}
-                            onChange={e => setCardExpiry(e.target.value)}
-                            placeholder="09/27"
-                            maxLength={5}
-                            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <label className="mb-1 block text-xs text-gray-500">
-                            생년월일 6자리
-                          </label>
-                          <input
-                            type="text"
-                            value={cardBirth}
-                            onChange={e => setCardBirth(e.target.value)}
-                            placeholder="990101"
-                            maxLength={6}
-                            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="w-1/2">
+                      <div className="flex-1">
                         <label className="mb-1 block text-xs text-gray-500">
-                          카드 비밀번호 앞 2자리
+                          생년월일 6자리
                         </label>
                         <input
-                          type="password"
-                          value={cardPassword}
-                          onChange={e => setCardPassword(e.target.value)}
-                          placeholder="**"
-                          maxLength={2}
-                          className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-500"
+                          type="text"
+                          value={cardBirth}
+                          onChange={e => {
+                            setCardBirth(e.target.value)
+                            clearCardError("cardBirth")
+                          }}
+                          placeholder="990101"
+                          maxLength={6}
+                          className={inputClass(!!cardErrors.cardBirth)}
                         />
+                        {cardErrors.cardBirth && (
+                          <p className="mt-1 text-[11px] text-red-500">
+                            {cardErrors.cardBirth}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  )}
 
-                  {/* 간편결제 안내 (원하면 내용 추가) */}
-                  {paymentMethod !== "CARD" && (
-                    <p className="mb-4 text-xs text-gray-500">
-                      현재는 테스트용 화면으로, 실제 간편결제 연동은 추후 진행될 예정이에요.
-                    </p>
-                  )}
+                    <div className="w-1/2">
+                      <label className="mb-1 block text-xs text-gray-500">
+                        카드 비밀번호 앞 2자리
+                      </label>
+                      <input
+                        type="password"
+                        value={cardPassword}
+                        onChange={e => {
+                          setCardPassword(e.target.value)
+                          clearCardError("cardPassword")
+                        }}
+                        placeholder="**"
+                        maxLength={2}
+                        className={inputClass(!!cardErrors.cardPassword)}
+                      />
+                      {cardErrors.cardPassword && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {cardErrors.cardPassword}
+                        </p>
+                      )}
+                    </div>
+                  </div>
 
                   <div className="flex gap-2">
                     <button
@@ -386,7 +433,7 @@ export default function SubscriptionCard() {
                 </>
               )}
 
-              {/* STEP 3 – 최종 확인 */}
+              {/* STEP 3 */}
               {step === 3 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -406,20 +453,13 @@ export default function SubscriptionCard() {
 
                   <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
                     <p>
-                      <span className="font-semibold">요금제:</span>{" "}
-                      SentiStock 프리미엄 (월 1,900원, 첫 달 100원)
+                      <span className="font-semibold">요금제:</span> SentiStock 프리미엄
+                      (월 1,900원, 첫 달 100원)
                     </p>
                     <p>
-                      <span className="font-semibold">결제 수단:</span>{" "}
-                      {paymentMethod === "CARD" && "신용/체크카드"}
-                      {paymentMethod === "KAKAOPAY" && "카카오페이"}
-                      {paymentMethod === "NAVERPAY" && "네이버페이"}
+                      <span className="font-semibold">결제 수단:</span> 신용/체크카드
                     </p>
-                    {paymentMethod === "CARD" && (
-                      <p className="text-xs text-gray-600">
-                        카드 번호: {cardNumber || "입력된 번호 사용"}
-                      </p>
-                    )}
+                    <p className="text-xs text-gray-600">카드 번호: {cardNumber}</p>
                     <p className="text-xs text-gray-500">
                       첫 달은 100원으로 결제되며, 이후 매월 1,900원이 자동 결제됩니다.
                     </p>
