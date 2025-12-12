@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
+import { Eye, EyeOff } from "lucide-react"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -23,20 +24,37 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
   const [formData, setFormData] = useState(data)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const [isShowPwChecked, setShowPwChecked] = useState(false)
+  const handleShowPwChecked = () => {
+    setShowPwChecked((prev) => !prev)
+  }
+
+  const [isShowPwConfirmed, setShowPwConfirmed] = useState(false)
+  const handleShowPwConfirmed = () => {
+    setShowPwConfirmed((prev) => !prev)
+  }
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
     if (!formData.nickname.trim()) {
       newErrors.nickname = "닉네임을 입력해주세요"
+    } else if (formData.nickname.length < 2 || formData.nickname.length > 10) {
+      newErrors.nickname = "닉네임은 2자 이상 10자 이하이어야 합니다"
     }
+
     if (!formData.userId.trim()) {
       newErrors.userId = "아이디를 입력해주세요"
+    } else if(!/^(?=.*[a-zA-Z])(?=.*[0-9]).{6,12}$/.test(formData.userId)) {
+      newErrors.userId = "아이디는 영문, 숫자 포함 6자 이상 12자 이하이어야 합니다"
     }
+
     if (!formData.password) {
       newErrors.password = "비밀번호를 입력해주세요"
-    } else if (formData.password.length < 8) {
-      newErrors.password = "비밀번호는 8자 이상이어야 합니다"
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,12}$/.test(formData.password)) {
+      newErrors.password = "비밀번호는 영문, 숫자, 특수문자 포함 8자 이상 12자 이하이어야 합니다"
     }
+
     if (formData.password !== formData.passwordConfirm) {
       newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다"
     }
@@ -53,7 +71,6 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    // 입력 시 에러 제거
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev }
@@ -107,28 +124,46 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
         {/* 비밀번호 */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">비밀번호</label>
+          <div className="relative">
           <Input
-            type="password"
+            type={isShowPwChecked ? "text" : "password"}
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="비밀번호를 입력해주세요"
             className={`bg-input border-border focus:ring-primary ${errors.password ? "border-red-500" : ""}`}
           />
+          <button
+            type="button"
+            onClick={handleShowPwChecked}
+            className="absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              {isShowPwChecked? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+          </div>
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
 
         {/* 비밀번호 확인 */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">비밀번호 확인</label>
+          <div className="relative">
           <Input
-            type="password"
+            type={isShowPwConfirmed ? "text" : "password"}
             name="passwordConfirm"
             value={formData.passwordConfirm}
             onChange={handleChange}
             placeholder="비밀번호를 다시 입력해주세요"
             className={`bg-input border-border focus:ring-primary ${errors.passwordConfirm ? "border-red-500" : ""}`}
           />
+          <button
+            type="button"
+            onClick={handleShowPwConfirmed}
+            className="absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              {isShowPwConfirmed ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+          </div>
           {errors.passwordConfirm && <p className="text-red-500 text-sm mt-1">{errors.passwordConfirm}</p>}
         </div>
 
