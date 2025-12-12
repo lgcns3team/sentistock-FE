@@ -1,10 +1,10 @@
 import Header from "@/components/header"
-import StockInfo from "@/components/stock-info"
-import ChartsSection from "@/components/charts-section"
-import SentimentScore from "@/components/sentiment-score"
+import StockInfo from "@/components/detail-page/stock-info"
+import ChartsSection from "@/components/detail-page/charts-section"
+import SentimentScore from "@/components/detail-page/sentiment-score"
 import RelatedArticles from "@/components/related-articles"
-import ValueChain from "@/components/value-chain"
-import StockSearch from "@/components/stock-search"
+import ValueChain from "@/components/detail-page/value-chain"
+import StockSearch from "@/components/detail-page/stock-search"
 
 import { stocksData } from "@/lib/stocks"
 
