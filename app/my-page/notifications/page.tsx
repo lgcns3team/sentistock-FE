@@ -9,8 +9,6 @@ import { Switch } from "@/components/ui/switch"
 
 export default function NotificationSettingsPage() {
   return (
-    // Header/Sidebar는 레이아웃에서 이미 렌더링 중
-    // 여기서는 오른쪽 컨텐츠 영역만 그리면 됨
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-2 text-xl font-semibold">알림 설정</h2>
       <p className="mb-8 text-sm text-gray-500">
@@ -43,7 +41,11 @@ export default function NotificationSettingsPage() {
           </div>
         </section>
 
-        {/* Section 2: 감정 점수 알림 */}
+        {/*
+        ==============================
+        여기부터(섹션2~끝) 전부 주석 처리
+        ==============================
+
         <section className="space-y-6">
           <h3 className="text-sm font-semibold">
             관심 종목의 감정 점수 변화 알림
@@ -70,9 +72,7 @@ export default function NotificationSettingsPage() {
           </div>
         </section>
 
-        {/* Section 3: 가격 변화 + 뉴스 알림 */}
         <section className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-8">
-          {/* 가격 변동 알림 */}
           <div>
             <Label className="text-sm font-medium">가격 변동 알림</Label>
             <p className="text-sm text-gray-500">
@@ -90,7 +90,6 @@ export default function NotificationSettingsPage() {
             <Switch />
           </div>
 
-          {/* 뉴스 요약 알림 */}
           <div>
             <Label className="text-sm font-medium">뉴스 요약 알림</Label>
             <p className="text-sm text-gray-500">
@@ -102,7 +101,6 @@ export default function NotificationSettingsPage() {
           </div>
         </section>
 
-        {/* 버튼 영역 */}
         <div className="flex justify-end gap-3 pt-6">
           <Button variant="outline" className="border-gray-300 bg-transparent">
             초기화
@@ -111,6 +109,7 @@ export default function NotificationSettingsPage() {
             저장
           </Button>
         </div>
+        */}
       </div>
     </div>
   )
