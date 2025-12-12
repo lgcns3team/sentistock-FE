@@ -6,7 +6,7 @@ import SubscriptionCard from "@/components/mypage/subscription-card"
 export default function SubscriptionManagementPage() {
   // TODO: 나중에 API로 실제 구독 정보 가져오기
   const subscription = {
-    status: "ACTIVE" as "ACTIVE" | "NONE",
+    status: "NONE" as "ACTIVE" | "NONE",
     planName: "SentiStock 프리미엄",
     price: 1900,
     firstMonthPrice: 100,
@@ -20,7 +20,7 @@ export default function SubscriptionManagementPage() {
 
   return (
     <>
-      {/* ✅ 알림 설정 / 계정 보안과 동일한 레이아웃 뼈대 */}
+      {/* 알림 설정 / 계정 보안과 동일한 레이아웃 뼈대 */}
       <div className="flex-1 px-10 py-8">
         {/* 제목 영역 */}
         <header>
@@ -30,10 +30,10 @@ export default function SubscriptionManagementPage() {
           </p>
         </header>
 
-        {/* ✅ 공통 컨텐츠 래퍼: 너비/간격 통일 */}
+        {/*  공통 컨텐츠 래퍼: 너비/간격 통일 */}
         <div className="max-w-4xl space-y-12">
           {isSubscribed ? (
-            /* ✅ 구독 중 화면 */
+            /*  구독 중 화면 */
             <section>
               <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
                 {/* 왼쪽: 구독 상태 카드 */}
@@ -118,7 +118,7 @@ export default function SubscriptionManagementPage() {
               </div>
             </section>
           ) : (
-            /* 🚫 구독 안 한 화면 */
+            /* 구독 안 한 화면 */
             <section>
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
                 {/* 왼쪽: 설명 섹션 */}
