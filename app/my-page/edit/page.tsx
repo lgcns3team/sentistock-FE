@@ -31,7 +31,7 @@ export default function EditProfilePage() {
       name: "admin",
       nickname: "관리자",
       email: "admin@gmail.com",
-      provider: "KAKAO", // LOCAL or KAKAO
+      provider: "LOCAL", // LOCAL or KAKAO
     })
   }, [])
 
@@ -84,7 +84,7 @@ export default function EditProfilePage() {
   }
 
   return (
-    // 🔹 왼쪽 Sidebar/상단 Header는 레이아웃에서 이미 깔려 있으니,
+    // 왼쪽 Sidebar/상단 Header는 레이아웃에서 이미 깔려 있으니,
     // 여기서는 오른쪽 컨텐츠 영역만 그려주면 됨
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-8 text-xl font-semibold">회원정보 수정</h2>
