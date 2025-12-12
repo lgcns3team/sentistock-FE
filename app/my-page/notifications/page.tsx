@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch"
 
 export default function NotificationSettingsPage() {
   return (
-    // 🔹 Header/Sidebar는 레이아웃에서 이미 렌더링 중
+    // Header/Sidebar는 레이아웃에서 이미 렌더링 중
     // 여기서는 오른쪽 컨텐츠 영역만 그리면 됨
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-2 text-xl font-semibold">알림 설정</h2>
