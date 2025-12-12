@@ -72,7 +72,7 @@ export default function Header() {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56">
-              <div className="px-3 py-2 text-sm font-medium text-gray-900 border-b">OOO 님</div>
+              <div className="px-3 py-2 text-sm font-medium text-gray-900 border-b">admin 님</div>
 
               <DropdownMenuItem asChild>
                 <Link href="/my-page" className="cursor-pointer">
