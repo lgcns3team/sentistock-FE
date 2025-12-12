@@ -24,7 +24,7 @@ export default function LoginSection() {
             />
             </div>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-700">
-            <a href="#" className="hover:text-blue-600 transition">
+            <a href="/service-info" className="hover:text-blue-600 transition">
               회사소개
             </a>
             <a href="/notice" className="hover:text-blue-600 transition">
