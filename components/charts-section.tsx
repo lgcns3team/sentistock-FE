@@ -5,11 +5,14 @@ import {
   CandlestickSeries,
   HistogramSeries,
   LineSeries,
+  AreaSeries,
   type CandlestickData,
   type HistogramData,
   type LineData,
+  type AreaData,
 } from "lightweight-charts"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { HelpCircle, X } from "lucide-react"
 
 // ====== 타입 정의 ======
 export type CandlePoint = {
@@ -19,7 +22,7 @@ export type CandlePoint = {
   low: number // int
   close: number // int
   volume: number // int
-  ma?: number // int
+  ma?: number // int 
 }
 
 export type SentimentPoint = {
@@ -101,6 +104,8 @@ export default function ChartsSection({
   const candleVolumeContainerRef = useRef<HTMLDivElement | null>(null)
   // 감정 추세 차트
   const sentimentContainerRef = useRef<HTMLDivElement | null>(null)
+  // 도움말 모달
+  const [showChartHelp, setShowChartHelp] = useState(false)
 
   // ========== 캔들 + 거래량 + 이동평균선 ==========
   useEffect(() => {
@@ -133,34 +138,32 @@ export default function ChartsSection({
       },
     })
 
-    // 캔들 + MA 오른쪽 기본 스케일
+    // 캔들 차트
     const candleSeries = chart.addSeries(CandlestickSeries, {
       priceScaleId: "right",
-      upColor: "#16a34a",
-      downColor: "#ef4444",
-      borderUpColor: "#16a34a",
-      borderDownColor: "#ef4444",
-      wickUpColor: "#16a34a",
-      wickDownColor: "#ef4444",
+      upColor: "#ef4444",
+      borderUpColor: "#ef4444",
+      wickUpColor: "#ef4444",
+      downColor: "#3b82f6",
+      borderDownColor: "#3b82f6",
+      wickDownColor: "#3b82f6",
     })
 
+    // 이동평균선
     const maSeries = chart.addSeries(LineSeries, {
       priceScaleId: "right",
       lineWidth: 2,
+      color: "black",
       lastValueVisible: false,
       priceLineVisible: false,
-      color: "#0ea5e9",
     })
 
-    // 거래량 커스텀 스케일
+    // 거래량은 커스텀 스케일 "volume"
     const volumeSeries = chart.addSeries(HistogramSeries, {
       priceScaleId: "volume",
-      priceFormat: {
-        type: "volume",
-      },
+      priceFormat: { type: "volume" },
     })
 
-    // ----- 스케일 옵션 설정 -----
     // 위쪽: 캔들 + MA 영역
     chart.priceScale("right").applyOptions({
       visible: true,
@@ -176,7 +179,7 @@ export default function ChartsSection({
       visible: true,
       borderColor: "#e5e7eb",
       scaleMargins: {
-        top: 0.8, // 위 80% price 영역, 아래 20% volume 영역
+        top: 0.8, // 위 80% price, 아래 20% volume
         bottom: 0,
       },
     })
@@ -200,7 +203,10 @@ export default function ChartsSection({
     const volumeData: HistogramData[] = candles.map((c) => ({
       time: toChartTime(c.time) as any,
       value: c.volume,
-      color: c.close >= c.open ? "rgba(34,197,94,0.5)" : "rgba(239,68,68,0.5)",
+      color:
+        c.close >= c.open
+          ? "rgba(239,68,68,0.5)"
+          : "rgba(59,130,246,0.5)",
     }))
 
     candleSeries.setData(candleData)
@@ -212,8 +218,10 @@ export default function ChartsSection({
     chart.timeScale().fitContent()
 
     const handleResize = () => {
-      chart.applyOptions({ width: container.clientWidth,
-      height: container.clientHeight || 320 })
+      chart.applyOptions({
+        width: container.clientWidth,
+        height: container.clientHeight || 320,
+      })
     }
 
     window.addEventListener("resize", handleResize)
@@ -224,7 +232,7 @@ export default function ChartsSection({
     }
   }, [candles])
 
-  // ========== 감정 추세 선 차트 ==========
+  // ========== 감정 추세 차트 ==========
   useEffect(() => {
     if (!sentimentContainerRef.current || !sentimentHistory?.length) return
 
@@ -232,7 +240,7 @@ export default function ChartsSection({
 
     const chart = createChart(container, {
       width: container.clientWidth,
-      height: container.clientHeight || 320, 
+      height: container.clientHeight || 320,
       layout: {
         background: { color: "#ffffff" },
         textColor: "#4b5563",
@@ -255,23 +263,30 @@ export default function ChartsSection({
       },
     })
 
-    const lineSeries = chart.addSeries(LineSeries, {
+    // AreaSeries
+    const sentimentSeries = chart.addSeries(AreaSeries, {
       lineWidth: 2,
+      lineColor: "#16a34a",
+      topColor: "rgba(22,163,74,0.4)",
+      bottomColor: "rgba(22,163,74,0.0)",
       lastValueVisible: true,
       priceLineVisible: true,
     })
 
-    const lineData: LineData[] = sentimentHistory.map((p) => ({
+    const sentimentData: AreaData[] = sentimentHistory.map((p) => ({
       time: toChartTime(p.time) as any,
       value: p.score,
     }))
 
-    lineSeries.setData(lineData)
+    sentimentSeries.setData(sentimentData)
+
     chart.timeScale().fitContent()
 
     const handleResize = () => {
-      chart.applyOptions({ width: container.clientWidth,
-      height: container.clientHeight || 320 })
+      chart.applyOptions({
+        width: container.clientWidth,
+        height: container.clientHeight || 320,
+      })
     }
 
     window.addEventListener("resize", handleResize)
@@ -284,11 +299,21 @@ export default function ChartsSection({
 
   return (
     <div className="space-y-6">
-      {/* Candlestick + Volume */}
+      {/* 캔들차트 + 거래량 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          캔들 차트 & 거래량
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-gray-900">
+            캔들 차트 & 거래량
+          </h3>
+
+          {/* 물음표 아이콘 */}
+          <button
+            onClick={() => setShowChartHelp(true)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <HelpCircle className="w-4 sm:w-5 h-4 sm:h-5" />
+          </button>
+        </div>
 
         <div
           ref={candleVolumeContainerRef}
@@ -296,7 +321,8 @@ export default function ChartsSection({
         />
       </div>
 
-      {/* Sentiment Trend */}
+
+      {/* 감정 추세 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">
           감정 추세 히스토리
@@ -306,6 +332,33 @@ export default function ChartsSection({
           className="h-64 w-full rounded bg-gradient-to-b from-purple-50 to-gray-50"
         />
       </div>
+      {/* Help Modal */}
+      {showChartHelp && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-[430px] p-4 sm:p-6 relative">
+            <button
+              onClick={() => setShowChartHelp(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-4 sm:w-5 h-4 sm:h-5" />
+            </button>
+
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
+              도움말
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+              해당 차트는 TradingView Charting Library의 기술을<br/>기반으로 시각화되었습니다.
+            </p>
+
+            <button
+              onClick={() => setShowChartHelp(false)}
+              className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 text-sm"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
