@@ -27,6 +27,8 @@ export default function AveragePriceModal({ onClose, stockName, stockCode }: Ave
           <label className="block text-sm text-gray-700 mb-2">평균 단가</label>
           <input
             type="number"
+            min="1"
+            step="1"
             value={averagePrice}
             onChange={(e) => setAveragePrice(e.target.value)}
             placeholder="평균 단가를 입력하세요"
