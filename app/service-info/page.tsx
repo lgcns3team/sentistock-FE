@@ -41,7 +41,7 @@ export default function ServiceIntro() {
         </section>
 
         {/* Section 3*/}
-        <section className="px-6 py-60">
+        <section className="px-6 py-40">
           <Image
             src="/info_image1.png"
             alt="우리의 가치"
@@ -113,27 +113,28 @@ export default function ServiceIntro() {
         {/* Section 4 */}
         <section className="px-6 py-20">
           <div className="text-center space-y-6">
-            <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center text-3xl">
-              💡
-            </div>
-            <h2 className="text-4xl font-bold text-foreground">비전 및 목표</h2>
+            <Image
+              src="/info_image2.png"
+              alt="비전 및 목표"
+              width={80}
+              height={80}
+              className="object-contain mx-auto mb-8"
+            />
+            <h2 className="text-3xl font-bold text-foreground">비전 및 목표</h2>
 
             <div className="space-y-4 text-gray-700 max-w-3xl mx-auto">
               <p className="text-lg">
-                우리는 "준치 하는 투자자"를 <span className="font-bold text-blue-600">"함께 감정하는 투자자"</span>로
-                바꾸자 합니다.
+                우리는 "혼자 하는 투자"를 <span className="font-bold text-[#0065F4]">"함께 검증하는 투자"</span>로
+                바꾸고자 합니다.
               </p>
-              <p className="text-lg">더 많은 개인 투자자가 데이터 시플레이션을 통해</p>
-              <p className="text-lg">자신의 전략을 감정하고,</p>
-              <p className="text-lg">스스로의 투자 정책을 맞들어가는 과정에서 확신을 갖춤으로써</p>
-              <p className="text-lg">
-                <span className="font-bold text-blue-600">더 나은 선택</span>이 자연스럽게 따라올 것이라 믿습니다.
-              </p>
+              <p className="text-lg">더 많은 개인 투자자가 데이터와 시뮬레이션을 통해</p>
+              <p className="text-lg">자신의 전략을 검증하고,</p>
+              <p className="text-lg">스스로의 투자 철학을 만들어가는 과정에 함께 하겠습니다</p>
             </div>
           </div>
         </section>
 
-        {/* Section 5: Portfolio Analysis CTA */}
+        {/* Section 5*/}
         <section className="px-6 py-20 bg-gradient-to-br from-white via-blue-300 to-cyan-200">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <div className="w-24 h-24 mx-auto bg-white/20 rounded-full flex items-center justify-center">
