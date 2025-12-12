@@ -16,15 +16,27 @@ export default function SearchBar({ value, onChange, onSubmit }: SearchBarProps)
             e.preventDefault()
             onSubmit()
           }}
-          className="flex items-center gap-3 bg-blue-50 px-4 py-3 rounded-lg border border-blue-300 w-full max-w-md"
+          className="relative w-full max-w-md"
         >
-          <Search className="w-5 h-5 text-blue-500" />
+          {/* 검색 아이콘 */}
+          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+
+          {/* 입력 필드 */}
           <input
             type="text"
-            placeholder="종목명 또는 코드로 검색"
+            placeholder="종목명 또는 종목코드로 검색"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="bg-transparent flex-1 outline-none text-gray-700 placeholder-gray-400"
+            className="
+            w-full
+            pl-10 
+            bg-gray-100 dark:bg-gray-800
+            border-0
+            rounded-lg
+            py-3
+            outline-none 
+            text-gray-700 dark:text-gray-300
+            placeholder-gray-400"
           />
         </form>
       </div>
