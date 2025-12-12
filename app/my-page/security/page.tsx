@@ -39,14 +39,14 @@ export default function AccountSecurityPage() {
   const kakaoConnected = isKakao
 
   return (
-    // ✅ 알림 설정과 동일한 레이아웃 뼈대
+    // 알림 설정과 동일한 레이아웃 뼈대
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-2 text-xl font-semibold">계정 보안</h2>
       <p className="mb-8 text-sm text-gray-500">
         로그인 방식, 비밀번호, 최근 접속 기록 등을 관리할 수 있어요.
       </p>
 
-      {/* ✅ 알림 설정과 동일한 컨텐츠 래퍼 */}
+      {/* 알림 설정과 동일한 컨텐츠 래퍼 */}
       <div className="max-w-4xl space-y-12">
         {/* Section 1: 로그인 방식 */}
         <section className="space-y-4">
