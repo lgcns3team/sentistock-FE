@@ -7,7 +7,8 @@ export default function ServiceIntro() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="max-w-6xl mx-auto">
+      <main>
+        <div className="max-w-6xl mx-auto">
         {/* Section 1*/}
         <section id="about" className="px-6 py-20 scroll-mt-16">
           <h1 className="text-4xl font-bold text-foreground mb-10">회사소개</h1>
@@ -133,46 +134,50 @@ export default function ServiceIntro() {
             </div>
           </div>
         </section>
+        </div>
 
         {/* Section 5*/}
-        <section className="px-6 py-20 bg-gradient-to-br from-white via-blue-300 to-cyan-200">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <div className="w-24 h-24 mx-auto bg-white/20 rounded-full flex items-center justify-center">
-              <div className="text-5xl">🛠️</div>
-            </div>
+        <section className="px-6 py-20 bg-[linear-gradient(180deg,#ffffff_0%,#f9fcfe_17%,#f6fafd_25%,#f2f8fc_37%,#eff6fc_46%,#ebf5fb_55%,#e7f2fa_68%,#98c9ea_100%)]">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-3xl mx-auto text-center space-y-8">
+              <Image
+                src="/info_image3.png"
+                alt="마무리 말"
+                width={120}
+                height={100}
+                className="object-contain mx-auto mb-13"
+              />
 
-            <h2 className="text-3xl font-bold text-white">
-              뉴스, 차트, 수냥은 지표 속에서 "지금 무엇을 믿어야 할지" 마칭했던 순간들.
-            </h2>
+              <h2 className="text-grey-700">
+                뉴스, 차트, 수많은 지표 속에서 "지금 무엇을 믿어야 할지" 막막했던 순간들.
+              </h2>
 
-            <div className="space-y-4 text-white/90 text-lg">
-              <p>우리는 그 질문에 담하기 위해,</p>
-              <p>
-                우리 서비스를 기반으로 수행된 <span className="font-bold">백테스트 및 모의투자 시뮬레이션 결과</span>를
-                데이터 중심의 포트폴리오 리포트로 담아냈습니다.
-              </p>
-            </div>
+              <div className="space-y-4 text-grey-700">
+                <p>우리는 그 질문에 답하기 위해,</p>
+                <p>
+                  우리 서비스를 기반으로 수행된 <span className="font-bold">백테스트 및 모의투자 시뮬레이션</span> 결과를
+                  데이터 중심의 포트폴리오 리포트로 담아냈습니다.
+                </p>
+              </div>
 
-            <div className="space-y-3 text-white/90">
-              <p>실제 시장 데이터를 바탕으로 전략이 어떻게 작동했는지,</p>
-              <p>모의투자 과정에서 어떤 흐름과 성과가 나타났는지,</p>
-              <p className="font-bold text-white">감(感)이 아닌 검증된 데이터 기반의 투자 인사이트를 제공합니다.</p>
-            </div>
+              <div className="space-y-3 text-grey-700">
+                <p>실제 시장 데이터를 바탕으로 전략이 어떻게 작동했는지,</p>
+                <p>모의투자 과정에서 어떤 흐름과 성과가 나타났는지,</p>
+                <p className="font-bold text-grey-700">감(感)이 아닌 검증된 데이터 기반의 투자 인사이트를 제공합니다.</p>
+              </div>
 
-            <div className="pt-4">
-              <p className="text-white/90 mb-6">
-                지금, 당신의 투자 여정을 더 선명하게 비춰줄 <span className="font-bold">포트폴리오 분석 페이지</span>로
-                이동해보세요.
-              </p>
-              <Button className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-full font-semibold text-lg">
-                → 포트폴리오 분석 페이지
-              </Button>
+              <div className="pt-4">
+                <p className="text-grey-700 mb-10">
+                  지금, 당신의 투자 여정을 더 선명하게 비춰줄 <span className="font-bold">포트폴리오 분석 페이지</span>로
+                  이동해보세요.
+                </p>
+                <Button className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-3 rounded-full font-medium">
+                  → 포트폴리오 분석 페이지
+                </Button>
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Footer Spacing */}
-        <section className="px-6 py-12"></section>
       </main>
     </div>
   )
