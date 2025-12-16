@@ -13,10 +13,17 @@ export default function ServiceIntro() {
         <section id="about" className="px-6 py-20 scroll-mt-16">
           <h1 className="text-4xl font-bold text-foreground mb-10">회사소개</h1>
           <div className="w-full h-px bg-gray-200 mb-12"></div>
+          <Image
+            src="/info_image4.png"
+            alt="우리의 가치"
+            width={130}
+            height={100}
+            className="object-contain mx-auto mb-8"
+          />
           <div className=" text-center space-y-6 mb-13">
             <h2 className="text-2xl font-bold">
-              <span className="text-[#0065F4]">감정 데이터</span>
-              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다.
+              " <span className="text-[#0065F4]">감정 데이터</span>
+              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다. "
             </h2>
             <p className="text-[#999999] text-lg">숫자에 감정을 더한, 새로운 투자 의사결정 파트너</p>
           </div>
