@@ -1,5 +1,5 @@
 import Header from "@/components/header"
-import StockInfo from "@/components/detail-page/stock-info"
+import StockInfoContainer from "@/components/detail-page/stock-info-container"
 import ChartsSection from "@/components/detail-page/charts-section"
 import SentimentScore from "@/components/detail-page/sentiment-score"
 import RelatedArticles from "@/components/related-articles"
@@ -45,7 +45,7 @@ export default async function StockDetailPage({ params }: StockDetailPageProps) 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Charts and info */}
           <div className="lg:col-span-2 space-y-6">
-            <StockInfo
+            <StockInfoContainer
               stockName={stock.name}
               stockCode={stock.code}
               price={stock.price}

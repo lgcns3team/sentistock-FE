@@ -3,12 +3,19 @@
 import { useState } from "react"
 import AveragePriceModal from "./average-price-modal"
 import { Star, X } from "lucide-react"
+import Link from "next/link"
 
 interface StockInfoProps {
   stockName: string
   stockCode: string
   price: number
   change: number
+  subscribe: boolean
+  favoriteCount: number
+  maxFreeFavorites?: number
+
+  isFavorite: boolean
+  onToggleFavorite: () => void
 }
 
 export default function StockInfo({
@@ -16,19 +23,32 @@ export default function StockInfo({
   stockCode,
   price,
   change,
+  subscribe,
+  favoriteCount,
+  // maxFreeFavorites = 5,
+  maxFreeFavorites = 2, // 임시 (현재 stock이 3개만 저장되어있어서 2개로 임시 지정)
+  onToggleFavorite,
+  isFavorite,
 }: StockInfoProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
   const [showAverageModal, setShowAverageModal] = useState(false)
   const [showFavoriteModal, setShowFavoriteModal] = useState(false)
+  const [ showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false)
 
   const handleStarClick = () => {
-    setIsFavorite((prev) => {
-      const next = !prev
-      if (next) {
-        setShowFavoriteModal(true)
-      }
-      return next
-    })
+    // 이미 즐겨찾기라면 "해제"는 제한 없이 허용
+    if (isFavorite) {
+      onToggleFavorite()
+      return
+    }
+
+    // 즐겨찾기 "추가"하려는 순간에만 제한 체크
+    if (!subscribe && favoriteCount >= maxFreeFavorites) {
+      setShowFavoriteLimitModal(true) 
+      return
+    }
+
+    onToggleFavorite()
+    setShowFavoriteModal(true)
   }
 
   const isUp = change >= 0
@@ -80,6 +100,32 @@ export default function StockInfo({
               </button>
             </div>
           </div>
+          {/* 제한 모달 */}
+          {showFavoriteLimitModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+            <div className="relative z-[10000] bg-white rounded-lg p-6 w-[90%] max-w-sm">
+              <h2 className="text-lg font-semibold">즐겨찾기 한도 초과</h2>
+              <p className="text-sm text-gray-600 mt-2">
+                구독하지 않은 계정은 즐겨찾기를 최대 {maxFreeFavorites}개까지 <br />사용할 수 있어요.
+              </p>
+              <div className="flex gap-2 mt-4">
+                <button
+                  className="flex-1 h-10 rounded-md border"
+                  onClick={() => setShowFavoriteLimitModal(false)}
+                >
+                  닫기
+                </button>
+                <Link
+                  href="/my-page/subscription"
+                  className="flex-1 h-10 rounded-md bg-blue-600 text-white flex items-center justify-center"
+                  onClick={() => setShowFavoriteLimitModal(false)}
+                >
+                  구독하기
+              </Link>
+              </div>
+            </div>
+          </div>
+          )}
 
           {/* Right side - 현재가, 등락률 */}
           <div className="text-right sm:ml-auto">
