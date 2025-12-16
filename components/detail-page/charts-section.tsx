@@ -13,6 +13,7 @@ import {
 } from "lightweight-charts"
 import { useEffect, useRef, useState } from "react"
 import { HelpCircle, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // ====== 타입 정의 ======
 export type CandlePoint = {
@@ -100,12 +101,17 @@ export default function ChartsSection({
   candles = demoCandles,
   sentimentHistory = demoSentiment,
 }: ChartsSectionProps) {
+
+  const router = useRouter()
+  // 사용자 구독여부
+  const [isSubscribed, setIsSubscribed] = useState(false)
   // 캔들 + 거래량 + MA
   const candleVolumeContainerRef = useRef<HTMLDivElement | null>(null)
   // 감정 추세 차트
   const sentimentContainerRef = useRef<HTMLDivElement | null>(null)
   // 도움말 모달
   const [showChartHelp, setShowChartHelp] = useState(false)
+  const [showSentimentHelp, setShowSentimentHelp] = useState(false)
 
   // ========== 캔들 + 거래량 + 이동평균선 ==========
   useEffect(() => {
@@ -323,23 +329,57 @@ export default function ChartsSection({
 
 
       {/* 감정 추세 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          감정 추세 히스토리
-        </h3>
-        <div
-          ref={sentimentContainerRef}
-          className="h-64 w-full rounded bg-gradient-to-b from-purple-50 to-gray-50"
-        />
+      <div className="bg-white rounded-lg border border-gray-200 p-6 relative overflow-hidden">
+        
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-sm font-semibold text-gray-900">
+              감정 추세 히스토리
+            </h3>
+
+            <button
+              onClick={() => setShowSentimentHelp(true)}
+              className="text-gray-400 hover:text-gray-600">
+              <HelpCircle className="w-4 sm:w-5 h-4 sm:h-5" />
+            </button>
+          </div>
+
+        <div className="relative">
+          {/* 차트 영역 */}
+          <div
+            className={`relative ${
+              !isSubscribed ? "blur-sm pointer-events-none select-none" : ""
+            }`}>
+            <div
+              ref={sentimentContainerRef}
+              className="h-64 w-full rounded bg-gradient-to-b from-purple-50 to-gray-50"/>
+          </div>
+
+          {/* 오버레이 */}
+          {!isSubscribed && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm z-20">
+              <p className="text-sm font-semibold text-gray-800 mb-2">
+                🔒 구독자 전용 콘텐츠
+              </p>
+              <p className="text-xs text-gray-600 mb-4 text-center">
+                감정 추세 히스토리는 구독 후 확인할 수 있어요
+              </p>
+              <button
+                onClick={() => router.push("/my-page/subscription")}
+                className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                구독 하기
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      {/* Help Modal */}
+
+      {/* Chart Help Modal */}
       {showChartHelp && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg w-full max-w-[430px] p-4 sm:p-6 relative">
             <button
               onClick={() => setShowChartHelp(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
               <X className="w-4 sm:w-5 h-4 sm:h-5" />
             </button>
 
@@ -352,8 +392,39 @@ export default function ChartsSection({
 
             <button
               onClick={() => setShowChartHelp(false)}
-              className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 text-sm"
-            >
+              className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 text-sm">
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sentiment Help Modal */}
+      {showSentimentHelp && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-[430px] p-4 sm:p-6 relative">
+            <button
+              onClick={() => setShowSentimentHelp(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+              <X className="w-4 sm:w-5 h-4 sm:h-5" />
+            </button>
+
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
+              감정 추세 히스토리란?
+            </h2>
+
+            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+              감정 추세 히스토리는 뉴스 데이터를 기반으로<br />
+              특정 종목에 대한 시장의 감정 변화를 시간 흐름에 따라<br />
+              시각화한 지표입니다.
+              <br /><br />
+              점수가 높을수록 긍정적인 시장 심리가 우세하며,<br />
+              급격한 변화는 투자 심리 전환 신호로 활용할 수 있습니다.
+            </p>
+
+            <button
+              onClick={() => setShowSentimentHelp(false)}
+              className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 text-sm">
               확인
             </button>
           </div>
