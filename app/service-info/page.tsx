@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import  Header from "@/components/header"
 import Image from "next/image";
+import Link from "next/link";
+
 
 export default function ServiceIntro() {
   return (
@@ -22,8 +24,8 @@ export default function ServiceIntro() {
           />
           <div className=" text-center space-y-6 mb-13">
             <h2 className="text-2xl font-bold">
-              " <span className="text-[#0065F4]">감정 데이터</span>
-              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다. "
+              <span className="text-[#0065F4]">감정 데이터</span>
+              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다.
             </h2>
             <p className="text-[#999999] text-lg">숫자에 감정을 더한, 새로운 투자 의사결정 파트너</p>
           </div>
@@ -178,8 +180,9 @@ export default function ServiceIntro() {
                   지금, 당신의 투자 여정을 더 선명하게 비춰줄 <span className="font-bold">포트폴리오 분석 페이지</span>로
                   이동해보세요.
                 </p>
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-3 rounded-full font-medium">
-                  → 포트폴리오 분석 페이지
+                <Button
+                      asChild className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-3 rounded-full font-medium">
+                  <Link href="/backtest">→ 포트폴리오 분석 페이지</Link>
                 </Button>
               </div>
             </div>
