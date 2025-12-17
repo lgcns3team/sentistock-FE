@@ -42,7 +42,7 @@ export default function FeaturesSection() {
              className="object-contain"
             /> 
             <h3 className="text-3xl font-extrabold text-slate-900">
-              실시간 급등락 <br />종목 모니터링
+              실시간 <br />종목 모니터링
             </h3>
           </div>
           <p className="text-lg text-slate-700 mb-4">
