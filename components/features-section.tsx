@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function FeaturesSection() {
   return (
-    <section className="w-full bg-white py-10 px-4">
+    <section className="w-full bg-white py-16 px-4">
       <div className="max-w-6xl mx-auto flex flex-col gap-8 md:flex-row">
         {/* 1. 관심 섹터 맞춤 설정 */}
         <div className="flex-1 p-10">
