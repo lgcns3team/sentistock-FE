@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
 import Image from "next/image"
-import { DeleteAccountModal } from "@/components/delete-account-modal"
+import { DeleteAccountModal } from "@/components/mypage/delete-account-modal"
 
 const myPageItems = [
   { label: "회원정보 조회", href: "/my-page" },
