@@ -9,7 +9,9 @@ type PaymentMethod = "CARD"
 type CardField = "cardNumber" | "cardExpiry" | "cardBirth" | "cardPassword"
 type CardErrors = Partial<Record<CardField, string>>
 
+// --------------------
 // 유효성 검사 함수들
+// --------------------
 const isValidCardNumber = (value: string) => {
   const onlyDigits = value.replace(/\s/g, "")
   return /^\d{16}$/.test(onlyDigits)
@@ -28,6 +30,39 @@ const isValidBirth = (value: string) => {
 const isValidPassword = (value: string) => {
   // 앞 2자리 숫자
   return /^\d{2}$/.test(value)
+}
+
+// --------------------
+// 유효기간 입력 포맷 (자동 "/" + 월 01~12 제한)
+// --------------------
+const formatExpiryInput = (raw: string, prev: string) => {
+  const digits = raw.replace(/\D/g, "").slice(0, 4)
+
+  // 사용자가 "09/" 상태에서 "/"만 백스페이스로 지우려는 경우
+  // (안 막아주면 다시 "/"가 붙어서 UX 빡침)
+  if (prev.length === 3 && prev.endsWith("/") && raw.length === 2 && digits.length === 2) {
+    return digits // "09"
+  }
+
+  if (digits.length === 0) return ""
+  if (digits.length === 1) return digits
+
+  // 월 2자리 확보되면: 01~12로 강제 보정
+  let mm = digits.slice(0, 2)
+  const mmNum = Number(mm)
+
+  if (!Number.isFinite(mmNum)) return ""
+
+  // 00 -> 01, 13~99 -> 12
+  if (mmNum === 0) mm = "01"
+  else if (mmNum > 12) mm = "12"
+
+  // 2자리면 자동 "/"
+  if (digits.length === 2) return `${mm}/`
+
+  // 3~4자리면 MM/YY
+  const yy = digits.slice(2)
+  return `${mm}/${yy}`
 }
 
 export default function SubscriptionCard() {
@@ -127,7 +162,6 @@ export default function SubscriptionCard() {
 
   // STEP2 → STEP3
   const handleNextFromStep2 = () => {
-    // 카드만 있으니까 카드 검증만 하면 됨
     const errors = validateCard()
     if (Object.keys(errors).length > 0) {
       setCardErrors(errors)
@@ -196,7 +230,7 @@ export default function SubscriptionCard() {
         </p>
       </div>
 
-      {/* 약관 모달: 끝까지 읽고 확인 누르면 setAgree(true) */}
+      {/* 약관 모달 */}
       <TermsDialog
         open={termsOpen}
         onOpenChange={setTermsOpen}
@@ -209,12 +243,10 @@ export default function SubscriptionCard() {
       {/* 구독 모달 */}
       {open && (
         <>
-          {/* 오버레이 */}
           <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} />
 
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-              {/* STEP 표시 */}
               <div className="mb-3 flex items-center justify-between text-xs text-gray-400">
                 <span>
                   {step === 1 && "1/3 요금제 및 약관"}
@@ -254,7 +286,6 @@ export default function SubscriptionCard() {
                     </p>
                   </div>
 
-                  {/* 약관 동의 */}
                   <div className="mb-6">
                     <div className="flex items-start gap-2 text-xs text-gray-600">
                       <input
@@ -318,14 +349,12 @@ export default function SubscriptionCard() {
                     </button>
                   </div>
 
-                  {/* 카드만 표시(카카오/네이버 삭제) */}
                   <div className="mb-4 flex justify-start text-xs">
                     <div className="inline-flex w-fit justify-start rounded-full border border-blue-500 bg-blue-50 px-4 py-2 font-medium text-blue-700">
                       신용/체크카드
                     </div>
                   </div>
 
-                  {/* 카드 정보 폼 */}
                   <div className="mb-4 space-y-3 text-sm">
                     <div>
                       <label className="mb-1 block text-xs text-gray-500">카드 번호</label>
@@ -338,6 +367,7 @@ export default function SubscriptionCard() {
                         }}
                         placeholder="1234 5678 9012 3456"
                         maxLength={19}
+                        inputMode="numeric"
                         className={inputClass(!!cardErrors.cardNumber)}
                       />
                       {cardErrors.cardNumber && (
@@ -356,11 +386,13 @@ export default function SubscriptionCard() {
                           type="text"
                           value={cardExpiry}
                           onChange={e => {
-                            setCardExpiry(e.target.value)
+                            const next = formatExpiryInput(e.target.value, cardExpiry)
+                            setCardExpiry(next)
                             clearCardError("cardExpiry")
                           }}
                           placeholder="09/27"
                           maxLength={5}
+                          inputMode="numeric"
                           className={inputClass(!!cardErrors.cardExpiry)}
                         />
                         {cardErrors.cardExpiry && (
@@ -383,6 +415,7 @@ export default function SubscriptionCard() {
                           }}
                           placeholder="990101"
                           maxLength={6}
+                          inputMode="numeric"
                           className={inputClass(!!cardErrors.cardBirth)}
                         />
                         {cardErrors.cardBirth && (
@@ -406,6 +439,7 @@ export default function SubscriptionCard() {
                         }}
                         placeholder="**"
                         maxLength={2}
+                        inputMode="numeric"
                         className={inputClass(!!cardErrors.cardPassword)}
                       />
                       {cardErrors.cardPassword && (
@@ -457,7 +491,8 @@ export default function SubscriptionCard() {
                       (월 1,900원, 첫 달 100원)
                     </p>
                     <p>
-                      <span className="font-semibold">결제 수단:</span> 신용/체크카드
+                      <span className="font-semibold">결제 수단:</span>{" "}
+                      {paymentMethod === "CARD" ? "신용/체크카드" : "기타"}
                     </p>
                     <p className="text-xs text-gray-600">카드 번호: {cardNumber}</p>
                     <p className="text-xs text-gray-500">
