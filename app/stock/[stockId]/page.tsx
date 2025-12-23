@@ -2,7 +2,7 @@ import Header from "@/components/header"
 import StockInfoContainer from "@/components/detail-page/stock-info-container"
 import ChartsSection from "@/components/detail-page/charts-section"
 import SentimentScore from "@/components/detail-page/sentiment-score"
-import RelatedArticles from "@/components/related-articles"
+import RelatedArticles from "@/components/detail-page/related-articles"
 import ValueChain from "@/components/detail-page/value-chain"
 import StockSearch from "@/components/detail-page/stock-search"
 
