@@ -2,17 +2,28 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 export default function NotificationSettingsPage() {
-  const [savedOpen, setSavedOpen] = useState(false)
+  const router = useRouter()
+  const SUBSCRIBE_PATH = "/my-page/subscription"
 
+  // TODO: 나중에 API/세션에서 구독 여부 받아오기
+  const isSubscriber = false // 잠그려면 false , 열려면 true
+  const profitLocked = !isSubscriber
+
+  const [emailOn, setEmailOn] = useState(false)
+  const [webPushOn, setWebPushOn] = useState(false)
+  const [profitOn, setProfitOn] = useState(false)
+  const [threshold, setThreshold] = useState("3")
+
+  const [savedOpen, setSavedOpen] = useState(false)
   const closeModal = () => setSavedOpen(false)
 
-  // ESC로 닫기
   useEffect(() => {
     if (!savedOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
@@ -23,10 +34,38 @@ export default function NotificationSettingsPage() {
   }, [savedOpen])
 
   const handleSave = () => {
-    // TODO: 나중에 여기서 실제 저장 API 호출
-    // await fetch("/api/notifications", { method: "POST", body: ... })
-
     setSavedOpen(true)
+  }
+
+  const handleReset = () => {
+    setEmailOn(false)
+    setWebPushOn(false)
+    setProfitOn(false)
+    setThreshold("3")
+  }
+
+  const goSubscribe = () => {
+    router.push(SUBSCRIBE_PATH)
+  }
+
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value
+
+    // 지우는 입력은 허용
+    if (raw === "") {
+      setThreshold("")
+      return
+    }
+
+    const num = Number(raw)
+    if (Number.isNaN(num)) return
+
+    // 음수 방지
+    setThreshold(String(Math.max(0, num)))
+  }
+
+  const handleThresholdBlur = () => {
+    if (threshold === "") setThreshold("5")
   }
 
   return (
@@ -37,9 +76,7 @@ export default function NotificationSettingsPage() {
       </p>
 
       <div className="max-w-4xl space-y-12">
-        {/* Section 1: 일반 알림 */}
         <section className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-8">
-          {/* 이메일 알림 */}
           <div>
             <Label className="text-sm font-medium">이메일 알림</Label>
             <p className="text-sm text-gray-500">
@@ -47,10 +84,9 @@ export default function NotificationSettingsPage() {
             </p>
           </div>
           <div className="flex h-full items-center justify-end">
-            <Switch />
+            <Switch checked={emailOn} onCheckedChange={setEmailOn} />
           </div>
 
-          {/* 웹 푸시 알림 */}
           <div>
             <Label className="text-sm font-medium">웹 푸시 알림</Label>
             <p className="text-sm text-gray-500">
@@ -58,30 +94,68 @@ export default function NotificationSettingsPage() {
             </p>
           </div>
           <div className="flex h-full items-center justify-end">
-            <Switch />
+            <Switch checked={webPushOn} onCheckedChange={setWebPushOn} />
           </div>
         </section>
 
-        {/* 수익률 알림 */}
         <section className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-8">
           <div>
-            <Label className="text-sm font-medium">수익률 알림</Label>
-            <p className="text-sm text-gray-500">
-              평단가 기준 수익률이 임계값에 도달하면 알림을 보내요.
-            </p>
+            <div className={profitLocked ? "opacity-60" : ""}>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium">손익률 알림</Label>
+                {profitLocked && (
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                    프리미엄 전용
+                  </span>
+                )}
+              </div>
 
-            <div className="mt-3 max-w-xs">
-              <Label className="mb-1 block text-sm font-medium">임계값 (%)</Label>
-              <Input type="number" defaultValue="5" />
+              <p className="text-sm text-gray-500">
+                평단가 기준 손익률이 임계값에 도달하면 알림을 보내요.
+              </p>
+
+              <div className="mt-3 max-w-xs">
+                <Label className="mb-1 block text-sm font-medium">임계값 (%)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={threshold}
+                  onChange={handleThresholdChange}
+                  onBlur={handleThresholdBlur}
+                  disabled={profitLocked}
+                />
+              </div>
             </div>
+
+            {profitLocked && (
+              <div className="mt-2 text-sm text-gray-500">
+                프리미엄 구독자만 설정할 수 있어요.{" "}
+                <button
+                  type="button"
+                  className="inline-flex cursor-pointer items-center rounded-md px-2 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                  onClick={goSubscribe}
+                >
+                  구독하러 가기
+                </button>
+              </div>
+            )}
           </div>
+
           <div className="flex h-full items-start justify-end pt-1">
-            <Switch />
+            <Switch
+              checked={profitOn}
+              onCheckedChange={setProfitOn}
+              disabled={profitLocked}
+            />
           </div>
         </section>
 
         <div className="flex justify-end gap-3 pt-6">
-          <Button variant="outline" className="border-gray-300 bg-transparent">
+          <Button
+            variant="outline"
+            className="border-gray-300 bg-transparent"
+            onClick={handleReset}
+          >
             초기화
           </Button>
           <Button
@@ -93,16 +167,10 @@ export default function NotificationSettingsPage() {
         </div>
       </div>
 
-      {/* 저장 완료 모달 */}
       {savedOpen && (
         <>
-          {/* overlay */}
-          <div
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={closeModal}
-          />
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={closeModal} />
 
-          {/* modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div
               className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
