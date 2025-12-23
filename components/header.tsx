@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <header className="relative bg-white border-b border-gray-200">
       {/* 헤더 */}
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between relative z-50">
         {/* Logo */}
         <Link href="/main-page">
           <Image
@@ -55,11 +55,7 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(prev => !prev)}
             className="md:hidden p-2 hover:bg-gray-100 rounded-full"
           >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
           {/* 알림 */}
@@ -88,24 +84,27 @@ export default function Header() {
               <div className="px-3 py-2 text-sm font-medium border-b">
                 admin 님
               </div>
-
               <DropdownMenuItem asChild>
                 <Link href="/my-page">마이페이지</Link>
               </DropdownMenuItem>
-
               <DropdownMenuItem asChild>
                 <Link href="/favorites">즐겨찾기 목록</Link>
               </DropdownMenuItem>
-
               <DropdownMenuItem>로그아웃</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* ✅ 모바일 전체 가로 메뉴 (헤더 끝부터 시작) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-screen bg-white border-t shadow-md z-50">
+        <div
+          className="absolute top-full left-0 w-full h-screen bg-black/40 z-40"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-screen bg-white shadow-lg z-50">
           <nav className="flex flex-col divide-y">
             <Link
               href="/service-info"
