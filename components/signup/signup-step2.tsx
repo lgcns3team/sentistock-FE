@@ -42,7 +42,7 @@ export default function SignupStep2({ onNext, onPrevious, onProgressChange, }: S
     },
     {
       id: 3,
-      question: "투자한 경험이 있는 항목을 선택해주세요 (중복 가능)",
+      question: "투자한 경험이 있는 항목을 선택해주세요.",
       options: [
         { label: "금융투자상품에 투자해 본 경험이 없음", score: 0 },
         { label: "주식신용거래, 선물/옵션 등 고위험 상품", score: 6 },
@@ -102,11 +102,11 @@ export default function SignupStep2({ onNext, onPrevious, onProgressChange, }: S
       id: 9,
       question: "현재 투자자산에 대한 투자예정기간은 어떻게 되시나요?",
       options: [
-        { label: "1년 미만", score: 1 },
-        { label: "1년 ~ 2년 미만", score: 2 },
-        { label: "2년 ~ 3년 미만", score: 3 },
-        { label: "3년 ~ 5년 미만", score: 4 },
-        { label: "5년 이상", score: 5 },
+        { label: "1년 미만", score: 0 },
+        { label: "1년 ~ 2년 미만", score: 0 },
+        { label: "2년 ~ 3년 미만", score: 0 },
+        { label: "3년 ~ 5년 미만", score: 0 },
+        { label: "5년 이상", score: 0 },
       ],
     },
     {
@@ -192,7 +192,7 @@ export default function SignupStep2({ onNext, onPrevious, onProgressChange, }: S
           <h3 className="text-3xl font-bold text-primary">{investmentType.type}</h3>
           <div className="flex justify-center gap-2 text-lg">
             <span className="font-semibold text-primary">{totalScore}점</span>
-            <span className="text-muted-foreground">/ 45점</span>
+            <span className="text-muted-foreground">/ 40점</span>
           </div>
         </div>
 
