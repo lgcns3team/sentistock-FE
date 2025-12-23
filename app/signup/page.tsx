@@ -3,37 +3,30 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-import SignupHeader from "@/components/signup/header"
-import SignupStep1 from "@/components/signup/signup-step1"
-import SignupStep2 from "@/components/signup/signup-step2"
+import SignupStep1, { Step1Data } from "@/components/signup/signup-step1"
+import SignupStep2, { Step2Result } from "@/components/signup/signup-step2"
 import SignupStep3 from "@/components/signup/signup-step3"
 import ProgressBar from "@/components/signup/progress-bar"
 import Image from "next/image"
 
-interface SignupData {
-  nickname: string
-  userId: string
-  password: string
-  passwordConfirm: string
-  email: string
+import { signup } from "@/lib/api/auth"
+
+interface SignupData extends Step1Data {
   investmentScore: number
   investmentType: string
-  selectedInterests: string[]
+  favoriteSectorIds: number[]
 }
 
-export default function SignupPage() {
+export default function Page() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // method = null → 회원가입 선택 화면
   const method = searchParams.get("method")
-  const inSignup = method !== null
+  const isSignupFlow = method !== null
 
-  // 회원가입 스텝 관리
-  const [currentStep, setCurrentStep] = useState(1)
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
+  const [step, setStep] = useState(1)
+  const [quizProgress, setQuizProgress] = useState(1)
 
-  // 회원가입 전체 데이터
   const [signupData, setSignupData] = useState<SignupData>({
     nickname: "",
     userId: "",
@@ -42,57 +35,61 @@ export default function SignupPage() {
     email: "",
     investmentScore: 0,
     investmentType: "",
-    selectedInterests: [],
+    favoriteSectorIds: [],
   })
 
   useEffect(() => {
     if (method === "kakao") {
-      setCurrentStep(2)
+      setStep(2)
     }
   }, [method])
 
-  const handleNextStep = (data?: Partial<SignupData>) => {
-    if (data) {
-      setSignupData((prev) => ({ ...prev, ...data }))
-    }
-
-    if (currentStep === 2) {
-      setCurrentQuestionIdx(0)
-    }
-
-    setCurrentStep((prev) => Math.min(prev + 1, 3))
+  const handleStep1Next = (data: Step1Data) => {
+    setSignupData((prev) => ({ ...prev, ...data }))
+    setStep(2)
   }
 
-  const handlePreviousStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1))
+  const handleStep2Next = (data: Step2Result) => {
+    setSignupData((prev) => ({
+      ...prev,
+      investmentScore: data.investmentScore,
+      investmentType: data.investmentType,
+    }))
+    setStep(3)
   }
 
-  const handleSubmit = () => {
-    console.log("Signup completed:", signupData)
-    alert("회원가입이 완료되었습니다!")
-  }
+  const handleStep3Submit = async (sectorIds: number[]) => {
+    try {
+      await signup({
+        nickname: signupData.nickname,
+        userId: signupData.userId,
+        password: signupData.password,
+        passwordConfirm: signupData.passwordConfirm,
+        userEmail: signupData.email,
+        investorScore: signupData.investmentScore,
+        favoriteSectorIds: sectorIds,
+      })
 
-  const getProgressBarProps = () => {
-    if (currentStep === 2) {
-      return {
-        currentStep,
-        totalSteps: 3,
-        quizProgress: currentQuestionIdx + 1,
-        quizTotal: 10,
+      alert("회원가입이 완료되었습니다!")
+      router.push("/main-page")
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message)
+      } else {
+        alert("회원가입 중 오류가 발생했습니다.")
       }
     }
-    return {
-      currentStep,
-      totalSteps: 3,
-    }
+  }
+
+  const handlePrevious = () => {
+    setStep((prev) => Math.max(prev - 1, 1))
   }
 
   return (
     <main className="min-h-screen bg-background">
-      <SignupHeader />
-
       <div className="max-w-3xl mx-auto px-4 py-8">
-        {!inSignup && (
+
+        {!isSignupFlow && (
           <div className="max-w-xl mx-auto mt-18 text-center">
             <h1 className="text-3xl font-bold text-[#000000] mb-5">회원가입</h1>
 
@@ -136,58 +133,63 @@ export default function SignupPage() {
                   </div>
                   <span>카카오톡 간편 회원가입</span>
                 </button>
-
+                
               </div>
             </div>
           </div>
         )}
 
-        {inSignup && (
+        {isSignupFlow && (
           <>
             {/* Header */}
             <div className="mb-12">
-              <h1 className="text-3xl font-bold text-[#0065F4] mb-2">회원가입</h1>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                회원가입
+              </h1>
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex justify-between mb-4">
                 <span className="text-sm text-muted-foreground">
-                  {method === "kakao" ? "카카오톡으로 빠르게 회원가입" : "sentistock 회원가입"}
+                  {method === "kakao"
+                    ? "카카오톡으로 빠르게 회원가입"
+                    : "sentistock 회원가입"}
                 </span>
-                <span className="text-sm font-semibold text-primary">{currentStep}/3</span>
+                <span className="text-sm font-semibold">{step}/3</span>
               </div>
 
-              <ProgressBar {...getProgressBarProps()} />
+              <ProgressBar
+                currentStep={step}
+                totalSteps={3}
+                quizProgress={step === 2 ? quizProgress : undefined}
+                quizTotal={step === 2 ? 10 : undefined}
+              />
             </div>
 
             {/* Content */}
-            <div className="bg-white rounded-lg border border-border p-8 shadow-sm">
-
-              {currentStep === 1 && (
-                <SignupStep1 data={signupData} onNext={handleNextStep} />
+            <div className="bg-white rounded-lg border p-8 shadow-sm">
+              {step === 1 && (
+                <SignupStep1
+                  data={signupData}
+                  onNext={handleStep1Next}
+                />
               )}
 
-              {currentStep === 2 && (
+              {step === 2 && (
                 <SignupStep2
-                  data={signupData}
-                  onNext={handleNextStep}
-                  onPrevious={handlePreviousStep}
-                  currentQuestionIdx={currentQuestionIdx}
-                  setCurrentQuestionIdx={setCurrentQuestionIdx}
+                  onNext={handleStep2Next}
+                  onPrevious={handlePrevious}
+                  onProgressChange={setQuizProgress}
                 />
               )}
 
-              {currentStep === 3 && (
+              {step === 3 && (
                 <SignupStep3
-                  data={signupData}
-                  onNext={handleNextStep}
-                  onPrevious={handlePreviousStep}
-                  onSubmit={handleSubmit}
+                  onPrevious={handlePrevious}
+                  onSubmit={handleStep3Submit}
                 />
               )}
-
             </div>
           </>
         )}
-
       </div>
     </main>
   )

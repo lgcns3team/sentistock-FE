@@ -1,27 +1,25 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 
-interface SignupStep2Props {
-  data: any
-  onNext: (data: any) => void
-  onPrevious: () => void
-  currentQuestionIdx: number
-  setCurrentQuestionIdx: (idx: number) => void
+export interface Step2Result {
+  investmentScore: number
+  investmentType: string
 }
 
-export default function SignupStep2({
-  data,
-  onNext,
-  onPrevious,
-  currentQuestionIdx,
-  setCurrentQuestionIdx,
-}: SignupStep2Props) {
-  const [answers, setAnswers] = useState<(number | null)[]>(new Array(10).fill(null))
+interface SignupStep2Props {
+  onNext: (data: Step2Result) => void
+  onPrevious: () => void
+  onProgressChange: (current: number) => void
+}
+
+export default function SignupStep2({ onNext, onPrevious, onProgressChange, }: SignupStep2Props) {
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(10).fill(null))
+  const [idx, setIdx] = useState(0)
   const [showResult, setShowResult] = useState(false)
 
-  const questions = [
+    const questions = [
     {
       id: 1,
       question: "향후 수입을 어떻게 예상하시나요?",
@@ -44,7 +42,7 @@ export default function SignupStep2({
     },
     {
       id: 3,
-      question: "투자한 경험이 있는 항목을 선택해주세요 (가장 높은 점수 선택)",
+      question: "투자한 경험이 있는 항목을 선택해주세요 (중복 가능)",
       options: [
         { label: "금융투자상품에 투자해 본 경험이 없음", score: 0 },
         { label: "주식신용거래, 선물/옵션 등 고위험 상품", score: 6 },
@@ -66,9 +64,9 @@ export default function SignupStep2({
       question: "고객님께서 감내하실 수 있는 투자수익 및 위험수준은 어느 정도인가요?",
       options: [
         { label: "무슨 일이 있어도 투자원금은 보전돼야해요", score: 1 },
-        { label: "10% 정도만 변동이 있어도 매도하고 나와야 해요", score: 2 },
-        { label: "20% 정도는 당황하지 않고 추가 매수도 가능해요", score: 3 },
-        { label: "30% 정도 변동은 버틸 수 있고 그 이상의 변동도 가능해요", score: 4 },
+        { label: "10% 정도만 변동이 있어도 매도하고 나와야 해요", score: 3 },
+        { label: "20% 정도는 당황하지 않고 추가 매수도 가능해요", score: 4 },
+        { label: "30% 정도 변동은 버틸 수 있고 그 이상의 변동도 가능해요", score: 5 },
       ],
     },
     {
@@ -124,17 +122,19 @@ export default function SignupStep2({
     },
   ]
 
-  const totalScore = useMemo(() => {
-    return answers.reduce<number>((sum, answerIdx, questionIdx) => {
-      if (answerIdx !== null) {
-        return sum + questions[questionIdx].options[answerIdx].score
-      }
-      return sum
-    }, 0)
-  }, [answers])
+  useEffect(() => {
+    onProgressChange(idx+1)
+  }, [idx, onProgressChange])
+
+  const totalScore = useMemo<number>(() =>
+    answers.reduce<number>((sum, v, i) =>
+      v !== null ? sum + questions[i].options[v].score : sum
+    , 0),
+    [answers, questions]
+  )
 
   const investmentType = useMemo(() => {
-    const score = totalScore ?? 0  // Provide a fallback value
+    const score = totalScore ?? 0
     if (score >= 30)
       return { type: "공격투자형", level: 1, description: "높은 수익을 위해 큰 폭의 가격 변동도 적극적으로 감수하는 투자 성향입니다." }
     if (score >= 25)
@@ -146,30 +146,6 @@ export default function SignupStep2({
     return { type: "안정형", level: 5, description: "원금 보전을 최우선으로 하며, 손실 가능성이 매우 낮은 안전 자산을 선호하는 투자 성향입니다." }
   }, [totalScore])
 
-  const handleSelectOption = (optionIndex: number) => {
-    const newAnswers = [...answers]
-    newAnswers[currentQuestionIdx] = optionIndex
-    setAnswers(newAnswers)
-  }
-
-  const handleNext = () => {
-    if (answers[currentQuestionIdx] === null) {
-      alert("이 질문에 답변해주세요")
-      return
-    }
-    if (currentQuestionIdx < questions.length - 1) {
-      setCurrentQuestionIdx(currentQuestionIdx + 1)
-    } else {
-      setShowResult(true)
-    }
-  }
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIdx > 0) {
-      setCurrentQuestionIdx(currentQuestionIdx - 1)
-    }
-  }
-
   const handleSubmitStep = () => {
     onNext({
       investmentScore: totalScore,
@@ -177,10 +153,40 @@ export default function SignupStep2({
     })
   }
 
+  const currentQuestion = questions[idx]
+
+  const handlePrevQuestion = () => {
+    if (idx > 0) {
+      setIdx((prev) => prev - 1)
+    } else {
+      onPrevious()
+    }
+  }
+
+  const handleNext = () => {
+    if (answers[idx] === null) {
+      alert("이 질문에 답변해주세요")
+      return
+    }
+
+    if (idx === questions.length - 1) {
+      setShowResult(true)
+    } else {
+      setIdx((prev) => prev + 1)
+    }
+  }
+
+  const handleSelectOption = (optionIndex: number) => {
+    const copy = [...answers]
+    copy[idx] = optionIndex
+    setAnswers(copy)
+  }
+
+
   if (showResult) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-foreground text-center">당신의 투자 성향은?</h2>
+        <h2 className="text-2xl font-bold text-center">당신의 투자 성향은?</h2>
 
         <div className="text-center space-y-3">
           <h3 className="text-3xl font-bold text-primary">{investmentType.type}</h3>
@@ -203,10 +209,7 @@ export default function SignupStep2({
           <Button onClick={() => setShowResult(false)} variant="outline" className="flex-1 h-12">
             다시 검토
           </Button>
-          <Button
-            onClick={handleSubmitStep}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12"
-          >
+          <Button onClick={handleSubmitStep} className="flex-1 h-12">
             다음
           </Button>
         </div>
@@ -214,12 +217,14 @@ export default function SignupStep2({
     )
   }
 
-  const currentQuestion = questions[currentQuestionIdx]
+  const q = questions[idx]
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-2">Q. {currentQuestion.question}</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-2">
+          Q. {currentQuestion.question}
+        </h2>
       </div>
 
       <div className="space-y-3">
@@ -228,7 +233,7 @@ export default function SignupStep2({
             key={index}
             onClick={() => handleSelectOption(index)}
             className={`w-full p-4 text-left rounded-md border-2 transition-all ${
-              answers[currentQuestionIdx] === index
+              answers[idx] === index
                 ? "border-primary bg-accent/10"
                 : "border-border bg-card hover:border-secondary"
             }`}
@@ -236,10 +241,14 @@ export default function SignupStep2({
             <div className="flex items-center gap-3">
               <div
                 className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                  answers[currentQuestionIdx] === index ? "border-primary bg-primary" : "border-border"
+                  answers[idx] === index
+                    ? "border-primary bg-primary"
+                    : "border-border"
                 }`}
               >
-                {answers[currentQuestionIdx] === index && <div className="w-2 h-2 bg-white rounded-full" />}
+                {answers[idx] === index && (
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                )}
               </div>
               <span className="text-sm text-foreground">{option.label}</span>
             </div>
@@ -249,20 +258,22 @@ export default function SignupStep2({
 
       <div className="flex gap-3 pt-6">
         <Button
-          onClick={currentQuestionIdx === 0 ? onPrevious : handlePrevQuestion}
+          onClick={handlePrevQuestion}
           variant="outline"
           className="flex-1 h-12 bg-transparent"
-          disabled={currentQuestionIdx === 0}
+          disabled={idx === 0}
         >
-          {currentQuestionIdx === 0 ? "이전" : "이전 질문"}
+          {idx === 0 ? "이전" : "이전 질문"}
         </Button>
+
         <Button
           onClick={handleNext}
           className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12"
         >
-          {currentQuestionIdx === questions.length - 1 ? "완료" : "다음 질문"}
+          {idx === questions.length - 1 ? "완료" : "다음 질문"}
         </Button>
       </div>
     </div>
+
   )
 }
