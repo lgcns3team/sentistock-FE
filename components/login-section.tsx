@@ -1,9 +1,12 @@
 import Image from "next/image";
+import { useState } from "react"
 import Link from "next/link";
+import { Menu, X } from "lucide-react"
 
 export default function LoginSection() {
+   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   return (
-    <div className="w-full h-screen flex flex-col relative overflow-hidden">
+    <div className="w-full h-screen flex flex-col relative">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -13,7 +16,7 @@ export default function LoginSection() {
 
       <div className="relative z-10 w-full h-full flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-12 py-4 flex justify-between items-center">
+        <header className="relative bg-white border-b border-gray-200 px-12 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Image
                 src="/logo.png"
@@ -22,21 +25,75 @@ export default function LoginSection() {
                 height={150}
                 className="object-contain"
             />
-            </div>
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-700">
-            <a href="/service-info" className="hover:text-blue-600 transition">
+          </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8 ml-auto">
+            <Link href="/service-info" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               회사소개
-            </a>
-            <a href="/notice" className="hover:text-blue-600 transition">
+            </Link>
+            <Link href="/notice" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               공지사항
-            </a>
-            <a href="/customer-center" className="hover:text-blue-600 transition">
+            </Link>
+            <Link href="/customer-center" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               고객센터
-            </a>
-            <a href="/faq" className="hover:text-blue-600 transition">
+            </Link>
+            <Link href="/faq" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               자주 묻는 질문
-            </a>
+            </Link>
           </nav>
+
+          {/* Right icons */}
+          <div className="flex items-center gap-4 ml-6">
+            {/* 모바일 햄버거 */}
+            <button
+              onClick={() => setIsMobileMenuOpen(prev => !prev)}
+              className="md:hidden p-2 hover:bg-gray-100 rounded-full"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {isMobileMenuOpen && (
+            <div
+              className="absolute top-full left-0 w-full h-screen bg-black/40 z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+          )}
+
+          {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-screen bg-white shadow-lg z-50">
+            <nav className="flex flex-col divide-y">
+              <Link
+                href="/service-info"
+                className="px-6 py-4 text-sm font-medium hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                회사소개
+              </Link>
+              <Link
+                href="/notice"
+                className="px-6 py-4 text-sm font-medium hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                공지사항
+              </Link>
+              <Link
+                href="/customer-center"
+                className="px-6 py-4 text-sm font-medium hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                고객센터
+              </Link>
+              <Link
+                href="/faq"
+                className="px-6 py-4 text-sm font-medium hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                자주 묻는 질문
+              </Link>
+            </nav>
+          </div>
+        )}
         </header>
 
         <div className="flex-1 flex items-center px-12 overflow-hidden">
