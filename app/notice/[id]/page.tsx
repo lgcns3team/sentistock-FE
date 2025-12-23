@@ -75,7 +75,7 @@ export default async function NoticeDetailPage({ params }: NoticeDetailProps) {
           </div>
 
           <div className="flex justify-center pt-8 md:pt-3">
-            <Link href="/">
+            <Link href="/notice">
               <button className="px-12 py-4 md:py-2 bg-[rgb(0,73,150)] hover:bg-[rgb(6,31,91)] text-white font-medium text-lg rounded-md transition">
                 목록으로
               </button>

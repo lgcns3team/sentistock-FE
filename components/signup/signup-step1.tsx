@@ -45,7 +45,7 @@ export default function SignupStep1({ data, onNext }: SignupStep1Props) {
 
     if (!formData.userId.trim()) {
       newErrors.userId = "아이디를 입력해주세요"
-    } else if(!/^(?=.*[a-zA-Z])(?=.*[0-9]).{6,12}$/.test(formData.userId)) {
+    } else if(!/^[a-zA-Z0-9]{6,12}$/.test(formData.userId)) {
       newErrors.userId = "아이디는 영문, 숫자 포함 6자 이상 12자 이하이어야 합니다"
     }
 

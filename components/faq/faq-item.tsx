@@ -47,7 +47,10 @@ export function FAQItem({ question, answer }: FAQItemProps) {
             color: "#333333",
           }}
         >
-          <p className="leading-relaxed">{answer}</p>
+          <p
+            className="leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: answer }}
+          />
         </div>
       )}
     </div>
