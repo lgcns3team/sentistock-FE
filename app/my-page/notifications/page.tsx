@@ -135,7 +135,7 @@ export default function NotificationSettingsPage() {
                   className="inline-flex cursor-pointer items-center rounded-md px-2 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                   onClick={goSubscribe}
                 >
-                  구독하러 가기
+                  구독하기
                 </button>
               </div>
             )}
