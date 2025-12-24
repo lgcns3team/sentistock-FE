@@ -10,7 +10,10 @@ import SentimentGauge from "@/components/main-page/sentiment-gauge"
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("반도체")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [selectedStock, setSelectedStock] = useState<{ name: string; score: number } | null>(null)
+  const [selectedStock, setSelectedStock] = useState<{
+    companyId: string
+    name: string
+  } | null>(null)
 
   return (
     <main className="flex flex-col min-h-screen bg-background">
