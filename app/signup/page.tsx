@@ -71,7 +71,7 @@ export default function Page() {
       })
 
       alert("회원가입이 완료되었습니다!")
-      router.push("/main-page")
+      router.push("/")
     } catch (e) {
       if (e instanceof Error) {
         alert(e.message)
@@ -133,7 +133,7 @@ export default function Page() {
                   </div>
                   <span>카카오톡 간편 회원가입</span>
                 </button>
-                
+
               </div>
             </div>
           </div>
