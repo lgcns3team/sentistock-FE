@@ -19,6 +19,7 @@ export default function Home() {
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
+  // 최초 진입 시 토큰 검사
   useEffect(() => {
     const token = getTokenFromStorage()
 
@@ -27,6 +28,18 @@ export default function Home() {
       setIsAuthenticated(false)
     } else {
       setIsAuthenticated(true)
+    }
+  }, [])
+
+  // 메인페이지 컴포넌트 API 호출 시 403 감지
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setIsAuthenticated(false)
+      setShowAuthDialog(true)
+    }
+    window.addEventListener("auth-expired", handleAuthExpired)
+    return () => {
+      window.removeEventListener("auth-expired", handleAuthExpired)
     }
   }, [])
 
