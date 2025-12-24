@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { authFetch } from "@/lib/fetcher"
+import { Spinner } from "@/components/ui/spinner"
 
 interface MarketHeatmapProps {
   category: string
@@ -86,7 +87,9 @@ export default function MarketHeatmap({
       </div>
 
       {loading ? (
-        <div className="text-sm text-gray-400">히트맵 불러오는 중...</div>
+        <div className="flex items-center justify-center">
+          <Spinner className="h-8 w-8 text-[#061F5B]" />
+        </div>
       ) : (
         <div className="grid grid-cols-4 gap-1 w-[310px] h-[310px] overflow-y-auto">
           {data.map(item => (
