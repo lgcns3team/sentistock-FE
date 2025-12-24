@@ -207,7 +207,7 @@ export default function SentimentGauge({
 
           <div className="text-center w-full">
             <div className="mt-5">
-              <div className="inline-block px-5 py-2 bg-[#EBF2FF] dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+              <div className="inline-block px-5 py-2 bg-[#EBF2FF] dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-100">
                   {displayName}
                 </p>
