@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { TermsDialog } from "@/components/mypage/terms-dialog"
+import { startSubscription } from "@/lib/api"
 
 type Step = 1 | 2 | 3 | null
 type PaymentMethod = "CARD"
@@ -9,80 +10,57 @@ type PaymentMethod = "CARD"
 type CardField = "cardNumber" | "cardExpiry" | "cardBirth" | "cardPassword"
 type CardErrors = Partial<Record<CardField, string>>
 
-// --------------------
-// 유효성 검사 함수들
-// --------------------
-const isValidCardNumber = (value: string) => {
-  const onlyDigits = value.replace(/\s/g, "")
-  return /^\d{16}$/.test(onlyDigits)
-}
+const isValidCardNumber = (value: string) => /^\d{16}$/.test(value.replace(/\s/g, ""))
+const isValidExpiry = (value: string) => /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
+const isValidBirth = (value: string) => /^\d{6}$/.test(value)
+const isValidPassword = (value: string) => /^\d{2}$/.test(value)
 
-const isValidExpiry = (value: string) => {
-  // MM/YY, 월은 01~12
-  return /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
-}
-
-const isValidBirth = (value: string) => {
-  // YYMMDD 6자리 숫자
-  return /^\d{6}$/.test(value)
-}
-
-const isValidPassword = (value: string) => {
-  // 앞 2자리 숫자
-  return /^\d{2}$/.test(value)
-}
-
-// --------------------
-// 유효기간 입력 포맷 (자동 "/" + 월 01~12 제한)
-// --------------------
 const formatExpiryInput = (raw: string, prev: string) => {
   const digits = raw.replace(/\D/g, "").slice(0, 4)
 
-  // 사용자가 "09/" 상태에서 "/"만 백스페이스로 지우려는 경우
-  // (안 막아주면 다시 "/"가 붙어서 UX 빡침)
   if (prev.length === 3 && prev.endsWith("/") && raw.length === 2 && digits.length === 2) {
-    return digits // "09"
+    return digits
   }
 
   if (digits.length === 0) return ""
   if (digits.length === 1) return digits
 
-  // 월 2자리 확보되면: 01~12로 강제 보정
   let mm = digits.slice(0, 2)
   const mmNum = Number(mm)
 
   if (!Number.isFinite(mmNum)) return ""
 
-  // 00 -> 01, 13~99 -> 12
   if (mmNum === 0) mm = "01"
   else if (mmNum > 12) mm = "12"
 
-  // 2자리면 자동 "/"
   if (digits.length === 2) return `${mm}/`
 
-  // 3~4자리면 MM/YY
   const yy = digits.slice(2)
   return `${mm}/${yy}`
 }
 
-export default function SubscriptionCard() {
+type Props = {
+  onSubscribed?: () => void
+}
+
+export default function SubscriptionCard({ onSubscribed }: Props) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>(null)
 
-  // 약관 동의 상태(자동 체크 대상)
   const [agree, setAgree] = useState(false)
   const [termsOpen, setTermsOpen] = useState(false)
 
-  // 에러 상태들
   const [agreeError, setAgreeError] = useState<string | null>(null)
   const [cardErrors, setCardErrors] = useState<CardErrors>({})
 
-  // 카드만 사용
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD")
   const [cardNumber, setCardNumber] = useState("")
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardBirth, setCardBirth] = useState("")
   const [cardPassword, setCardPassword] = useState("")
+
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const resetPaymentInputs = () => {
     setPaymentMethod("CARD")
@@ -99,6 +77,7 @@ export default function SubscriptionCard() {
     setAgree(false)
     setTermsOpen(false)
     setAgreeError(null)
+    setSubmitError(null)
     resetPaymentInputs()
   }
 
@@ -108,18 +87,19 @@ export default function SubscriptionCard() {
     setAgree(false)
     setTermsOpen(false)
     setAgreeError(null)
+    setSubmitError(null)
+    setSubmitting(false)
     resetPaymentInputs()
   }
 
-  const inputBase =
-    "w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-0"
+  const inputBase = "w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-0"
   const inputClass = (hasError: boolean) =>
     hasError
       ? `${inputBase} border-red-400 focus:border-red-500`
       : `${inputBase} border-gray-200 focus:border-blue-500`
 
   const clearCardError = (key: CardField) => {
-    setCardErrors(prev => {
+    setCardErrors((prev) => {
       if (!prev[key]) return prev
       const next = { ...prev }
       delete next[key]
@@ -127,30 +107,24 @@ export default function SubscriptionCard() {
     })
   }
 
-  // Step2 카드 유효성 검증(에러 객체 반환)
   const validateCard = (): CardErrors => {
     const errors: CardErrors = {}
 
     if (!cardNumber) errors.cardNumber = "카드 번호를 입력해주세요."
-    else if (!isValidCardNumber(cardNumber))
-      errors.cardNumber = "카드 번호는 16자리 숫자여야 해요."
+    else if (!isValidCardNumber(cardNumber)) errors.cardNumber = "카드 번호는 16자리 숫자여야 해요."
 
     if (!cardExpiry) errors.cardExpiry = "유효기간을 입력해주세요."
-    else if (!isValidExpiry(cardExpiry))
-      errors.cardExpiry = "유효기간은 MM/YY 형식이어야 해요. (예: 09/27)"
+    else if (!isValidExpiry(cardExpiry)) errors.cardExpiry = "유효기간은 MM/YY 형식이어야 해요. (예: 09/27)"
 
     if (!cardBirth) errors.cardBirth = "생년월일 6자리를 입력해주세요."
-    else if (!isValidBirth(cardBirth))
-      errors.cardBirth = "생년월일은 6자리 숫자여야 해요. (예: 990101)"
+    else if (!isValidBirth(cardBirth)) errors.cardBirth = "생년월일은 6자리 숫자여야 해요. (예: 990101)"
 
     if (!cardPassword) errors.cardPassword = "비밀번호 앞 2자리를 입력해주세요."
-    else if (!isValidPassword(cardPassword))
-      errors.cardPassword = "비밀번호 앞 2자리는 숫자 2자리여야 해요."
+    else if (!isValidPassword(cardPassword)) errors.cardPassword = "비밀번호 앞 2자리는 숫자 2자리여야 해요."
 
     return errors
   }
 
-  // STEP1 → STEP2
   const handleNextFromStep1 = () => {
     if (!agree) {
       setAgreeError("이용약관을 끝까지 확인하고 동의해주세요.")
@@ -160,27 +134,39 @@ export default function SubscriptionCard() {
     setStep(2)
   }
 
-  // STEP2 → STEP3
   const handleNextFromStep2 = () => {
     const errors = validateCard()
     if (Object.keys(errors).length > 0) {
       setCardErrors(errors)
       return
     }
-
     setCardErrors({})
     setStep(3)
   }
 
-  // 최종 구독 시작
-  const handleConfirm = () => {
-    alert("구독 신청이 완료되었다고 가정하는 자리입니다. 나중에 PG 연동!")
+  // 여기서 진짜 백엔드 /start 호출 + 성공하면 onSubscribed()로 페이지 갱신
+ const handleConfirm = async () => {
+  try {
+    setSubmitting(true)
+    setSubmitError(null)
+
+    await startSubscription()
+
+    // 이거 "await"이 핵심
+    await onSubscribed?.()
+
+    alert("구독이 시작되었어요!")
     handleClose()
+  } catch (e: any) {
+    setSubmitError(e?.message ?? "구독 시작 실패")
+  } finally {
+    setSubmitting(false)
   }
+}
+
 
   return (
     <>
-      {/* 오른쪽에 보이는 구독 카드 */}
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <h3 className="mb-1 text-lg font-semibold">SentiStock 프리미엄</h3>
         <p className="mb-4 text-xs font-medium text-blue-600">
@@ -193,9 +179,7 @@ export default function SubscriptionCard() {
             <span className="mb-1 text-xs text-gray-500">첫 달 100원 체험</span>
           </div>
           <div className="mt-2 inline-flex items-center rounded-full bg-blue-50 px-3 py-1">
-            <span className="text-xs font-semibold text-blue-600">
-              첫 달 100원으로 시작하기
-            </span>
+            <span className="text-xs font-semibold text-blue-600">첫 달 100원으로 시작하기</span>
           </div>
         </div>
 
@@ -207,6 +191,7 @@ export default function SubscriptionCard() {
             <li>• 즐겨찾기 종목 매수 알림 기능</li>
           </ul>
         </div>
+
 
         <div className="mb-4 rounded-lg bg-gray-50 px-3 py-2">
           <p className="text-xs text-gray-600">
@@ -230,7 +215,6 @@ export default function SubscriptionCard() {
         </p>
       </div>
 
-      {/* 약관 모달 */}
       <TermsDialog
         open={termsOpen}
         onOpenChange={setTermsOpen}
@@ -240,7 +224,6 @@ export default function SubscriptionCard() {
         }}
       />
 
-      {/* 구독 모달 */}
       {open && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} />
@@ -255,7 +238,8 @@ export default function SubscriptionCard() {
                 </span>
               </div>
 
-              {/* STEP 1 */}
+              {submitError && <p className="mb-3 text-sm text-red-600">{submitError}</p>}
+
               {step === 1 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -265,10 +249,7 @@ export default function SubscriptionCard() {
                         첫 달 100원으로 SentiStock 프리미엄을 이용해보세요.
                       </p>
                     </div>
-                    <button
-                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
-                      onClick={handleClose}
-                    >
+                    <button className="text-xl leading-none text-gray-400 hover:text-gray-600" onClick={handleClose}>
                       ×
                     </button>
                   </div>
@@ -288,12 +269,7 @@ export default function SubscriptionCard() {
 
                   <div className="mb-6">
                     <div className="flex items-start gap-2 text-xs text-gray-600">
-                      <input
-                        type="checkbox"
-                        className="mt-0.5 accent-blue-600"
-                        checked={agree}
-                        readOnly
-                      />
+                      <input type="checkbox" className="mt-0.5 accent-blue-600" checked={agree} readOnly />
                       <div>
                         <div>
                           자동 결제 및{" "}
@@ -306,32 +282,22 @@ export default function SubscriptionCard() {
                           </button>
                           에 동의합니다.
                         </div>
-
-                        {agreeError && (
-                          <p className="mt-1 text-[11px] text-red-500">{agreeError}</p>
-                        )}
+                        {agreeError && <p className="mt-1 text-[11px] text-red-500">{agreeError}</p>}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={handleClose}
-                    >
+                    <button className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={handleClose}>
                       취소
                     </button>
-                    <button
-                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-                      onClick={handleNextFromStep1}
-                    >
+                    <button className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700" onClick={handleNextFromStep1}>
                       다음
                     </button>
                   </div>
                 </>
               )}
 
-              {/* STEP 2 */}
               {step === 2 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -341,10 +307,7 @@ export default function SubscriptionCard() {
                         프리미엄 구독에 사용할 결제 수단을 등록해주세요.
                       </p>
                     </div>
-                    <button
-                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
-                      onClick={handleClose}
-                    >
+                    <button className="text-xl leading-none text-gray-400 hover:text-gray-600" onClick={handleClose}>
                       ×
                     </button>
                   </div>
@@ -361,7 +324,7 @@ export default function SubscriptionCard() {
                       <input
                         type="text"
                         value={cardNumber}
-                        onChange={e => {
+                        onChange={(e) => {
                           setCardNumber(e.target.value)
                           clearCardError("cardNumber")
                         }}
@@ -370,22 +333,16 @@ export default function SubscriptionCard() {
                         inputMode="numeric"
                         className={inputClass(!!cardErrors.cardNumber)}
                       />
-                      {cardErrors.cardNumber && (
-                        <p className="mt-1 text-[11px] text-red-500">
-                          {cardErrors.cardNumber}
-                        </p>
-                      )}
+                      {cardErrors.cardNumber && <p className="mt-1 text-[11px] text-red-500">{cardErrors.cardNumber}</p>}
                     </div>
 
                     <div className="flex gap-3">
                       <div className="flex-1">
-                        <label className="mb-1 block text-xs text-gray-500">
-                          유효기간 (MM/YY)
-                        </label>
+                        <label className="mb-1 block text-xs text-gray-500">유효기간 (MM/YY)</label>
                         <input
                           type="text"
                           value={cardExpiry}
-                          onChange={e => {
+                          onChange={(e) => {
                             const next = formatExpiryInput(e.target.value, cardExpiry)
                             setCardExpiry(next)
                             clearCardError("cardExpiry")
@@ -395,21 +352,15 @@ export default function SubscriptionCard() {
                           inputMode="numeric"
                           className={inputClass(!!cardErrors.cardExpiry)}
                         />
-                        {cardErrors.cardExpiry && (
-                          <p className="mt-1 text-[11px] text-red-500">
-                            {cardErrors.cardExpiry}
-                          </p>
-                        )}
+                        {cardErrors.cardExpiry && <p className="mt-1 text-[11px] text-red-500">{cardErrors.cardExpiry}</p>}
                       </div>
 
                       <div className="flex-1">
-                        <label className="mb-1 block text-xs text-gray-500">
-                          생년월일 6자리
-                        </label>
+                        <label className="mb-1 block text-xs text-gray-500">생년월일 6자리</label>
                         <input
                           type="text"
                           value={cardBirth}
-                          onChange={e => {
+                          onChange={(e) => {
                             setCardBirth(e.target.value)
                             clearCardError("cardBirth")
                           }}
@@ -418,22 +369,16 @@ export default function SubscriptionCard() {
                           inputMode="numeric"
                           className={inputClass(!!cardErrors.cardBirth)}
                         />
-                        {cardErrors.cardBirth && (
-                          <p className="mt-1 text-[11px] text-red-500">
-                            {cardErrors.cardBirth}
-                          </p>
-                        )}
+                        {cardErrors.cardBirth && <p className="mt-1 text-[11px] text-red-500">{cardErrors.cardBirth}</p>}
                       </div>
                     </div>
 
                     <div className="w-1/2">
-                      <label className="mb-1 block text-xs text-gray-500">
-                        카드 비밀번호 앞 2자리
-                      </label>
+                      <label className="mb-1 block text-xs text-gray-500">카드 비밀번호 앞 2자리</label>
                       <input
                         type="password"
                         value={cardPassword}
-                        onChange={e => {
+                        onChange={(e) => {
                           setCardPassword(e.target.value)
                           clearCardError("cardPassword")
                         }}
@@ -442,32 +387,21 @@ export default function SubscriptionCard() {
                         inputMode="numeric"
                         className={inputClass(!!cardErrors.cardPassword)}
                       />
-                      {cardErrors.cardPassword && (
-                        <p className="mt-1 text-[11px] text-red-500">
-                          {cardErrors.cardPassword}
-                        </p>
-                      )}
+                      {cardErrors.cardPassword && <p className="mt-1 text-[11px] text-red-500">{cardErrors.cardPassword}</p>}
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setStep(1)}
-                    >
+                    <button className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setStep(1)}>
                       이전
                     </button>
-                    <button
-                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-                      onClick={handleNextFromStep2}
-                    >
+                    <button className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700" onClick={handleNextFromStep2}>
                       다음
                     </button>
                   </div>
                 </>
               )}
 
-              {/* STEP 3 */}
               {step === 3 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -477,22 +411,17 @@ export default function SubscriptionCard() {
                         아래 내용을 확인한 뒤 구독을 시작할 수 있어요.
                       </p>
                     </div>
-                    <button
-                      className="text-xl leading-none text-gray-400 hover:text-gray-600"
-                      onClick={handleClose}
-                    >
+                    <button className="text-xl leading-none text-gray-400 hover:text-gray-600" onClick={handleClose}>
                       ×
                     </button>
                   </div>
 
                   <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
                     <p>
-                      <span className="font-semibold">요금제:</span> SentiStock 프리미엄
-                      (월 1,900원, 첫 달 100원)
+                      <span className="font-semibold">요금제:</span> SentiStock 프리미엄 (월 1,900원, 첫 달 100원)
                     </p>
                     <p>
-                      <span className="font-semibold">결제 수단:</span>{" "}
-                      {paymentMethod === "CARD" ? "신용/체크카드" : "기타"}
+                      <span className="font-semibold">결제 수단:</span> {paymentMethod === "CARD" ? "신용/체크카드" : "기타"}
                     </p>
                     <p className="text-xs text-gray-600">카드 번호: {cardNumber}</p>
                     <p className="text-xs text-gray-500">
@@ -501,17 +430,16 @@ export default function SubscriptionCard() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setStep(2)}
-                    >
+                    <button className="flex-1 rounded-lg border py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setStep(2)}>
                       이전
                     </button>
+
                     <button
-                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                       onClick={handleConfirm}
+                      disabled={submitting}
                     >
-                      구독 시작하기
+                      {submitting ? "처리 중..." : "구독 시작하기"}
                     </button>
                   </div>
                 </>
