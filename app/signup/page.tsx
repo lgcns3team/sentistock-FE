@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import Header from "@/components/header"
 import Image from "next/image"
 
 export default function SignupIndexPage() {
@@ -17,6 +18,7 @@ export default function SignupIndexPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <Header />
       <div className="max-w-3xl mx-auto px-4 py-8">
 
         <div className="max-w-xl mx-auto mt-18 text-center">
