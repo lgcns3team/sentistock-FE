@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import SignupStep2, { Step2Result } from "@/components/signup/signup-step2"
 import SignupStep3 from "@/components/signup/signup-step3"
 import ProgressBar from "@/components/signup/progress-bar"
+import Header from "@/components/header"
 
 export default function KakaoSignupPage() {
   const router = useRouter()
@@ -63,6 +64,7 @@ export default function KakaoSignupPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <Header />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-12">
           <h1 className="text-3xl font-bold text-primary mb-2">
