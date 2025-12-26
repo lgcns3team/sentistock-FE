@@ -88,7 +88,7 @@ export default function EditProfilePage() {
   if (!user) {
     return (
       <div className="flex-1 px-10 py-8">
-        사용자 정보를 불러오지 못했어. (토큰 확인 필요)
+        사용자 정보를 불러오지 못했습니다.
       </div>
     )
   }
