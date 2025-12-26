@@ -8,6 +8,7 @@ import SignupStep2, { Step2Result } from "@/components/signup/signup-step2"
 import SignupStep3 from "@/components/signup/signup-step3"
 import ProgressBar from "@/components/signup/progress-bar"
 import Image from "next/image"
+import Header from "@/components/header"
 
 import { signup } from "@/lib/api/auth"
 
@@ -65,6 +66,7 @@ export default function SignupPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <Header />
       <div className="max-w-3xl mx-auto px-4 py-8">
 
         <div className="mb-12">
