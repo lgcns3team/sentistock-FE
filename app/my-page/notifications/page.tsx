@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useMySubscription } from "@/hooks/useMySubscription"
 
 export default function NotificationSettingsPage() {
   const router = useRouter()
   const SUBSCRIBE_PATH = "/my-page/subscription"
 
-  // TODO: 나중에 API/세션에서 구독 여부 받아오기
-  const isSubscriber = false // 잠그려면 false , 열려면 true
-  const profitLocked = !isSubscriber
+  const { loading: subLoading, isSubscribed } = useMySubscription()
+  const profitLocked = !isSubscribed
 
   const [emailOn, setEmailOn] = useState(false)
   const [webPushOn, setWebPushOn] = useState(false)
@@ -51,7 +51,6 @@ export default function NotificationSettingsPage() {
   const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
 
-    // 지우는 입력은 허용
     if (raw === "") {
       setThreshold("")
       return
@@ -60,12 +59,20 @@ export default function NotificationSettingsPage() {
     const num = Number(raw)
     if (Number.isNaN(num)) return
 
-    // 음수 방지
     setThreshold(String(Math.max(0, num)))
   }
 
   const handleThresholdBlur = () => {
     if (threshold === "") setThreshold("5")
+  }
+
+  if (subLoading) {
+    return (
+      <div className="flex-1 px-10 py-8">
+        <h2 className="mb-2 text-xl font-semibold">알림 설정</h2>
+        <p className="text-sm text-gray-500">불러오는 중...</p>
+      </div>
+    )
   }
 
   return (
@@ -174,7 +181,7 @@ export default function NotificationSettingsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div
               className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-lg font-semibold">저장되었습니다!</h3>
               <p className="mt-2 text-sm text-gray-500">
