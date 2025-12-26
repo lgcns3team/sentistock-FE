@@ -1,66 +1,73 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 import SignupStep2, { Step2Result } from "@/components/signup/signup-step2"
 import SignupStep3 from "@/components/signup/signup-step3"
 import ProgressBar from "@/components/signup/progress-bar"
 
-import { signup } from "@/lib/api/auth"
-
 export default function KakaoSignupPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
-  const userId = searchParams.get("userId") || ""
-  const nickname = searchParams.get("nickname") || ""
-  const email = searchParams.get("email") || ""
-
-  const [step, setStep] = useState(2)
+  const [step, setStep] = useState<2 | 3>(2)
   const [quizProgress, setQuizProgress] = useState(1)
 
-  const [signupData, setSignupData] = useState({
-    investmentScore: 0,
-    investmentType: "",
-  })
-
-  useEffect(() => {
-    if (!userId || !nickname) {
-      alert("카카오 로그인 정보가 없습니다.")
-      router.push("/signup")
-    }
-  }, [userId, nickname, router])
+  const [investorScore, setInvestorScore] = useState(0)
+  const [favoriteSectorIds, setFavoriteSectorIds] = useState<number[]>([])
+  const [loading, setLoading] = useState(false)
 
   const handleStep2Next = (data: Step2Result) => {
-    setSignupData(data)
+    setInvestorScore(data.investmentScore)
     setStep(3)
   }
 
-  const handleStep3Submit = async (sectorIds: number[]) => {
-    await signup({
-      nickname,
-      userId,
-      password: "",
-      passwordConfirm: "",
-      userEmail: email,
-      investorScore: signupData.investmentScore,
-      favoriteSectorIds: sectorIds,
-    })
+  const handleStep3Submit = async (sectors: number[]) => {
+    try {
+      setLoading(true)
 
-    alert("회원가입이 완료되었습니다!")
-    router.push("/")
+      const accessToken = localStorage.getItem("accessToken")
+      const tokenType = localStorage.getItem("tokenType") ?? "Bearer"
+
+      if (!accessToken) {
+        throw new Error("로그인이 필요합니다.")
+      }
+
+      const res = await fetch(
+        "http://localhost:8080/api/users/me/onboarding",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${tokenType} ${accessToken}`,
+          },
+          body: JSON.stringify({
+            investorScore,
+            favoriteSectorIds: sectors,
+          }),
+        }
+      )
+
+      if (!res.ok) {
+        throw new Error("온보딩 저장에 실패했습니다.")
+      }
+
+      localStorage.setItem("onboardingRequired", "false")
+      router.replace("/main-page")
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "온보딩 중 오류 발생")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
-
         <div className="mb-12">
           <h1 className="text-3xl font-bold text-primary mb-2">
-            카카오 회원가입
+            카카오 회원 온보딩
           </h1>
-
           <span className="text-sm font-semibold">{step}/3</span>
 
           <ProgressBar
@@ -74,17 +81,17 @@ export default function KakaoSignupPage() {
         <div className="bg-white rounded-lg border p-8 shadow-sm">
           {step === 2 && (
             <SignupStep2
-                onNext={handleStep2Next}
-                onPrevious={() => setStep(2)}
-                onProgressChange={setQuizProgress}
-                />
+              onNext={handleStep2Next}
+              onPrevious={() => router.replace("/signup/kakao")}
+              onProgressChange={setQuizProgress}
+            />
           )}
 
           {step === 3 && (
             <SignupStep3
-                onPrevious={() => setStep(2)}
-                onSubmit={handleStep3Submit}
-                />
+              onPrevious={() => setStep(2)}
+              onSubmit={handleStep3Submit}
+            />
           )}
         </div>
       </div>
