@@ -55,7 +55,7 @@ export default function LoginSection() {
       localStorage.setItem("subscribe", String(data.subscribe));
       localStorage.setItem("onboardingRequired", String(data.onboardingRequired));
 
-      window.location.href = data.onboardingRequired ? "/onboarding" : "/main-page";
+      window.location.href = data.onboardingRequired ? "/signup/kakao" : "/main-page";
       } catch (err) {
         setErrorMsg(getErrorMessage(err));
       } finally {
