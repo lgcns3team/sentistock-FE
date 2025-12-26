@@ -1,13 +1,23 @@
 import Image from "next/image";
 import { useState } from "react"
 import Link from "next/link";
-import { Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react";
 
 const getErrorMessage = (err: unknown) => {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
   return "로그인 실패";
   };
+
+const handleKakaoStart = () => {
+  const params = new URLSearchParams({
+    client_id: process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!, // REST API 키
+    redirect_uri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URL!, // 콜백 URL
+    response_type: "code",
+  });
+
+  window.location.href = `https://kauth.kakao.com/oauth/authorize?${params.toString()}`;
+};
 
 export default function LoginSection() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -26,33 +36,31 @@ export default function LoginSection() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, password }),
-        // credentials: "include", // 쿠키 기반이면 ON, 지금은 토큰 내려주니까 보통 OFF
       });
 
-      const data = await res.json(); 
+      const contentType = res.headers.get("content-type") ?? "";
+      const text = await res.text();
+      const data = text && contentType.includes("application/json") ? JSON.parse(text) : null;
 
       if (!res.ok) {
-        throw new Error("아이디 또는 비밀번호를 확인해 주세요.");
+        throw new Error(data?.message ?? "아이디 또는 비밀번호를 확인해 주세요.");
       }
 
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("tokenType", data.tokenType); 
       localStorage.setItem("userId", data.userId);
-
       localStorage.setItem("nickname", data.nickname);
       localStorage.setItem("investorType", data.investorType);
       localStorage.setItem("subscribe", String(data.subscribe));
       localStorage.setItem("onboardingRequired", String(data.onboardingRequired));
 
-      if (data.onboardingRequired) {
-        window.location.href = "/onboarding";
-      } else {
-        window.location.href = "/main-page"; 
+      window.location.href = data.onboardingRequired ? "/onboarding" : "/main-page";
+      } catch (err) {
+        setErrorMsg(getErrorMessage(err));
+      } finally {
+        setLoading(false);
       }
-    } catch (err: unknown) {
-      setErrorMsg(getErrorMessage(err));
-    }
   };
 
   return (
@@ -174,14 +182,14 @@ export default function LoginSection() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <button 
-                    type="submit"
-                    disabled={loading}
-                    className="w-[150px] h-[37px] bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-sm transition items-center justify-center">
-                    {loading ? "로그인 중..." : "로그인"}
-                  </button>
-
-                  <button className="py-1 transition">
+                  
+                    <button type="submit" disabled={loading}
+                      className="w-[150px] h-[37px] bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-sm transition items-center justify-center">
+                      {loading ? "로그인 중..." : "로그인"}
+                    </button>
+                  
+                  
+                  <button type="button" onClick={handleKakaoStart} className="py-1 transition">
                     <Image
                       src="/kakao_login_medium_narrow.png"
                       alt="kakao login"
