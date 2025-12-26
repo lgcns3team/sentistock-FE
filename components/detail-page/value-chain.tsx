@@ -16,6 +16,22 @@ interface ValueChainProps {
   relatedStocks: RelatedStock[]
 }
 
+const formatPrice = (value: string | number) => {
+  const n = typeof value === "string" ? Number(value.replace(/,/g, "")) : Number(value)
+  if (!Number.isFinite(n)) return String(value)
+  return n.toLocaleString("ko-KR")
+}
+
+const formatRate = (value: string | number) => {
+  const raw = typeof value === "string" ? value.replace("%", "") : value
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return String(value)
+
+  // 소수점 둘째 자리까지
+  return `${n.toFixed(2)}%`
+}
+
+
 export default function ValueChain({ relatedStocks }: ValueChainProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
@@ -36,10 +52,10 @@ export default function ValueChain({ relatedStocks }: ValueChainProps) {
 
               <div className="flex items-center gap-2 mt-1">
                 <span className={`text-xs sm:text-sm font-semibold ${stock.isUp ? "text-red-500" : "text-blue-500"}`}>
-                  {stock.price}
+                  {formatPrice(stock.price)}
                 </span>
                 <span className={`text-xs font-medium ${stock.isUp ? "text-red-500" : "text-blue-500"}`}>
-                  {stock.change}
+                  {formatRate(stock.change)}
                 </span>
               </div>
             </div>

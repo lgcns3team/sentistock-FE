@@ -25,8 +25,7 @@ export default function StockInfo({
   change,
   subscribe,
   favoriteCount,
-  // maxFreeFavorites = 5,
-  maxFreeFavorites = 2, // 임시 (현재 stock이 3개만 저장되어있어서 2개로 임시 지정)
+  maxFreeFavorites = 5,
   onToggleFavorite,
   isFavorite,
 }: StockInfoProps) {

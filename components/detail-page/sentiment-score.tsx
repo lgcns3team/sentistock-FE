@@ -34,7 +34,7 @@ export default function SentimentScore({ sentiment }: SentimentScoreProps) {
 
         <div className="text-center py-6 sm:py-8">
           <div className="text-4xl sm:text-5xl font-bold text-blue-600 mb-2">
-            {sentiment.score}
+            {Number.isFinite(sentiment.score) ? Math.round(sentiment.score) : 0}
           </div>
           <div className="text-gray-500 text-xs sm:text-sm">/100</div>
         </div>

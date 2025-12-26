@@ -17,94 +17,42 @@ import { useRouter } from "next/navigation"
 
 // ====== 타입 정의 ======
 export type CandlePoint = {
-  time: string // string
-  open: number // int
-  high: number // int
-  low: number // int
-  close: number // int
-  volume: number // int
-  ma?: number // int 
+  time: string
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+  ma?: number
 }
 
 export type SentimentPoint = {
-  time: string // string
-  score: number // int
+  time: string
+  score: number
 }
 
 type ChartsSectionProps = {
   candles?: CandlePoint[]
   sentimentHistory?: SentimentPoint[]
+  isSubscribed?: boolean
 }
 
-// 문자열 시간 -> 차트용 UTC 타임스탬프(초 단위)
+const KST_OFFSET_SEC = 9 * 60 * 60
+
+// 문자열 시간 -> 차트용 타임스탬프(초 단위) + KST 보정
 const toChartTime = (time: string) =>
-  Math.floor(new Date(time).getTime() / 1000)
+  Math.floor(new Date(time).getTime() / 1000) + KST_OFFSET_SEC
 
-// 데모용 기본 데이터
-const demoCandles: CandlePoint[] = [
-  {
-    time: "2024-12-10T10:00:00",
-    open: 95000,
-    high: 96000,
-    low: 94000,
-    close: 95500,
-    volume: 120000,
-    ma: 95200,
-  },
-  {
-    time: "2024-12-10T11:00:00",
-    open: 95500,
-    high: 97000,
-    low: 95000,
-    close: 96800,
-    volume: 150000,
-    ma: 96000,
-  },
-  {
-    time: "2024-12-10T12:00:00",
-    open: 96800,
-    high: 97500,
-    low: 96000,
-    close: 96200,
-    volume: 110000,
-    ma: 96100,
-  },
-  {
-    time: "2024-12-10T13:00:00",
-    open: 96200,
-    high: 96500,
-    low: 95000,
-    close: 95200,
-    volume: 130000,
-    ma: 95700,
-  },
-  {
-    time: "2024-12-10T14:00:00",
-    open: 95200,
-    high: 96000,
-    low: 94800,
-    close: 95900,
-    volume: 90000,
-    ma: 95800,
-  },
-]
 
-const demoSentiment: SentimentPoint[] = [
-  { time: "2024-12-10T10:00:00", score: 65 },
-  { time: "2024-12-10T11:00:00", score: 72 },
-  { time: "2024-12-10T12:00:00", score: 60 },
-  { time: "2024-12-10T13:00:00", score: 55 },
-  { time: "2024-12-10T14:00:00", score: 70 },
-]
 
 export default function ChartsSection({
-  candles = demoCandles,
-  sentimentHistory = demoSentiment,
+  candles,
+  sentimentHistory,
+  isSubscribed = false,
 }: ChartsSectionProps) {
 
   const router = useRouter()
-  // 사용자 구독여부
-  const [isSubscribed, setIsSubscribed] = useState(false)
+
   // 캔들 + 거래량 + MA
   const candleVolumeContainerRef = useRef<HTMLDivElement | null>(null)
   // 감정 추세 차트
@@ -330,28 +278,54 @@ export default function ChartsSection({
 
       {/* 감정 추세 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 relative overflow-hidden">
-        
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <h3 className="text-sm font-semibold text-gray-900">
-              감정 추세 히스토리
-            </h3>
 
-            <button
-              onClick={() => setShowSentimentHelp(true)}
-              className="text-gray-400 hover:text-gray-600">
-              <HelpCircle className="w-4 sm:w-5 h-4 sm:h-5" />
-            </button>
-          </div>
+        <div className="flex items-center justify-between mb-4 relative z-10">
+          <h3 className="text-sm font-semibold text-gray-900">
+            감정 추세 히스토리
+          </h3>
+
+          <button
+            onClick={() => setShowSentimentHelp(true)}
+            className="text-gray-400 hover:text-gray-600">
+            <HelpCircle className="w-4 sm:w-5 h-4 sm:h-5" />
+          </button>
+        </div>
 
         <div className="relative">
           {/* 차트 영역 */}
           <div
-            className={`relative ${
-              !isSubscribed ? "blur-sm pointer-events-none select-none" : ""
-            }`}>
+            className={`relative ${!isSubscribed ? "blur-sm pointer-events-none select-none" : ""
+              }`}
+          >
+            {!isSubscribed && (
+              <div className="absolute inset-0 z-0 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 600 240"
+                  className="w-full h-full opacity-60"
+                  preserveAspectRatio="none"
+                >
+                  {/* 구독 안했을 때 */}
+                  <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1" />
+                    </pattern>
+                  </defs>
+                  <rect width="600" height="240" fill="url(#grid)" />
+
+                  <path
+                    d="M0,170 C60,150 120,190 180,160 C240,130 300,170 360,120 C420,80 480,140 540,90 C570,70 585,80 600,65"
+                    fill="none"
+                    stroke="rgba(99,102,241,0.55)"
+                    strokeWidth="3"
+                  />
+                </svg>
+              </div>
+            )}
+
             <div
               ref={sentimentContainerRef}
-              className="h-64 w-full rounded bg-gradient-to-b from-purple-50 to-gray-50"/>
+              className="h-64 w-full rounded bg-gradient-to-b from-purple-50 to-gray-50 relative z-10"
+            />
           </div>
 
           {/* 오버레이 */}
@@ -387,7 +361,7 @@ export default function ChartsSection({
               도움말
             </h2>
             <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-              해당 차트는 TradingView Charting Library의 기술을<br/>기반으로 시각화되었습니다.
+              해당 차트는 TradingView Charting Library의 기술을<br />기반으로 시각화되었습니다.
             </p>
 
             <button
