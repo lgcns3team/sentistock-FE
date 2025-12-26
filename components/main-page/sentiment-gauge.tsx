@@ -1,24 +1,107 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
+import { authFetch } from "@/lib/fetcher"
+import { Spinner } from "@/components/ui/spinner"
+
 interface SentimentGaugeProps {
   category: string
-  selectedStock: { name: string; score: number } | null
+  selectedStock: {
+    companyId: string
+    name: string
+  } | null
+}
+
+const sentimentData: Record<
+  string,
+  { name: string; companyId: string }
+> = {
+  반도체: { name: "삼성전자", companyId: "005930" },
+  모빌리티: { name: "현대차", companyId: "005380" },
+  "2차전지": { name: "LG에너지솔루션", companyId: "373220" },
+  재생에너지: { name: "한화솔루션", companyId: "009830" },
+  원자력에너지: { name: "두산에너빌리티", companyId: "034020" },
+}
+
+const DEFAULT_COMPANY_IDS = new Set(
+  Object.values(sentimentData).map(stock => stock.companyId)
+)
+
+const getRandomScore = () => {
+  return Math.floor(Math.random() * 61) + 30
 }
 
 export default function SentimentGauge({
   category,
   selectedStock,
 }: SentimentGaugeProps) {
-  const sentimentData: Record<
-    string,
-    { score: number; name: string }
-  > = {
-    반도체: { score: 72, name: "삼성전자" },
-    모빌리티: { score: 65, name: "현대자동차" },
-    "2차전지": { score: 85, name: "SK이노베이션" },
-    재생에너지: { score: 58, name: "한화Q셀" },
-    원자력에너지: { score: 75, name: "한국수력원자력" },
-  }
+  const prevCategoryRef = useRef<string | null>(null)
+  const [score, setScore] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const [currentStock, setCurrentStock] = useState<{
+    companyId: string
+    name: string
+  } | null>(null)
+
+  useEffect(() => {
+    const fetchScore = async (stock: {
+      companyId: string
+      name: string
+    }) => {
+      try {
+        setLoading(true)
+
+        const res = await authFetch(
+          `/sentiment/score/${stock.companyId}`
+        )
+        if (!res.ok) throw new Error("감정 점수 조회 실패")
+
+        const result = await res.json()
+        setScore(Math.round(result))
+        setCurrentStock(stock)
+      } catch (error) {
+        console.error(error)
+        setScore(getRandomScore())
+        setCurrentStock(stock)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const defaultStock = sentimentData[category]
+    const prevCategory = prevCategoryRef.current
+
+    if (prevCategory !== category) {
+      if (defaultStock) {
+        fetchScore(defaultStock)
+      } else {
+        setScore(getRandomScore())
+        setCurrentStock(null)
+      }
+
+      prevCategoryRef.current = category
+      return
+    }
+
+    if (selectedStock) {
+      if (DEFAULT_COMPANY_IDS.has(selectedStock.companyId)) {
+        fetchScore(selectedStock)
+      } else {
+        setScore(getRandomScore())
+        setCurrentStock(selectedStock)
+      }
+      return
+    }
+
+    if (defaultStock) {
+      fetchScore(defaultStock)
+      return
+    }
+
+    setScore(getRandomScore())
+    setCurrentStock(null)
+  }, [category, selectedStock])
 
   const sentimentLevels = [
     {
@@ -56,22 +139,13 @@ export default function SentimentGauge({
   const getSentimentInfo = (score: number) =>
     sentimentLevels.find(level => score >= level.min)!
 
-  // 현재 선택된 종목 또는 카테고리 default
-  const displayData = selectedStock
-    ? {
-        score: selectedStock.score,
-        name: selectedStock.name,
-      }
-    : sentimentData[category] || {
-        score: 50,
-        name: "미정",
-      }
+  const displayScore = score ?? 50
+  const displayName = currentStock?.name ?? "미정"
 
-  // 레벨 정보 가져오기
-  const info = getSentimentInfo(displayData.score)
+  const info = getSentimentInfo(displayScore)
 
   const total = 100
-  const percentage = displayData.score / total
+  const percentage = displayScore / total
 
   return (
     <div className="flex-1 bg-white dark:bg-gray-950 px-6 py-4 flex flex-col items-center justify-start">
@@ -79,76 +153,76 @@ export default function SentimentGauge({
         감정분석 게이지
       </h2>
 
-      <div className="relative w-72 h-40 mb-6">
-        <svg className="w-full h-full" viewBox="0 0 200 120">
-          <defs>
-            <linearGradient
-              id="gaugeGradient"
-              x1="0%"
-              y1="100%"
-              x2="100%"
-              y2="100%"
-            >
-              <stop offset="0%" stopColor="#ef4444" />
-              <stop offset="25%" stopColor="#f97316" />
-              <stop offset="50%" stopColor="#eab308" />
-              <stop offset="100%" stopColor="#22c55e" />
-            </linearGradient>
-          </defs>
-
-          {/* Background Arc */}
-          <path
-            d="M 10 110 A 90 90 0 0 1 190 110"
-            fill="none"
-            stroke="#e5e7eb"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-
-          {/* Filled Arc */}
-          <path
-            d="M 10 110 A 90 90 0 0 1 190 110"
-            fill="none"
-            stroke="url(#gaugeGradient)"
-            strokeWidth="12"
-            strokeLinecap="round"
-            strokeDasharray={`${percentage * 282} 282`}
-            style={{ transition: "stroke-dasharray 0.6s ease-in-out" }}
-          />
-        </svg>
-
-        {/* Center Content */}
-        <div className="absolute left-0 right-0 top-20 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-7xl font-bold text-gray-900 dark:text-gray-100 leading-none">
-            {displayData.score}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            OF {total}
-          </p>
+      {loading ? (
+        <div className="mt-20">
+          <Spinner className="h-8 w-8 text-[#061F5B]" />
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="relative w-72 h-40 mb-6">
+            <svg className="w-full h-full" viewBox="0 0 200 120">
+              <defs>
+                <linearGradient
+                  id="gaugeGradient"
+                  x1="0%"
+                  y1="100%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#ef4444" />
+                  <stop offset="25%" stopColor="#f97316" />
+                  <stop offset="50%" stopColor="#eab308" />
+                  <stop offset="100%" stopColor="#22c55e" />
+                </linearGradient>
+              </defs>
 
-      {/* Info Section */}
-      <div className="text-center w-full">
-        <div className="mt-5">
-          <div className="inline-block px-5 py-2 bg-[#EBF2FF] dark:bg-gray-800 rounded-sm border border-gray-300 dark:border-gray-700">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-100">
-              {displayData.name}
+              <path
+                d="M 10 110 A 90 90 0 0 1 190 110"
+                fill="none"
+                stroke="#e5e7eb"
+                strokeWidth="12"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="M 10 110 A 90 90 0 0 1 190 110"
+                fill="none"
+                stroke="url(#gaugeGradient)"
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${percentage * 282} 282`}
+                style={{ transition: "stroke-dasharray 0.6s ease-in-out" }}
+              />
+            </svg>
+
+            <div className="absolute left-0 right-0 top-20 flex flex-col items-center pointer-events-none">
+              <p className="text-7xl font-bold text-gray-900 dark:text-gray-100">
+                {displayScore}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                OF {total}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center w-full">
+            <div className="mt-5">
+              <div className="inline-block px-5 py-2 bg-[#EBF2FF] dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-100">
+                  {displayName}
+                </p>
+              </div>
+            </div>
+
+            <p className={`text-sm font-semibold mt-4 ${info.color}`}>
+              {info.label}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {info.sub}
             </p>
           </div>
-        </div>
-
-
-        {/* 메인 레이블 */}
-        <p className={`text-sm font-semibold mt-4 ${info.color}`}>
-          {info.label}
-        </p>
-
-        {/* 보조 문구 */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {info.sub}
-        </p>
-      </div>
+        </>
+      )}
     </div>
   )
 }

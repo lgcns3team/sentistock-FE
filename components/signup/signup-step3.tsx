@@ -4,67 +4,68 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 
 interface SignupStep3Props {
-  data: any
-  onNext: (data: any) => void
   onPrevious: () => void
-  onSubmit: () => void
+  onSubmit: (sectorIds: number[]) => void
 }
 
-export default function SignupStep3({ data, onNext, onPrevious, onSubmit }: SignupStep3Props) {
-  const sectors = [
-    "IT서비스·SW",
-    "인터넷·플랫폼",
-    "통신·미디어",
-    "소재",
-    "산업재·운송",
-    "경기소비",
-    "필수소비",
-    "금융",
-    "헬스케어·바이오",
-    "엔터·콘텐츠",
-    "유틸리티",
-    "부동산",
-    "반도체",
-    "모빌리티",
-    "2차전지",
-    "재생에너지",
-    "원자력에너지",
-  ]
+const SECTOR_MAP: Record<string, number> = {
+  "반도체": 1,
+  "모빌리티": 2,
+  "2차전지": 3,
+  "재생에너지": 4,
+  "원자력에너지": 5,
+  "경기소비": 6,
+  "필수소비": 7,
+  "금융": 8,
+  "헬스케어·바이오": 9,
+  "엔터·콘텐츠": 10,
+  "유틸리티": 11,
+  "부동산": 12,
+  "IT서비스·SW": 13,
+  "인터넷·플랫폼": 14,
+  "통신·미디어": 15,
+  "소재": 16,
+  "산업재·운송": 17,
+}
 
-  const [selectedInterests, setSelectedInterests] = useState<string[]>(data.selectedInterests || [])
+const sectors = Object.keys(SECTOR_MAP)
+
+export default function SignupStep3({ onPrevious, onSubmit }: SignupStep3Props) {
+  const [selected, setSelected] = useState<string[]>([])
+
+  const isMaxSelected = selected.length >= 5
 
   const toggleInterest = (sector: string) => {
-    setSelectedInterests((prev) => {
-      if (prev.includes(sector)) {
-        return prev.filter((s) => s !== sector)
-      } else if (prev.length < 5) {
-        return [...prev, sector]
-      }
-      return prev
-    })
+    setSelected((prev) =>
+      prev.includes(sector)
+        ? prev.filter((v) => v !== sector)
+        : prev.length < 5
+          ? [...prev, sector]
+          : prev
+    )
   }
 
   const handleNext = () => {
-    if (selectedInterests.length === 0) {
-      alert("최소 1개 이상의 관심분야를 선택해주세요")
+    if (!selected.length) {
+      alert("관심분야를 선택해주세요")
       return
     }
-    onNext({ selectedInterests })
-    onSubmit()
-  }
 
-  const isMaxSelected = selectedInterests.length >= 5
+    onSubmit(selected.map((s) => SECTOR_MAP[s]))
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-foreground mb-2">관심분야 선택</h2>
-        <p className="text-sm text-muted-foreground">최대 5개까지 선택 가능합니다. ({selectedInterests.length}/5)</p>
+        <p className="text-sm text-muted-foreground">
+          최대 5개까지 선택 가능합니다. ({selected.length}/5)
+        </p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {sectors.map((sector) => {
-          const isSelected = selectedInterests.includes(sector)
+          const isSelected = selected.includes(sector)
           const isDisabled = isMaxSelected && !isSelected
 
           return (
@@ -89,7 +90,7 @@ export default function SignupStep3({ data, onNext, onPrevious, onSubmit }: Sign
       <div className="bg-accent/10 border border-secondary rounded-md p-4">
         <p className="text-sm text-foreground">
           <strong>선택한 관심분야:</strong>{" "}
-          {selectedInterests.length > 0 ? selectedInterests.join(", ") : "아직 선택한 분야가 없습니다"}
+          {selected.length > 0 ? selected.join(", ") : "아직 선택한 분야가 없습니다"}
         </p>
       </div>
 
