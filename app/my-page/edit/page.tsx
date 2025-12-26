@@ -5,17 +5,27 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-type Provider = "LOCAL" | "KAKAO"
+type Provider = "KAKAO" | null
 
-interface User {
+type MeResponse = {
+  userId: string
+  nickname: string
+  userEmail: string
+  provider: Provider
+}
+
+type User = {
   name: string
   nickname: string
   email: string
   provider: Provider
 }
 
+const BASE_URL = "http://localhost:8080"
+
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,31 +35,60 @@ export default function EditProfilePage() {
     confirmPassword: "",
   })
 
+  // 1) 페이지 진입 시: 내 정보 조회 (/api/users/me)
   useEffect(() => {
-    // TODO: 실제 API로 대체
-    setUser({
-      name: "admin",
-      nickname: "admin",
-      email: "admin@gmail.com",
-      provider: "LOCAL", // LOCAL or KAKAO
-    })
+    const token = localStorage.getItem("accessToken")
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
+    const fetchMe = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        if (!res.ok) throw new Error(await res.text())
+
+        const data = (await res.json()) as MeResponse
+
+        const mapped: User = {
+          name: data.userId,
+          nickname: data.nickname,
+          email: data.userEmail,
+          provider: data.provider,
+        }
+
+        setUser(mapped)
+        setFormData(prev => ({
+          ...prev,
+          name: mapped.name ?? "",
+          nickname: mapped.nickname ?? "",
+          email: mapped.email ?? "",
+          password: "",
+          confirmPassword: "",
+        }))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMe()
   }, [])
 
-  useEffect(() => {
-    if (!user) return
-    setFormData(prev => ({
-      ...prev,
-      name: user.name ?? "",
-      nickname: user.nickname ?? "",
-      email: user.email ?? "",
-    }))
-  }, [user])
+  // 로딩 중
+  if (loading) {
+    return <div className="flex-1 px-10 py-8">로딩 중...</div>
+  }
 
-  // 아직 유저 정보 안 들어왔을 때
+  // 토큰 없거나 조회 실패
   if (!user) {
     return (
       <div className="flex-1 px-10 py-8">
-        로딩 중...
+        사용자 정보를 불러오지 못했어. (토큰 확인 필요)
       </div>
     )
   }
@@ -62,30 +101,67 @@ export default function EditProfilePage() {
       setFormData({ ...formData, [field]: e.target.value })
     }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 2) 수정 버튼: 닉네임 PATCH (/api/users/me/profile)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!isKakao && formData.password !== formData.confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.")
+    const token = localStorage.getItem("accessToken")
+    if (!token) {
+      alert("로그인이 필요합니다.")
       return
     }
 
-    alert("회원정보가 수정되었습니다. (실제에선 API 호출)")
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/me/profile`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nickname: formData.nickname }),
+      })
+
+      if (!res.ok) throw new Error(await res.text())
+
+      const updated = (await res.json()) as MeResponse
+
+      const mapped: User = {
+        name: updated.userId,
+        nickname: updated.nickname,
+        email: updated.userEmail,
+        provider: updated.provider,
+      }
+
+      // 화면 갱신
+      setUser(mapped)
+      setFormData(prev => ({
+        ...prev,
+        name: mapped.name ?? "",
+        nickname: mapped.nickname ?? "",
+        email: mapped.email ?? "",
+        password: "",
+        confirmPassword: "",
+      }))
+
+      alert("수정 완료되었습니다.")
+    } catch (err: any) {
+      console.error(err)
+      alert(err?.message ?? "닉네임 수정 실패")
+    }
   }
 
   const handleCancel = () => {
-    setFormData({
+    setFormData(prev => ({
+      ...prev,
       name: user.name ?? "",
       nickname: user.nickname ?? "",
       email: user.email ?? "",
       password: "",
       confirmPassword: "",
-    })
+    }))
   }
 
   return (
-    // 왼쪽 Sidebar/상단 Header는 레이아웃에서 이미 깔려 있으니,
-    // 여기서는 오른쪽 컨텐츠 영역만 그려주면 됨
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-8 text-xl font-semibold">회원정보 수정</h2>
 
@@ -101,7 +177,7 @@ export default function EditProfilePage() {
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">아이디</label>
           <input
-            type="email"
+            type="text"
             value={formData.name}
             readOnly
             disabled
@@ -134,7 +210,6 @@ export default function EditProfilePage() {
 
         {/* 버튼 영역 */}
         <div className="flex flex-col items-end gap-2 pt-4">
-          {/* 윗줄: 취소 / 수정 버튼 */}
           <div className="flex gap-4">
             <Button
               type="button"
@@ -152,13 +227,9 @@ export default function EditProfilePage() {
             </Button>
           </div>
 
-          {/* 아랫줄: 비밀번호 변경 안내 + 링크 */}
           <p className="mt-7 text-xs text-gray-500">
             비밀번호 변경이 필요하신가요?{" "}
-            <Link
-              href="/my-page/security"
-              className="text-blue-600 hover:text-blue-700"
-            >
+            <Link href="/my-page/security" className="text-blue-600 hover:text-blue-700">
               비밀번호 변경
             </Link>
           </p>
