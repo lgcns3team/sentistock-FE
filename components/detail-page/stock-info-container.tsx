@@ -65,7 +65,7 @@ export default function StockInfoContainer(props: Props) {
 
   const onToggleFavorite = async () => {
     if (!accessToken) {
-      alert("로그인 후 이용할 수 있어요.")
+      alert("로그인 후 이용할 수 있습니다.")
       return
     }
 
@@ -81,13 +81,13 @@ export default function StockInfoContainer(props: Props) {
       }
 
       if (res.status === 401 || res.status === 403) {
-        alert("로그인 상태가 아니거나 권한이 없어요. 다시 로그인해 주세요.")
+        alert("권한이 없거나 구독 서비스에 포함되는 기능입니다.")
         return
       }
 
-      alert("즐겨찾기 처리에 실패했어요.")
+      alert("즐겨찾기 처리에 실패했습니다.")
     } catch {
-      alert("네트워크 오류로 즐겨찾기 처리에 실패했어요.")
+      alert("네트워크 오류로 즐겨찾기 처리에 실패했습니다.")
     }
   }
 
