@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, ThumbsUp, ThumbsDown, MessageCircle, PenSquare, MoreVertical } from "lucide-react"
 import Header from "@/components/header"
+import Link from "next/link"
 
 // 임시 데이터
 const hotPosts = [
@@ -40,7 +41,7 @@ const hotPosts = [
     authorAvatar: "/user-avatar-3.jpg",
     time: "2025.12.25.18:34",
     title: "🔥HOT [단독] 삼성전자, 독자 GPU 개발 성공...AI 생태계 확장",
-    content: "박의명2025. 12. 25. 18:02\n삼성전자가 독자 개발한 그래픽처리장치(GPU)를 탑재한 애플리케이션프로세서(AP) ‘엑시노스2800’(가칭)을 2027년 출시할 계획인 것으로...",
+    content: "정다연 기자 2025. 12. 25. 18:02\n삼성전자가 독자 개발한 그래픽처리장치(GPU)를 탑재한 애플리케이션프로세서(AP) ‘엑시노스2800’(가칭)을 2027년 출시할 계획인 것으로...",
     likes: 51,
     dislikes: 6,
     comments: 2,
@@ -151,6 +152,11 @@ export default function CommunityPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <Link href="/community">
+          <button className="px-1 py-4 md:py-2 text-gray-400 font-medium text-[13px] transition hover:text-gray-600 hover:underline">
+            ← 전체 종목 커뮤니티 보기
+          </button>
+        </Link>
         <h1 className="text-4xl font-bold text-foreground mb-10 mt-5 text-center">
           <span className="text-blue-600">삼성전자</span> 커뮤니티</h1>
 
