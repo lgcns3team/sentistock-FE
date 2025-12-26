@@ -6,10 +6,13 @@ import Image from "next/image"
 export default function SignupIndexPage() {
   const router = useRouter()
 
+  const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!
+  const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!
+
   const KAKAO_AUTH_URL =
     "https://kauth.kakao.com/oauth/authorize" +
-    "?client_id=8b11d3204536a627ce86cd57bbd59b00" +
-    "&redirect_uri=http://localhost:8080/api/auth/oauth/kakao" +
+    `?client_id=${KAKAO_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(KAKAO_REDIRECT_URI)}` +
     "&response_type=code"
 
   return (
