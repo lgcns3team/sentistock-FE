@@ -46,6 +46,9 @@ export default function Header() {
           <Link href="/faq" className="text-sm font-medium text-gray-700 hover:text-gray-900">
             자주 묻는 질문
           </Link>
+          <Link href="/community" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+            커뮤니티
+          </Link>
         </nav>
 
         {/* Right icons */}
