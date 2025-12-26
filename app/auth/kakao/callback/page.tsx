@@ -9,7 +9,6 @@ type LoginResponseDto = {
   tokenType: string
   userId: string
   nickname: string
-  userEmail: string
   investorType: string
   subscribe: boolean
   onboardingRequired: boolean
