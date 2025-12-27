@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Bell, User, Menu, X } from "lucide-react"
@@ -16,6 +16,26 @@ export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [hasUnread, setHasUnread] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [nickname, setNickname] = useState("admin");
+
+  function getNicknameFromToken() {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return null;
+
+  try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      console.log("토큰 페이로드:", payload);
+      return payload.sub;
+    } catch (err) {
+      console.error("토큰 파싱 실패", err);
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    const name = getNicknameFromToken();
+    if (name) setNickname(name);
+  }, []);
 
   return (
     <header className="relative bg-white border-b border-gray-200">
@@ -85,7 +105,7 @@ export default function Header() {
 
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-3 py-2 text-sm font-medium border-b">
-                admin 님
+                {nickname} 님
               </div>
               <DropdownMenuItem asChild>
                 <Link href="/my-page">마이페이지</Link>
@@ -136,6 +156,13 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               자주 묻는 질문
+            </Link>
+            <Link
+              href="/community"
+              className="px-6 py-4 text-sm font-medium hover:bg-gray-50"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              커뮤니티
             </Link>
           </nav>
         </div>
