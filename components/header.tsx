@@ -83,9 +83,9 @@ export default function Header() {
 
           {/* 알림 */}
           <button
-            onClick={() => {
-              setShowNotifications(true)
-              setHasUnread(false)
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowNotifications((prev) => !prev); 
             }}
             className="relative p-2 hover:bg-gray-100 rounded-full"
           >
