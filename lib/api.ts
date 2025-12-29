@@ -18,6 +18,8 @@ export type FavoriteStatusResponse = {
 // =====================
 // Base Request Helper
 // =====================
+// 컨벤션: .env의 NEXT_PUBLIC_API_BASE_URL 에 /api 까지 포함한다.
+// 예) NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 function getAccessToken() {
@@ -29,15 +31,26 @@ async function request<T>(path: string, options: RequestInit = {}) {
   if (!BASE_URL) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set")
 
   const token = getAccessToken()
+  const url = `${BASE_URL}${path}`
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> | undefined),
+  }
+
+  // body가 있을 때만 Content-Type을 세팅 (불필요한 preflight 줄이기)
+  const hasBody = options.body !== undefined && options.body !== null
+  if (hasBody && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json"
+  }
+
+  if (token && !headers["Authorization"]) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const res = await fetch(url, {
     ...options,
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
+    headers,
   })
 
   if (!res.ok) {
@@ -56,20 +69,22 @@ async function request<T>(path: string, options: RequestInit = {}) {
 // =====================
 // Subscription APIs
 // =====================
+// 주의: BASE_URL에 이미 /api 가 포함되어 있으므로,
+// 여기서는 절대 /api를 또 붙이지 않는다.
 export function getMySubscription() {
-  return request<SubscriptionInfoResponseDto>("/api/subscriptions/me", {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/me", {
     method: "GET",
   })
 }
 
 export function startSubscription() {
-  return request<SubscriptionInfoResponseDto>("/api/subscriptions/start", {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/start", {
     method: "POST",
   })
 }
 
 export function cancelSubscription() {
-  return request<SubscriptionInfoResponseDto>("/api/subscriptions/cancel", {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/cancel", {
     method: "POST",
   })
 }
@@ -80,14 +95,14 @@ export function cancelSubscription() {
 
 // 즐겨찾기 여부 조회
 export function getFavoriteStatus(companyId: string) {
-  return request<FavoriteStatusResponse>(`/api/companies/${companyId}/favorite`, {
+  return request<FavoriteStatusResponse>(`/companies/${companyId}/favorite`, {
     method: "GET",
   })
 }
 
 // 즐겨찾기 토글(등록/해제)
 export function toggleFavorite(companyId: string) {
-  return request<FavoriteStatusResponse>(`/api/companies/${companyId}/favorite/star`, {
+  return request<FavoriteStatusResponse>(`/companies/${companyId}/favorite/star`, {
     method: "POST",
   })
 }
