@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-type Provider = "KAKAO" | null
+type Provider = "KAKAO" | "LOCAL" | null
 
 type User = {
   nickname: string
@@ -15,24 +15,71 @@ type User = {
 
 export default function AccountSecurityPage() {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [serverDown, setServerDown] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken")
-    if (!token) return
+
+    if (!token) {
+      setErrorMsg("로그인이 필요합니다. accessToken이 없습니다.")
+      setLoading(false)
+      return
+    }
 
     const fetchMe = async () => {
-      const res = await fetch("http://localhost:8080/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = (await res.json()) as User
-      setUser(data)
+      try {
+        const res = await fetch("http://localhost:8080/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "")
+          setErrorMsg(`요청 실패: ${res.status} ${res.statusText}${text ? ` - ${text}` : ""}`)
+          setLoading(false)
+          return
+        }
+
+        const data = (await res.json()) as User
+        setUser(data)
+      } catch {
+        // 서버가 안 열려있거나 네트워크 연결 실패(CORS 포함)면 여기로 옴
+        setServerDown(true)
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchMe()
   }, [])
 
-  if (!user) {
+  if (loading) {
     return <div className="flex-1 px-10 py-8">로딩 중...</div>
+  }
+
+  if (serverDown) {
+    return (
+      <div className="flex-1 px-10 py-8">
+        <h2 className="text-xl font-semibold mb-2">서버 연결 실패</h2>
+        <p className="text-sm text-gray-600">
+          백엔드 서버가 실행 중인지 확인해주세요. (예: http://localhost:8080)
+        </p>
+      </div>
+    )
+  }
+
+  if (errorMsg) {
+    return (
+      <div className="flex-1 px-10 py-8">
+        <h2 className="text-xl font-semibold mb-2">에러</h2>
+        <p className="text-sm text-gray-600">{errorMsg}</p>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <div className="flex-1 px-10 py-8">사용자 정보 없음</div>
   }
 
   const isKakao = user.provider === "KAKAO"
@@ -53,9 +100,7 @@ export default function AccountSecurityPage() {
               <p className="text-sm font-medium">이메일 / 비밀번호</p>
               <span
                 className={`mt-1 inline-block rounded-full px-2 py-1 text-xs ${
-                  emailConnected
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-700"
+                  emailConnected ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {emailConnected ? "연결됨" : "미연결"}
@@ -68,9 +113,7 @@ export default function AccountSecurityPage() {
               <p className="text-sm font-medium">카카오 로그인</p>
               <span
                 className={`mt-1 inline-block rounded-full px-2 py-1 text-xs ${
-                  kakaoConnected
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-700"
+                  kakaoConnected ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {kakaoConnected ? "연결됨" : "미연결"}
@@ -90,9 +133,7 @@ export default function AccountSecurityPage() {
               <Input
                 type="password"
                 disabled={isKakao}
-                className={`border-gray-300 ${
-                  isKakao ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-gray-300 ${isKakao ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
             </div>
 
@@ -101,9 +142,7 @@ export default function AccountSecurityPage() {
               <Input
                 type="password"
                 disabled={isKakao}
-                className={`border-gray-300 ${
-                  isKakao ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-gray-300 ${isKakao ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
             </div>
 
@@ -112,9 +151,7 @@ export default function AccountSecurityPage() {
               <Input
                 type="password"
                 disabled={isKakao}
-                className={`border-gray-300 ${
-                  isKakao ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-gray-300 ${isKakao ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
             </div>
 
