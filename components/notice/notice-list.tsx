@@ -24,7 +24,7 @@ export default function NoticeList({ notices }: NoticeListProps) {
             }`}
           >
             <div className="flex items-center gap-4 flex-1">
-              <span className="text-[rgb(80,185,228)] text-sm font-medium flex-shrink-0">{notice.category}</span>
+              <span className="text-[rgb(80,185,228)] text-sm font-medium shrink-0">{notice.category}</span>
               <h3 className="text-[rgb(6,31,91)] font-medium text-sm md:text-base">{notice.title}</h3>
             </div>
             <span className="text-[rgb(150,160,180)] text-sm whitespace-nowrap ml-4">{notice.date}</span>
