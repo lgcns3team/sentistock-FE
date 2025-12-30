@@ -3,108 +3,65 @@
 import { X } from "lucide-react"
 import { useState } from "react"
 
-interface AveragePriceModalProps {
+export default function AveragePriceModal({
+  onClose,
+  stockName,
+  stockCode,
+}: {
   onClose: () => void
   stockName: string
   stockCode: string
-}
-
-type PurchaseSaveReq = {
-  companyId: string
-  avgPrice: number
-}
-
-type MyPurchaseItem = {
-  companyId: string
-  name?: string
-  avgPrice: number
-}
-
-export default function AveragePriceModal({ onClose, stockName, stockCode }: AveragePriceModalProps) {
-  const [averagePrice, setAveragePrice] = useState("")
-  const [saving, setSaving] = useState(false)
+}) {
+  const [avgPrice, setAvgPrice] = useState("")
   const [error, setError] = useState<string | null>(null)
-
-  const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+  const [loading, setLoading] = useState(false)
 
   const apiFetch = async (path: string, init: RequestInit = {}) => {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL
     const headers = new Headers(init.headers || {})
 
-    headers.set("Content-Type", "application/json")
-    if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`)
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+    if (token) headers.set("Authorization", `Bearer ${token}`)
+
+    // JSON 요청
+    if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json")
 
     return fetch(`${base}${path}`, { ...init, headers })
   }
 
-  const readTextSafely = async (res: Response) => {
-    try {
-      return await res.text()
-    } catch {
-      return ""
-    }
-  }
-
   const onSubmit = async () => {
     setError(null)
-    const v = Number(averagePrice)
 
-    if (!accessToken) {
-      alert("로그인 후 이용할 수 있어요.")
-      return
-    }
-    if (!stockCode || stockCode.length !== 6) {
-      setError(`종목코드가 맞지 않습니다: "${stockCode}"`)
-      return
-    }
-    if (!Number.isFinite(v) || v <= 0) {
-      alert("평단가는 0보다 큰 숫자로 입력해 주세요.")
+    const n = Number(avgPrice)
+    if (!Number.isFinite(n) || n <= 0) {
+      setError("평단가를 올바르게 입력해 주세요.")
       return
     }
 
-    setSaving(true)
+    setLoading(true)
     try {
-      const body: PurchaseSaveReq = { companyId: stockCode, avgPrice: v }
-
-      const saveRes = await apiFetch(`/purchase/save`, {
+      const res = await apiFetch(`/purchase/save`, {
         method: "POST",
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          companyId: stockCode,
+          avgPrice: n,
+        }),
       })
 
-      if (!saveRes.ok) {
-        const t = await readTextSafely(saveRes)
-        setError(
-          `평단가 저장 실패`
-        )
+      if (res.status === 200) {
+        alert("평단가가 저장되었습니다.")
+        onClose()
         return
       }
 
-      // 저장 후 즉시 "내 구매목록" 재조회해서 실제 반영 여부 확인
-      const listRes = await apiFetch(`/users/me/purchases`, { method: "GET" })
-      if (!listRes.ok) {
-        const t = await readTextSafely(listRes)
-        setError(
-          `저장 후 목록 조회 실패`
-        )
-        return
-      }
-
-      const list: MyPurchaseItem[] = await listRes.json()
-      const found = list.find((p) => p.companyId === stockCode)
-
-      if (!found) {
-        setError(
-          `저장은 성공으로 보이지만, 내 구매목록에 반영되지 않았습니다. ${list.length}`
-        )
-        return
-      }
-
-      onClose()
-    } catch (e: any) {
-      setError(`네트워크/런타임 오류: ${String(e?.message ?? e)}`)
+      if (res.status === 401) return alert("로그인이 필요합니다.")
+      if (res.status === 403) return alert("권한이 없거나 구독 서비스에 포함되는 기능입니다.")
+      return alert(`저장 실패 (${res.status})`)
+    } catch {
+      alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
     } finally {
-      setSaving(false)
+      setLoading(false)
     }
   }
 
@@ -127,8 +84,8 @@ export default function AveragePriceModal({ onClose, stockName, stockCode }: Ave
             type="number"
             min="1"
             step="1"
-            value={averagePrice}
-            onChange={(e) => setAveragePrice(e.target.value)}
+            value={avgPrice}
+            onChange={(e) => setAvgPrice(e.target.value)}
             placeholder="예) 72500"
             className="w-full px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -145,16 +102,16 @@ export default function AveragePriceModal({ onClose, stockName, stockCode }: Ave
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded font-medium hover:bg-gray-50"
-            disabled={saving}
+            disabled={loading}
           >
             닫기
           </button>
           <button
             onClick={onSubmit}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700"
-            disabled={saving}
+            disabled={loading}
           >
-            {saving ? "저장 중..." : "입력"}
+            {loading ? "저장 중..." : "입력"}
           </button>
         </div>
       </div>

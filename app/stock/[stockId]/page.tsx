@@ -109,17 +109,18 @@ export default function StockDetailPage() {
     }[]
   >([])
 
-  const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
   const apiFetch = async (path: string, init: RequestInit = {}) => {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL
     const headers = new Headers(init.headers || {})
 
-    if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`)
+    const token =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
-    return fetch(`${base}${path}`, { ...init, headers })
-  }
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+
+  return fetch(`${base}${path}`, { ...init, headers })
+}
 
   if (companies && !isValidCompany) {
     return (
@@ -198,20 +199,10 @@ export default function StockDetailPage() {
         }
 
         // sentiment avg score
-        if (scoreRes.status === 200) {
-          const data: number = await scoreRes.json()
-          setScoreAvg(data)
-        } else {
-          setScoreAvg(null)
-        }
+        setScoreAvg(scoreRes.status === 200 ? await scoreRes.json() : null)
 
-        //  sentiment ratio
-        if (ratioRes.status === 200) {
-          const data: SentimentRatioRes = await ratioRes.json()
-          setRatio(data)
-        } else {
-          setRatio(null)
-        }
+        // sentiment ratio
+        setRatio(ratioRes.status === 200 ? await ratioRes.json() : null)
 
 
         // news
@@ -239,8 +230,8 @@ export default function StockDetailPage() {
                 id: idx,
                 code: v.toCompanyId,
                 name: v.toCompanyName,
-                price: String(v.currentPrice ?? ""),
-                change: `${v.changeRate ?? 0}%`,
+                price: (v.currentPrice ?? 0).toLocaleString(),
+                change: `${(v.changeRate ?? 0).toFixed(2)}%`,
                 isUp,
                 relation: v.relationship,
               }
@@ -306,8 +297,6 @@ export default function StockDetailPage() {
     negative: ratio?.negativeRatio ?? 0,
   }
 
-  const articlesProps = articles
-  const valueChainProps = valueChain
 
   return (
     <main className="min-h-screen bg-background">
@@ -336,8 +325,8 @@ export default function StockDetailPage() {
           {/* Right side - Sentiment and articles */}
           <div className="space-y-6">
             <SentimentScore sentiment={sentimentProps} />
-            <RelatedArticles articles={articlesProps} />
-            <ValueChain relatedStocks={valueChainProps} />
+            <RelatedArticles articles={articles} />
+            <ValueChain relatedStocks={valueChain} />
           </div>
         </div>
       </div>

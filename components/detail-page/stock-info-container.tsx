@@ -2,6 +2,7 @@
 
 import StockInfo from "./stock-info"
 import { useEffect, useMemo, useState } from "react"
+import { useFavorites } from "@/hooks/useFavorites"
 
 type Props = {
   stockName: string
@@ -9,51 +10,70 @@ type Props = {
   price: number
   change: number
   subscribe: boolean
+  maxFreeFavorites?: number
 }
 
 type FavoriteRes = { favorite: boolean }
 
-export default function StockInfoContainer(props: Props) {
-  const { stockCode, subscribe } = props
+export type ToggleFavoriteResult =
+  | { ok: true; favorite: boolean }
+  | { ok: false; status: number }
 
-  const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+export default function StockInfoContainer({
+  stockName,
+  stockCode,
+  price,
+  change,
+  subscribe,
+  maxFreeFavorites = 5,
+}: Props) {
+  const { favorites, isFavorite: isFavoriteLocal, toggleFavorite } = useFavorites()
+
+  const [serverFavorite, setServerFavorite] = useState<boolean>(isFavoriteLocal(stockCode))
+
+  const favoriteCount = favorites.length
 
   const apiFetch = async (path: string, init: RequestInit = {}) => {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL
     const headers = new Headers(init.headers || {})
 
-    if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`)
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+    if (token) headers.set("Authorization", `Bearer ${token}`)
 
     return fetch(`${base}${path}`, { ...init, headers })
   }
 
-  const [isFavorite, setIsFavorite] = useState(false)
-
-  // 즐겨찾기 여부 조회
   useEffect(() => {
     let cancelled = false
 
     const run = async () => {
-      if (!accessToken) {
-        if (!cancelled) setIsFavorite(false)
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+
+      if (!token) {
+        if (!cancelled) setServerFavorite(false)
         return
       }
 
       try {
-        const res = await apiFetch(`/companies/${stockCode}/favorite`, {
-          method: "GET",
-        })
-        if (!cancelled) {
-          if (res.status === 200) {
-            const data: FavoriteRes = await res.json()
-            setIsFavorite(Boolean(data.favorite))
-          } else {
-            setIsFavorite(false)
-          }
+        const res = await apiFetch(`/companies/${stockCode}/favorite`, { method: "GET" })
+        if (cancelled) return
+
+        if (res.status === 200) {
+          const data: FavoriteRes = await res.json()
+          const fav = Boolean(data.favorite)
+          setServerFavorite(fav)
+
+          if (fav && !isFavoriteLocal(stockCode)) toggleFavorite(stockCode)
+          if (!fav && isFavoriteLocal(stockCode)) toggleFavorite(stockCode)
+
+          return
         }
+
+        setServerFavorite(false)
       } catch {
-        if (!cancelled) setIsFavorite(false)
+        if (!cancelled) setServerFavorite(false)
       }
     }
 
@@ -61,13 +81,12 @@ export default function StockInfoContainer(props: Props) {
     return () => {
       cancelled = true
     }
-  }, [stockCode, accessToken])
+  }, [stockCode])
 
-  const onToggleFavorite = async () => {
-    if (!accessToken) {
-      alert("로그인 후 이용할 수 있습니다.")
-      return
-    }
+  const onToggleFavorite = async (): Promise<ToggleFavoriteResult> => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+    if (!token) return { ok: false, status: 401 }
 
     try {
       const res = await apiFetch(`/companies/${stockCode}/favorite/star`, {
@@ -76,29 +95,36 @@ export default function StockInfoContainer(props: Props) {
 
       if (res.status === 200) {
         const data: FavoriteRes = await res.json()
-        setIsFavorite(Boolean(data.favorite))
-        return
+        const fav = Boolean(data.favorite)
+        setServerFavorite(fav)
+
+        const localFav = isFavoriteLocal(stockCode)
+        if (fav && !localFav) toggleFavorite(stockCode)
+        if (!fav && localFav) toggleFavorite(stockCode)
+
+        return { ok: true, favorite: fav }
       }
 
-      if (res.status === 401 || res.status === 403) {
-        alert("권한이 없거나 구독 서비스에 포함되는 기능입니다.")
-        return
-      }
-
-      alert("즐겨찾기 처리에 실패했습니다.")
+      if (res.status === 401) return { ok: false, status: 401 }
+      if (res.status === 403) return { ok: false, status: 403 }
+      return { ok: false, status: res.status || 500 }
     } catch {
-      alert("네트워크 오류로 즐겨찾기 처리에 실패했습니다.")
+      return { ok: false, status: 0 }
     }
   }
 
-  const favoriteCount = useMemo(() => 0, [])
+  const isFavorite = useMemo(() => serverFavorite, [serverFavorite])
 
   return (
     <StockInfo
-      {...props}
+      stockName={stockName}
+      stockCode={stockCode}
+      price={price}
+      change={change}
       subscribe={subscribe}
       favoriteCount={favoriteCount}
-      isFavorite={isFavorite}
+      maxFreeFavorites={maxFreeFavorites}
+      isFavorite={serverFavorite}
       onToggleFavorite={onToggleFavorite}
     />
   )
