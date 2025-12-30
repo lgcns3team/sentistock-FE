@@ -12,14 +12,20 @@ type CardErrors = Partial<Record<CardField, string>>
 
 const isValidCardNumber = (value: string) =>
   /^\d{16}$/.test(value.replace(/\s/g, ""))
-const isValidExpiry = (value: string) => /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
+const isValidExpiry = (value: string) =>
+  /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
 const isValidBirth = (value: string) => /^\d{6}$/.test(value)
 const isValidPassword = (value: string) => /^\d{2}$/.test(value)
 
 const formatExpiryInput = (raw: string, prev: string) => {
   const digits = raw.replace(/\D/g, "").slice(0, 4)
 
-  if (prev.length === 3 && prev.endsWith("/") && raw.length === 2 && digits.length === 2) {
+  if (
+    prev.length === 3 &&
+    prev.endsWith("/") &&
+    raw.length === 2 &&
+    digits.length === 2
+  ) {
     return digits
   }
 
@@ -38,6 +44,11 @@ const formatExpiryInput = (raw: string, prev: string) => {
 
   const yy = digits.slice(2)
   return `${mm}/${yy}`
+}
+
+const formatCardNumberInput = (raw: string) => {
+  const digits = raw.replace(/\D/g, "").slice(0, 16)
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ")
 }
 
 type Props = {
@@ -378,7 +389,8 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
                         type="text"
                         value={cardNumber}
                         onChange={(e) => {
-                          setCardNumber(e.target.value)
+                          const next = formatCardNumberInput(e.target.value)
+                          setCardNumber(next)
                           clearCardError("cardNumber")
                         }}
                         placeholder="1234 5678 9012 3456"
@@ -402,7 +414,10 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
                           type="text"
                           value={cardExpiry}
                           onChange={(e) => {
-                            const next = formatExpiryInput(e.target.value, cardExpiry)
+                            const next = formatExpiryInput(
+                              e.target.value,
+                              cardExpiry
+                            )
                             setCardExpiry(next)
                             clearCardError("cardExpiry")
                           }}
