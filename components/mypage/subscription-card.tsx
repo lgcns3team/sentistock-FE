@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { TermsDialog } from "@/components/mypage/terms-dialog"
+import { startSubscription } from "@/lib/api"
 
 type Step = 1 | 2 | 3 | null
 type PaymentMethod = "CARD"
@@ -9,80 +10,78 @@ type PaymentMethod = "CARD"
 type CardField = "cardNumber" | "cardExpiry" | "cardBirth" | "cardPassword"
 type CardErrors = Partial<Record<CardField, string>>
 
-// --------------------
-// 유효성 검사 함수들
-// --------------------
-const isValidCardNumber = (value: string) => {
-  const onlyDigits = value.replace(/\s/g, "")
-  return /^\d{16}$/.test(onlyDigits)
-}
+const isValidCardNumber = (value: string) =>
+  /^\d{16}$/.test(value.replace(/\s/g, ""))
+const isValidExpiry = (value: string) => /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
+const isValidBirth = (value: string) => /^\d{6}$/.test(value)
+const isValidPassword = (value: string) => /^\d{2}$/.test(value)
 
-const isValidExpiry = (value: string) => {
-  // MM/YY, 월은 01~12
-  return /^((0[1-9])|(1[0-2]))\/\d{2}$/.test(value)
-}
-
-const isValidBirth = (value: string) => {
-  // YYMMDD 6자리 숫자
-  return /^\d{6}$/.test(value)
-}
-
-const isValidPassword = (value: string) => {
-  // 앞 2자리 숫자
-  return /^\d{2}$/.test(value)
-}
-
-// --------------------
-// 유효기간 입력 포맷 (자동 "/" + 월 01~12 제한)
-// --------------------
 const formatExpiryInput = (raw: string, prev: string) => {
   const digits = raw.replace(/\D/g, "").slice(0, 4)
 
-  // 사용자가 "09/" 상태에서 "/"만 백스페이스로 지우려는 경우
-  // (안 막아주면 다시 "/"가 붙어서 UX 빡침)
   if (prev.length === 3 && prev.endsWith("/") && raw.length === 2 && digits.length === 2) {
-    return digits // "09"
+    return digits
   }
 
   if (digits.length === 0) return ""
   if (digits.length === 1) return digits
 
-  // 월 2자리 확보되면: 01~12로 강제 보정
   let mm = digits.slice(0, 2)
   const mmNum = Number(mm)
 
   if (!Number.isFinite(mmNum)) return ""
 
-  // 00 -> 01, 13~99 -> 12
   if (mmNum === 0) mm = "01"
   else if (mmNum > 12) mm = "12"
 
-  // 2자리면 자동 "/"
   if (digits.length === 2) return `${mm}/`
 
-  // 3~4자리면 MM/YY
   const yy = digits.slice(2)
   return `${mm}/${yy}`
 }
 
-export default function SubscriptionCard() {
+type Props = {
+  onSubscribed?: () => void | Promise<void>
+}
+
+function HelpTooltip({ text }: { text: string }) {
+  return (
+    <span className="relative inline-flex items-center">
+      <span className="group inline-flex items-center">
+        <span
+          className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-300 text-[10px] font-bold text-gray-500"
+          aria-label="도움말"
+        >
+          ?
+        </span>
+
+        <span className="pointer-events-none absolute left-1/2 top-[-8px] z-10 hidden w-64 -translate-x-1/2 -translate-y-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-[11px] leading-relaxed text-gray-700 shadow-lg group-hover:block">
+          {text}
+          <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 border-b border-r border-gray-200 bg-white" />
+        </span>
+      </span>
+    </span>
+  )
+}
+
+export default function SubscriptionCard({ onSubscribed }: Props) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>(null)
 
-  // 약관 동의 상태(자동 체크 대상)
   const [agree, setAgree] = useState(false)
   const [termsOpen, setTermsOpen] = useState(false)
 
-  // 에러 상태들
   const [agreeError, setAgreeError] = useState<string | null>(null)
   const [cardErrors, setCardErrors] = useState<CardErrors>({})
 
-  // 카드만 사용
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD")
   const [cardNumber, setCardNumber] = useState("")
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardBirth, setCardBirth] = useState("")
   const [cardPassword, setCardPassword] = useState("")
+
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const resetPaymentInputs = () => {
     setPaymentMethod("CARD")
@@ -99,6 +98,7 @@ export default function SubscriptionCard() {
     setAgree(false)
     setTermsOpen(false)
     setAgreeError(null)
+    setSubmitError(null)
     resetPaymentInputs()
   }
 
@@ -108,6 +108,8 @@ export default function SubscriptionCard() {
     setAgree(false)
     setTermsOpen(false)
     setAgreeError(null)
+    setSubmitError(null)
+    setSubmitting(false)
     resetPaymentInputs()
   }
 
@@ -119,7 +121,7 @@ export default function SubscriptionCard() {
       : `${inputBase} border-gray-200 focus:border-blue-500`
 
   const clearCardError = (key: CardField) => {
-    setCardErrors(prev => {
+    setCardErrors((prev) => {
       if (!prev[key]) return prev
       const next = { ...prev }
       delete next[key]
@@ -127,7 +129,6 @@ export default function SubscriptionCard() {
     })
   }
 
-  // Step2 카드 유효성 검증(에러 객체 반환)
   const validateCard = (): CardErrors => {
     const errors: CardErrors = {}
 
@@ -150,7 +151,6 @@ export default function SubscriptionCard() {
     return errors
   }
 
-  // STEP1 → STEP2
   const handleNextFromStep1 = () => {
     if (!agree) {
       setAgreeError("이용약관을 끝까지 확인하고 동의해주세요.")
@@ -160,27 +160,36 @@ export default function SubscriptionCard() {
     setStep(2)
   }
 
-  // STEP2 → STEP3
   const handleNextFromStep2 = () => {
     const errors = validateCard()
     if (Object.keys(errors).length > 0) {
       setCardErrors(errors)
       return
     }
-
     setCardErrors({})
     setStep(3)
   }
 
-  // 최종 구독 시작
-  const handleConfirm = () => {
-    alert("구독 신청이 완료되었다고 가정하는 자리입니다. 나중에 PG 연동!")
-    handleClose()
+  const handleConfirm = async () => {
+    try {
+      setSubmitting(true)
+      setSubmitError(null)
+
+      await startSubscription()
+
+      await onSubscribed?.()
+
+      alert("구독이 시작되었어요!")
+      handleClose()
+    } catch (e: any) {
+      setSubmitError(e?.message ?? "구독 시작 실패")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <>
-      {/* 오른쪽에 보이는 구독 카드 */}
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <h3 className="mb-1 text-lg font-semibold">SentiStock 프리미엄</h3>
         <p className="mb-4 text-xs font-medium text-blue-600">
@@ -205,6 +214,10 @@ export default function SubscriptionCard() {
             <li>• 감정 추세 히스토리 전체 열람</li>
             <li>• 즐겨찾기 종목 수 무제한</li>
             <li>• 즐겨찾기 종목 매수 알림 기능</li>
+            <li className="flex items-center gap-1">
+              <span>• 금융 특화 AI 요약 모델 선택 가능</span>
+              <HelpTooltip text="기본 요약은 GPT-4o-mini로 제공되며, 프리미엄 구독 시 금융 분석에 특화된 LLM으로 요약 모델을 직접 선택할 수 있어요." />
+            </li>
           </ul>
         </div>
 
@@ -230,7 +243,6 @@ export default function SubscriptionCard() {
         </p>
       </div>
 
-      {/* 약관 모달 */}
       <TermsDialog
         open={termsOpen}
         onOpenChange={setTermsOpen}
@@ -240,7 +252,6 @@ export default function SubscriptionCard() {
         }}
       />
 
-      {/* 구독 모달 */}
       {open && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40" onClick={handleClose} />
@@ -255,7 +266,10 @@ export default function SubscriptionCard() {
                 </span>
               </div>
 
-              {/* STEP 1 */}
+              {submitError && (
+                <p className="mb-3 text-sm text-red-600">{submitError}</p>
+              )}
+
               {step === 1 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -306,9 +320,10 @@ export default function SubscriptionCard() {
                           </button>
                           에 동의합니다.
                         </div>
-
                         {agreeError && (
-                          <p className="mt-1 text-[11px] text-red-500">{agreeError}</p>
+                          <p className="mt-1 text-[11px] text-red-500">
+                            {agreeError}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -331,7 +346,6 @@ export default function SubscriptionCard() {
                 </>
               )}
 
-              {/* STEP 2 */}
               {step === 2 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -357,11 +371,13 @@ export default function SubscriptionCard() {
 
                   <div className="mb-4 space-y-3 text-sm">
                     <div>
-                      <label className="mb-1 block text-xs text-gray-500">카드 번호</label>
+                      <label className="mb-1 block text-xs text-gray-500">
+                        카드 번호
+                      </label>
                       <input
                         type="text"
                         value={cardNumber}
-                        onChange={e => {
+                        onChange={(e) => {
                           setCardNumber(e.target.value)
                           clearCardError("cardNumber")
                         }}
@@ -385,7 +401,7 @@ export default function SubscriptionCard() {
                         <input
                           type="text"
                           value={cardExpiry}
-                          onChange={e => {
+                          onChange={(e) => {
                             const next = formatExpiryInput(e.target.value, cardExpiry)
                             setCardExpiry(next)
                             clearCardError("cardExpiry")
@@ -409,7 +425,7 @@ export default function SubscriptionCard() {
                         <input
                           type="text"
                           value={cardBirth}
-                          onChange={e => {
+                          onChange={(e) => {
                             setCardBirth(e.target.value)
                             clearCardError("cardBirth")
                           }}
@@ -433,7 +449,7 @@ export default function SubscriptionCard() {
                       <input
                         type="password"
                         value={cardPassword}
-                        onChange={e => {
+                        onChange={(e) => {
                           setCardPassword(e.target.value)
                           clearCardError("cardPassword")
                         }}
@@ -467,7 +483,6 @@ export default function SubscriptionCard() {
                 </>
               )}
 
-              {/* STEP 3 */}
               {step === 3 && (
                 <>
                   <div className="mb-4 flex items-start justify-between">
@@ -507,11 +522,13 @@ export default function SubscriptionCard() {
                     >
                       이전
                     </button>
+
                     <button
-                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                       onClick={handleConfirm}
+                      disabled={submitting}
                     >
-                      구독 시작하기
+                      {submitting ? "처리 중..." : "구독 시작하기"}
                     </button>
                   </div>
                 </>
