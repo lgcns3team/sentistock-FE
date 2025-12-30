@@ -151,6 +151,8 @@ export default function StockListPage() {
     }
   }
 
+  // 프리미엄/상태 바뀌었을 때 이상 상태 방지 같은 거 필요하면 여기에 추가
+
   // 모달 열렸을 때 ESC로 닫기 + 스크롤 잠금
   useEffect(() => {
     if (!pendingDelete) return
@@ -222,10 +224,17 @@ export default function StockListPage() {
             const isDeleting = deletingId === stock.id
 
             return (
-              <button
+              <div
                 key={stock.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => router.push(`/stock/${stock.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    router.push(`/stock/${stock.id}`)
+                  }
+                }}
                 className="group w-full cursor-pointer text-left"
               >
                 <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition group-hover:border-blue-200 group-hover:bg-blue-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 sm:px-6 sm:py-4">
@@ -267,7 +276,6 @@ export default function StockListPage() {
                           type="button"
                           disabled={isDeleting}
                           onClick={(e) => {
-                            e.preventDefault()
                             e.stopPropagation()
                             requestDelete(stock.id, stock.name)
                           }}
@@ -284,7 +292,7 @@ export default function StockListPage() {
                     </div>
                   </div>
                 </div>
-              </button>
+              </div>
             )
           })}
         </div>
@@ -298,7 +306,6 @@ export default function StockListPage() {
           aria-modal="true"
           aria-labelledby="delete-title"
           onMouseDown={(e) => {
-            // 바깥 클릭 닫기
             if (e.target === e.currentTarget) closeModal()
           }}
         >
