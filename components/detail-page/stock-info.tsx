@@ -4,6 +4,7 @@ import { useState } from "react"
 import AveragePriceModal from "./average-price-modal"
 import { Star, X } from "lucide-react"
 import Link from "next/link"
+import type { ToggleFavoriteResult } from "./stock-info-container"
 
 interface StockInfoProps {
   stockName: string
@@ -15,7 +16,7 @@ interface StockInfoProps {
   maxFreeFavorites?: number
 
   isFavorite: boolean
-  onToggleFavorite: () => void
+  onToggleFavorite: () => Promise<ToggleFavoriteResult>
 }
 
 export default function StockInfo({
@@ -25,30 +26,39 @@ export default function StockInfo({
   change,
   subscribe,
   favoriteCount,
-  // maxFreeFavorites = 5,
-  maxFreeFavorites = 2, // 임시 (현재 stock이 3개만 저장되어있어서 2개로 임시 지정)
+  maxFreeFavorites = 5,
   onToggleFavorite,
   isFavorite,
 }: StockInfoProps) {
   const [showAverageModal, setShowAverageModal] = useState(false)
   const [showFavoriteModal, setShowFavoriteModal] = useState(false)
-  const [ showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false)
+  const [showFavoriteLimitModal, setShowFavoriteLimitModal] = useState(false)
 
-  const handleStarClick = () => {
-    // 이미 즐겨찾기라면 "해제"는 제한 없이 허용
-    if (isFavorite) {
-      onToggleFavorite()
+  const handleStarClick = async () => {
+    if (!subscribe && !isFavorite && favoriteCount >= maxFreeFavorites) {
+      setShowFavoriteLimitModal(true)
       return
     }
 
-    // 즐겨찾기 "추가"하려는 순간에만 제한 체크
-    if (!subscribe && favoriteCount >= maxFreeFavorites) {
-      setShowFavoriteLimitModal(true) 
+    const result = await onToggleFavorite()
+
+    if (result.ok) {
+      if (result.favorite === true && !isFavorite) setShowFavoriteModal(true)
       return
     }
 
-    onToggleFavorite()
-    setShowFavoriteModal(true)
+    if (result.status === 401) return alert("로그인이 필요합니다.")
+    if (result.status === 403) {
+      if (!subscribe && !isFavorite) {
+        setShowFavoriteLimitModal(true)
+        return
+      }
+
+      alert("권한이 없거나 구독 서비스에 포함되는 기능입니다.")
+      return
+    }
+    if (result.status === 0) return alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
+    return alert("요청 처리 중 오류가 발생했습니다.")
   }
 
   const isUp = change >= 0
@@ -102,29 +112,29 @@ export default function StockInfo({
           </div>
           {/* 제한 모달 */}
           {showFavoriteLimitModal && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
-            <div className="relative z-[10000] bg-white rounded-lg p-6 w-[90%] max-w-sm">
-              <h2 className="text-lg font-semibold">즐겨찾기 한도 초과</h2>
-              <p className="text-sm text-gray-600 mt-2">
-                구독하지 않은 계정은 즐겨찾기를 최대 {maxFreeFavorites}개까지 <br />사용할 수 있어요.
-              </p>
-              <div className="flex gap-2 mt-4">
-                <button
-                  className="flex-1 h-10 rounded-md border"
-                  onClick={() => setShowFavoriteLimitModal(false)}
-                >
-                  닫기
-                </button>
-                <Link
-                  href="/my-page/subscription"
-                  className="flex-1 h-10 rounded-md bg-blue-600 text-white flex items-center justify-center"
-                  onClick={() => setShowFavoriteLimitModal(false)}
-                >
-                  구독하기
-              </Link>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+              <div className="relative z-[10000] bg-white rounded-lg p-6 w-[90%] max-w-sm">
+                <h2 className="text-lg font-semibold">즐겨찾기 한도 초과</h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  구독하지 않은 계정은 즐겨찾기를 최대 {maxFreeFavorites}개까지 <br />사용할 수 있어요.
+                </p>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="flex-1 h-10 rounded-md border"
+                    onClick={() => setShowFavoriteLimitModal(false)}
+                  >
+                    닫기
+                  </button>
+                  <Link
+                    href="/my-page/subscription"
+                    className="flex-1 h-10 rounded-md bg-blue-600 text-white flex items-center justify-center"
+                    onClick={() => setShowFavoriteLimitModal(false)}
+                  >
+                    구독하기
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
           )}
 
           {/* Right side - 현재가, 등락률 */}
