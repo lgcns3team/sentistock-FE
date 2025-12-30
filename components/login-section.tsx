@@ -12,7 +12,7 @@ const getErrorMessage = (err: unknown) => {
 const handleKakaoStart = () => {
   const params = new URLSearchParams({
     client_id: process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!, // REST API 키
-    redirect_uri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URL!, // 콜백 URL
+    redirect_uri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!, // 콜백 URL
     response_type: "code",
   });
 

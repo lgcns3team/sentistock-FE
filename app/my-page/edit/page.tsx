@@ -5,9 +5,16 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-type Provider = "LOCAL" | "KAKAO"
+type Provider = "KAKAO" | null
 
-interface User {
+type MeResponse = {
+  userId: string
+  nickname: string
+  userEmail: string
+  provider: Provider
+}
+
+type User = {
   name: string
   nickname: string
   email: string
@@ -16,6 +23,7 @@ interface User {
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,83 +33,149 @@ export default function EditProfilePage() {
     confirmPassword: "",
   })
 
-  useEffect(() => {
-    // TODO: 실제 API로 대체
-    setUser({
-      name: "admin",
-      nickname: "admin",
-      email: "admin@gmail.com",
-      provider: "LOCAL", // LOCAL or KAKAO
-    })
-  }, [])
+  // BASE_URL: .env.local의 NEXT_PUBLIC_API_BASE_URL 사용
+  // 예) NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api"
 
   useEffect(() => {
-    if (!user) return
-    setFormData(prev => ({
-      ...prev,
-      name: user.name ?? "",
-      nickname: user.nickname ?? "",
-      email: user.email ?? "",
-    }))
-  }, [user])
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
-  // 아직 유저 정보 안 들어왔을 때
-  if (!user) {
-    return (
-      <div className="flex-1 px-10 py-8">
-        로딩 중...
-      </div>
-    )
-  }
-
-  const isKakao = user.provider === "KAKAO"
-
-  const handleChange =
-    (field: keyof typeof formData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [field]: e.target.value })
-    }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!isKakao && formData.password !== formData.confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.")
+    if (!token) {
+      setLoading(false)
       return
     }
 
-    alert("회원정보가 수정되었습니다. (실제에선 API 호출)")
+    const fetchMe = async () => {
+      try {
+        // BASE_URL에 /api가 이미 있으므로, 여기서는 /users... 만 붙임
+        const res = await fetch(`${BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        })
+
+        if (!res.ok) throw new Error(await res.text())
+
+        const data = (await res.json()) as MeResponse
+
+        const mapped: User = {
+          name: data.userId,
+          nickname: data.nickname,
+          email: data.userEmail,
+          provider: data.provider,
+        }
+
+        setUser(mapped)
+        setFormData((prev) => ({
+          ...prev,
+          name: mapped.name ?? "",
+          nickname: mapped.nickname ?? "",
+          email: mapped.email ?? "",
+          password: "",
+          confirmPassword: "",
+        }))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMe()
+  }, [BASE_URL])
+
+  if (loading) {
+    return <div className="flex-1 px-10 py-8">로딩 중...</div>
+  }
+
+  if (!user) {
+    return <div className="flex-1 px-10 py-8">사용자 정보를 불러오지 못했습니다.</div>
+  }
+
+  const isKakao = user.provider === "KAKAO"
+  const providerLabel = isKakao ? "카카오 로그인" : "센티스톡 로그인"
+
+  const handleChange =
+    (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, [field]: e.target.value })
+    }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+
+    if (!token) {
+      alert("로그인이 필요합니다.")
+      return
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/users/me/profile`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nickname: formData.nickname }),
+        cache: "no-store",
+      })
+
+      if (!res.ok) throw new Error(await res.text())
+
+      const updated = (await res.json()) as MeResponse
+
+      const mapped: User = {
+        name: updated.userId,
+        nickname: updated.nickname,
+        email: updated.userEmail,
+        provider: updated.provider,
+      }
+
+      setUser(mapped)
+      setFormData((prev) => ({
+        ...prev,
+        name: mapped.name ?? "",
+        nickname: mapped.nickname ?? "",
+        email: mapped.email ?? "",
+        password: "",
+        confirmPassword: "",
+      }))
+
+      alert("수정 완료되었습니다.")
+    } catch (err: any) {
+      console.error(err)
+      alert(err?.message ?? "닉네임 수정 실패")
+    }
   }
 
   const handleCancel = () => {
-    setFormData({
+    setFormData((prev) => ({
+      ...prev,
       name: user.name ?? "",
       nickname: user.nickname ?? "",
       email: user.email ?? "",
       password: "",
       confirmPassword: "",
-    })
+    }))
   }
 
   return (
-    // 왼쪽 Sidebar/상단 Header는 레이아웃에서 이미 깔려 있으니,
-    // 여기서는 오른쪽 컨텐츠 영역만 그려주면 됨
     <div className="flex-1 px-10 py-8">
       <h2 className="mb-8 text-xl font-semibold">회원정보 수정</h2>
 
-      {isKakao && (
-        <p className="mb-6 text-sm text-gray-500">
-          이 계정은 <span className="font-semibold">카카오 로그인</span>으로 사용 중이에요. <br />
-          기본 계정 정보는 카카오에서만 변경할 수 있어요.
-        </p>
-      )}
+      <p className="mb-6 text-sm text-gray-500">
+        이 계정은 <span className="font-semibold">{providerLabel}</span>으로 사용 중이에요. <br />
+        이곳에서 닉네임을 수정할 수 있어요.
+      </p>
 
       <form className="max-w-2xl space-y-6" onSubmit={handleSubmit}>
-        {/* 아이디 */}
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">아이디</label>
           <input
-            type="email"
+            type="text"
             value={formData.name}
             readOnly
             disabled
@@ -109,7 +183,6 @@ export default function EditProfilePage() {
           />
         </div>
 
-        {/* 닉네임 */}
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">닉네임</label>
           <input
@@ -120,7 +193,6 @@ export default function EditProfilePage() {
           />
         </div>
 
-        {/* 이메일 (수정 불가) */}
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">이메일</label>
           <input
@@ -132,9 +204,7 @@ export default function EditProfilePage() {
           />
         </div>
 
-        {/* 버튼 영역 */}
         <div className="flex flex-col items-end gap-2 pt-4">
-          {/* 윗줄: 취소 / 수정 버튼 */}
           <div className="flex gap-4">
             <Button
               type="button"
@@ -152,13 +222,9 @@ export default function EditProfilePage() {
             </Button>
           </div>
 
-          {/* 아랫줄: 비밀번호 변경 안내 + 링크 */}
           <p className="mt-7 text-xs text-gray-500">
             비밀번호 변경이 필요하신가요?{" "}
-            <Link
-              href="/my-page/security"
-              className="text-blue-600 hover:text-blue-700"
-            >
+            <Link href="/my-page/security" className="text-blue-600 hover:text-blue-700">
               비밀번호 변경
             </Link>
           </p>
