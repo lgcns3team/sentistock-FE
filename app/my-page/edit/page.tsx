@@ -75,6 +75,10 @@ export default function EditProfilePage() {
           password: "",
           confirmPassword: "",
         }))
+
+        // A 방식: 초기 로딩 시에도 profileNickname 저장(동기화)
+        localStorage.setItem("profileNickname", mapped.nickname)
+        window.dispatchEvent(new Event("profile-updated"))
       } catch (e) {
         console.error(e)
       } finally {
@@ -144,6 +148,10 @@ export default function EditProfilePage() {
         confirmPassword: "",
       }))
 
+      // A 방식: 닉네임 변경 성공 시, UI 표시용 닉네임 저장 + 전역 갱신 이벤트 발사
+      localStorage.setItem("profileNickname", mapped.nickname)
+      window.dispatchEvent(new Event("profile-updated"))
+
       alert("수정 완료되었습니다.")
     } catch (err: any) {
       console.error(err)
@@ -167,7 +175,8 @@ export default function EditProfilePage() {
       <h2 className="mb-8 text-xl font-semibold">회원정보 수정</h2>
 
       <p className="mb-6 text-sm text-gray-500">
-        이 계정은 <span className="font-semibold">{providerLabel}</span>으로 사용 중이에요. <br />
+        이 계정은 <span className="font-semibold">{providerLabel}</span>으로 사용 중이에요.{" "}
+        <br />
         이곳에서 닉네임을 수정할 수 있어요.
       </p>
 
