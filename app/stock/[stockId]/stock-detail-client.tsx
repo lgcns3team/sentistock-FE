@@ -153,6 +153,27 @@ export default function StockDetailClient({
   useEffect(() => {
     if (!companyId) return
 
+    if (!isSubscribed) {
+        setSentimentHistory([])
+        return
+    }
+
+    apiFetch(`/sentiment/history/${companyId}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: SentimentHistoryResItem[]) => {
+        setSentimentHistory(
+            data.map((p) => ({
+            time: p.date,
+            score: p.score,
+            }))
+        )
+        })
+        .catch(() => setSentimentHistory([]))
+    }, [companyId, isSubscribed])
+
+  useEffect(() => {
+    if (!companyId) return
+
     Promise.all([
       apiFetch(`/companies/${companyId}/snapshot`),
       apiFetch(`/stock/candle/hourly/${companyId}`),
