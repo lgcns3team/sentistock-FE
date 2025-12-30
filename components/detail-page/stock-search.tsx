@@ -56,12 +56,12 @@ export default function StockSearch() {
     const stockId2 = stockId ?? localStockIndex[key.replace(/\s+/g, "")]
 
     if (stockId2) {
-      router.push(`/stock/${encodeURIComponent(stockId2)}`)
+      router.push(`/stock/${encodeURIComponent(stockId2)}/`)
       return
     }
 
     // 없으면 page.tsx  렌더
-    router.push(`/stock/${encodeURIComponent(raw.trim())}`)
+    router.push(`/stock/${encodeURIComponent(raw.trim())}/`)
   }
 
   return <SearchBar value={query} onChange={setQuery} onSubmit={handleSearch} />
