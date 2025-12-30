@@ -9,26 +9,36 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Flag, ThumbsUp, ThumbsDown, Eye } from "lucide-react"
 import Header from "@/components/header"
 
+import type { CommunityPost, CommunityComment } from "@/app/data/community"
+
 export default function PostDetailClient({
-  id,
   post,
-  comments: initialComments,
+  comments,
 }: {
-  id: string
-  post: any
-  comments: any[]
+  post: CommunityPost
+  comments: CommunityComment[]
 }) {
   const router = useRouter()
-
   const [commentText, setCommentText] = useState("")
-  const [comments] = useState(initialComments)
   const [liked, setLiked] = useState(false)
   const [disliked, setDisliked] = useState(false)
 
   const [isReportConfirmOpen, setIsReportConfirmOpen] = useState(false)
   const [isReportDoneOpen, setIsReportDoneOpen] = useState(false)
 
-  const handleBack = () => router.push("/community/list")
+  const openReportConfirm = () => setIsReportConfirmOpen(true)
+  const cancelReport = () => setIsReportConfirmOpen(false)
+
+  const confirmReport = () => {
+    setIsReportConfirmOpen(false)
+    setIsReportDoneOpen(true)
+  }
+
+  const closeReportDone = () => setIsReportDoneOpen(false)
+
+  const handleBack = () => {
+    router.push("/community/list")
+  }
 
   const handleLike = () => {
     setLiked(!liked)
@@ -39,14 +49,6 @@ export default function PostDetailClient({
     setDisliked(!disliked)
     if (liked) setLiked(false)
   }
-
-  const openReportConfirm = () => setIsReportConfirmOpen(true)
-  const cancelReport = () => setIsReportConfirmOpen(false)
-  const confirmReport = () => {
-    setIsReportConfirmOpen(false)
-    setIsReportDoneOpen(true)
-  }
-  const closeReportDone = () => setIsReportDoneOpen(false)
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,7 +78,7 @@ export default function PostDetailClient({
                     <span>•</span>
                     <div className="flex items-center gap-1">
                       <Eye className="h-3 w-3" />
-                      <span>{post.views}</span>
+                      <span>{post.views ?? 0}</span>
                     </div>
                   </div>
                 </div>
@@ -152,6 +154,7 @@ export default function PostDetailClient({
                 </div>
 
                 <p className="text-sm text-foreground ml-12 mb-2">{comment.content}</p>
+
                 <div className="flex items-center gap-3 ml-12 text-muted-foreground">
                   <button className="flex items-center gap-1 hover:text-foreground transition-colors">
                     <ThumbsUp className="h-3.5 w-3.5" />
@@ -181,9 +184,14 @@ export default function PostDetailClient({
             <div className="w-[90%] max-w-sm rounded-lg bg-white p-6 shadow-lg">
               <h2 className="text-lg font-semibold text-foreground">신고하시겠습니까?</h2>
               <p className="mt-2 text-sm text-muted-foreground">신고가 접수되면 운영 정책에 따라 검토됩니다.</p>
+
               <div className="mt-5 flex justify-center gap-2">
-                <Button variant="outline" onClick={cancelReport}>취소</Button>
-                <Button onClick={confirmReport} className="bg-blue-500 hover:bg-blue-600 text-white">확인</Button>
+                <Button variant="outline" onClick={cancelReport}>
+                  취소
+                </Button>
+                <Button onClick={confirmReport} className="bg-blue-500 hover:bg-blue-600 text-white">
+                  확인
+                </Button>
               </div>
             </div>
           </div>
@@ -193,8 +201,11 @@ export default function PostDetailClient({
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="w-[90%] max-w-sm rounded-lg bg-white p-6 shadow-lg">
               <h2 className="text-m font-semibold text-foreground">신고가 접수됐습니다</h2>
+
               <div className="mt-5 flex justify-end">
-                <Button onClick={closeReportDone} className="bg-blue-500 hover:bg-blue-600 text-white">확인</Button>
+                <Button onClick={closeReportDone} className="bg-blue-500 hover:bg-blue-600 text-white">
+                  확인
+                </Button>
               </div>
             </div>
           </div>
