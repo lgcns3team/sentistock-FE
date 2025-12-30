@@ -1,41 +1,46 @@
 import Link from "next/link"
 import Header from "@/components/header"
 
-interface NoticeDetailProps {
-  params: Promise<{
-    id: string
-  }>
+const noticesData: Record<
+  string,
+  {
+    id: number
+    category: string
+    title: string
+    date: string
+    author: string
+    views: number
+    content: string
+  }
+> = {
+  "1": {
+    id: 1,
+    category: "점검",
+    title: "서버 점검 안내",
+    date: "2025.12.10.",
+    author: "관리자",
+    views: 120,
+    content:
+      "현재 홈페이지 오류로 인해 긴급 서버 점검이 진행 중입니다.\n서비스 이용에 불편을 드려 대단히 죄송합니다.\n빠른 시간 내에 복구가 완료될 수 있도록 노력하고 있습니다.\n서비스 이용에 참고 부탁드리며,\n궁금하신 사항은 담당자를 통해 문의해주시기 바랍니다.\n감사합니다.\n홈페이지 이용문의) 02-1234-5678",
+  },
 }
 
-export default async function NoticeDetailPage({ params }: NoticeDetailProps) {
-  const { id } = await params
+export function generateStaticParams() {
+  return [{ id: "1" }]
+}
 
-  // 공지사항 데이터 (실제로는 데이터베이스에서 가져올 데이터)
-  const noticesData: Record<
-    number,
-    {
-      id: number
-      category: string
-      title: string
-      date: string
-      author: string
-      views: number
-      content: string
-    }
-  > = {
-    1: {
-      id: 1,
-      category: "점검",
-      title: "서버 점검 안내",
-      date: "2025.12.10.",
-      author: "관리자",
-      views: 120,
-      content:
-        "현재 홈페이지 오류로 인해 긴급 서버 점검이 진행 중입니다.\n서비스 이용에 불편을 드려 대단히 죄송합니다.\n빠른 시간 내에 복구가 완료될 수 있도록 노력하고 있습니다.\n서비스 이용에 참고 부탁드리며,\n궁금하신 사항은 담당자를 통해 문의해주시기 바랍니다.\n감사합니다.\n홈페이지 이용문의) 02-1234-5678",
-    }
-  }
+// (선택) 존재하지 않는 id로 접근하는 경우를 막고 싶다면
+export const dynamicParams = false
 
-  const notice = noticesData[Number(id)]
+
+export default async function NoticeDetailPage({
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  }) {
+    const { id } = await params        // ✅ 여기!
+    const notice = noticesData[id]     // ✅ 이제 안전
+
 
   if (!notice) {
     return (
@@ -57,7 +62,9 @@ export default async function NoticeDetailPage({ params }: NoticeDetailProps) {
         </div>
 
         <article className="space-y-4 md:space-y-6">
-          <h2 className="text-xl md:text-1xl font-bold text-[rgb(6,31,91)] leading-relaxed">[{notice.category}] {notice.title}</h2>
+          <h2 className="text-xl md:text-1xl font-bold text-[rgb(6,31,91)] leading-relaxed">
+            [{notice.category}] {notice.title}
+          </h2>
 
           <div className="flex flex-wrap gap-6 text-base md:text-sm text-[rgb(120,135,160)] border-b border-[rgb(225,231,240)] pb-8">
             <div>
