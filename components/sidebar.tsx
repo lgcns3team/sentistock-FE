@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
@@ -20,15 +20,73 @@ const assetItems = [
   { label: "매수 종목 리스트", href: "/my-page/stock-list" },
 ]
 
+function safeDecodeJwtPayload(token: string): any | null {
+  try {
+    const base64Url = token.split(".")[1]
+    if (!base64Url) return null
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    )
+    return JSON.parse(jsonPayload)
+  } catch {
+    return null
+  }
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
+  const [nickname, setNickname] = useState<string>("")
+
+  useEffect(() => {
+    const syncNickname = () => {
+      if (typeof window === "undefined") return
+
+      // A 방식: profileNickname 우선
+      const saved = localStorage.getItem("profileNickname")
+      if (saved && saved.trim()) {
+        setNickname(saved)
+        return
+      }
+
+      // fallback: 토큰에서 읽기
+      const token = localStorage.getItem("accessToken")
+      if (!token) {
+        setNickname("")
+        return
+      }
+
+      const payload = safeDecodeJwtPayload(token)
+      const nick =
+        payload?.nickname ??
+        payload?.nickName ??
+        payload?.name ??
+        payload?.username ??
+        payload?.userName ??
+        ""
+
+      setNickname(nick)
+    }
+
+    syncNickname()
+    window.addEventListener("profile-updated", syncNickname)
+    window.addEventListener("storage", syncNickname)
+
+    return () => {
+      window.removeEventListener("profile-updated", syncNickname)
+      window.removeEventListener("storage", syncNickname)
+    }
+  }, [])
 
   const allItems = [...myPageItems, ...assetItems]
 
   const activeHref =
     allItems
-      .filter(item => {
+      .filter((item) => {
         if (pathname === item.href) return true
         return pathname.startsWith(item.href + "/")
       })
@@ -46,7 +104,6 @@ export function Sidebar() {
 
   return (
     <>
-      {/* 여기서 aside 태그 제거: 폭은 바깥 레이아웃(asid)에서만 컨트롤 */}
       <div
         className={clsx(
           "h-full w-full",
@@ -66,8 +123,9 @@ export function Sidebar() {
               className="h-full w-full object-cover"
             />
           </div>
+
           <span className="mt-3 text-sm font-medium text-gray-800 sm:mt-4">
-            admin 님
+            {nickname ? `${nickname} 님` : "사용자 님"}
           </span>
         </div>
 
@@ -78,7 +136,7 @@ export function Sidebar() {
               마이페이지
             </div>
             <div className="space-y-1">
-              {myPageItems.map(item => (
+              {myPageItems.map((item) => (
                 <Link key={item.href} href={item.href} className={itemClass(item.href)}>
                   {item.label}
                 </Link>
@@ -91,7 +149,7 @@ export function Sidebar() {
               자산 / 관심
             </div>
             <div className="space-y-1">
-              {assetItems.map(item => (
+              {assetItems.map((item) => (
                 <Link key={item.href} href={item.href} className={itemClass(item.href)}>
                   {item.label}
                 </Link>

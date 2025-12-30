@@ -15,14 +15,14 @@ interface InvestorLevel {
 
 const levels: InvestorLevel[] = [
   {
-    grade: "1등급",
+    grade: "5등급",
     name: "공격투자형",
     description:
       "높은 수익을 위해 큰 폭의 가격 변동도 적극적으로 감수하는 투자 성향입니다.",
     range: "30점 이상",
   },
   {
-    grade: "2등급",
+    grade: "4등급",
     name: "적극투자형",
     description:
       "수익을 우선시하며, 일정 수준의 손실 위험도 함께 감수하는 투자 성향입니다.",
@@ -35,14 +35,14 @@ const levels: InvestorLevel[] = [
     range: "20~24점",
   },
   {
-    grade: "4등급",
+    grade: "2등급",
     name: "안전추구형",
     description:
       "원금 손실을 최대한 줄이면서 예금보다 조금 더 높은 수익을 추구하는 안정 지향 성향입니다.",
     range: "15~19점",
   },
   {
-    grade: "5등급",
+    grade: "1등급",
     name: "안정형",
     description:
       "원금 보전을 최우선으로 하며, 손실 가능성이 매우 낮은 안전 자산을 선호하는 투자 성향입니다.",
