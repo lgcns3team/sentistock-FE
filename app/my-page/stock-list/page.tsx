@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 
 type PurchasedStockDto = {
@@ -19,6 +19,18 @@ type UiPurchasedStock = {
   change: number
 }
 
+function normalizeBaseUrl(raw: string) {
+  const trimmed = raw.replace(/\/+$/, "")
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`
+}
+
+function safeNumber(v: unknown, fallback = 0) {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : fallback
+}
+
+type PendingDelete = { id: string; name: string } | null
+
 export default function StockListPage() {
   const router = useRouter()
 
@@ -27,15 +39,19 @@ export default function StockListPage() {
   const [serverDown, setServerDown] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  useEffect(() => {
-    const BASE_URL =
-      process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api"
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete>(null)
 
-    // Swagger: /api/users/me/purchases
+  const BASE_URL = useMemo(() => {
+    const raw = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080"
+    return normalizeBaseUrl(raw)
+  }, [])
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+
+  const fetchPurchasedStocks = async () => {
     const ENDPOINT = "/users/me/purchases"
-
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
     if (!token) {
       setErrorMsg("로그인이 필요합니다. accessToken이 없습니다.")
@@ -43,47 +59,115 @@ export default function StockListPage() {
       return
     }
 
-    const fetchPurchasedStocks = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}${ENDPOINT}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        })
+    try {
+      setServerDown(false)
+      setErrorMsg(null)
 
-        if (!res.ok) {
-          const text = await res.text().catch(() => "")
-          setErrorMsg(
-            `요청 실패: ${res.status} ${res.statusText}${text ? ` - ${text}` : ""}`
-          )
-          return
-        }
+      const res = await fetch(`${BASE_URL}${ENDPOINT}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      })
 
-        const raw = await res.json()
-
-        const list: PurchasedStockDto[] = Array.isArray(raw)
-          ? raw
-          : (raw?.data ?? raw?.result ?? raw?.items ?? [])
-
-        const ui: UiPurchasedStock[] = list.map((it) => ({
-          id: it.companyId,
-          name: it.companyName,
-          purchasePrice: it.avgPrice,
-          currentPrice: it.currentPrice,
-          change: it.profitRate,
-        }))
-
-        setStocks(ui)
-      } catch {
-        setServerDown(true)
-      } finally {
-        setLoading(false)
+      if (!res.ok) {
+        const text = await res.text().catch(() => "")
+        setErrorMsg(
+          `요청 실패: ${res.status} ${res.statusText}${text ? ` - ${text}` : ""}`
+        )
+        return
       }
+
+      const raw = await res.json()
+      const list: PurchasedStockDto[] = Array.isArray(raw)
+        ? raw
+        : (raw?.data ?? raw?.result ?? raw?.items ?? [])
+
+      const ui: UiPurchasedStock[] = list.map((it) => ({
+        id: String(it.companyId ?? ""),
+        name: String(it.companyName ?? ""),
+        purchasePrice: safeNumber(it.avgPrice),
+        currentPrice: safeNumber(it.currentPrice),
+        change: safeNumber(it.profitRate),
+      }))
+
+      setStocks(ui.filter((x) => x.id && x.name))
+    } catch {
+      setServerDown(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPurchasedStocks()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [BASE_URL])
+
+  const requestDelete = (id: string, name: string) => {
+    setPendingDelete({ id, name })
+  }
+
+  const closeModal = () => setPendingDelete(null)
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return
+    if (!token) {
+      setErrorMsg("로그인이 필요합니다. accessToken이 없습니다.")
+      closeModal()
+      return
     }
 
-    fetchPurchasedStocks()
-  }, [])
+    const { id } = pendingDelete
+    const DELETE_ENDPOINT = "/purchase/delete"
+
+    try {
+      setDeletingId(id)
+      setErrorMsg(null)
+
+      const res = await fetch(`${BASE_URL}${DELETE_ENDPOINT}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          accept: "*/*",
+        },
+        body: JSON.stringify({ companyId: id }),
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "")
+        setErrorMsg(
+          `삭제 실패: ${res.status} ${res.statusText}${text ? ` - ${text}` : ""}`
+        )
+        return
+      }
+
+      setStocks((prev) => prev.filter((s) => s.id !== id))
+      closeModal()
+    } catch {
+      setServerDown(true)
+      closeModal()
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  // 모달 열렸을 때 ESC로 닫기 + 스크롤 잠금
+  useEffect(() => {
+    if (!pendingDelete) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal()
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [pendingDelete])
 
   if (loading) {
     return <div className="flex-1 px-10 py-8">로딩 중...</div>
@@ -93,9 +177,7 @@ export default function StockListPage() {
     return (
       <div className="flex-1 px-10 py-8">
         <h2 className="mb-2 text-xl font-semibold">서버 연결 실패</h2>
-        <p className="text-sm text-gray-500">
-          백엔드 서버가 실행 중인지 확인해주세요.
-        </p>
+        <p className="text-sm text-gray-500">백엔드 서버가 실행 중인지 확인해주세요.</p>
       </div>
     )
   }
@@ -104,7 +186,17 @@ export default function StockListPage() {
     return (
       <div className="flex-1 px-10 py-8">
         <h2 className="mb-2 text-xl font-semibold">에러</h2>
-        <p className="text-sm text-gray-500">{errorMsg}</p>
+        <p className="text-sm text-gray-500 whitespace-pre-wrap">{errorMsg}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setLoading(true)
+            fetchPurchasedStocks()
+          }}
+          className="mt-4 rounded-md border px-3 py-2 text-sm"
+        >
+          다시 불러오기
+        </button>
       </div>
     )
   }
@@ -126,7 +218,8 @@ export default function StockListPage() {
         <div className="max-w-4xl space-y-3 md:space-y-4">
           {stocks.map((stock) => {
             const isUp = stock.change >= 0
-            const changeText = `${isUp ? "+" : ""}${stock.change}`
+            const changeText = `${isUp ? "+" : ""}${stock.change.toFixed(2)}%`
+            const isDeleting = deletingId === stock.id
 
             return (
               <button
@@ -149,12 +242,14 @@ export default function StockListPage() {
                     <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-8">
                       <div className="h-8 w-20">
                         <svg viewBox="0 0 80 32" className="h-full w-full">
-                          <polyline
-                            points="0,28 20,24 40,18 60,22 80,8"
-                            fill="none"
-                            stroke={isUp ? "#ef4444" : "#3b82f6"}
-                            strokeWidth={2}
-                          />
+                          <g transform={isUp ? undefined : "translate(0 32) scale(1 -1)"}>
+                            <polyline
+                              points="0,28 20,24 40,18 60,22 80,8"
+                              fill="none"
+                              stroke={isUp ? "#ef4444" : "#3b82f6"}
+                              strokeWidth={2}
+                            />
+                          </g>
                         </svg>
                       </div>
 
@@ -162,15 +257,29 @@ export default function StockListPage() {
                         <div className="text-sm font-semibold text-gray-900">
                           {stock.currentPrice.toLocaleString()}
                         </div>
-                        <div
-                          className={`text-xs ${isUp ? "text-red-500" : "text-blue-500"}`}
-                        >
+                        <div className={`text-xs ${isUp ? "text-red-500" : "text-blue-500"}`}>
                           {changeText}
                         </div>
                       </div>
 
-                      <div className="min-w-[60px] text-right text-xs font-medium text-gray-500">
-                        수익률
+                      <div className="min-w-[60px] text-right">
+                        <button
+                          type="button"
+                          disabled={isDeleting}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            requestDelete(stock.id, stock.name)
+                          }}
+                          className={[
+                            "text-xs font-medium transition",
+                            isDeleting
+                              ? "cursor-not-allowed text-gray-400"
+                              : "text-gray-500 hover:text-red-600",
+                          ].join(" ")}
+                        >
+                          {isDeleting ? "삭제 중" : "삭제"}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -178,6 +287,50 @@ export default function StockListPage() {
               </button>
             )
           })}
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-title"
+          onMouseDown={(e) => {
+            // 바깥 클릭 닫기
+            if (e.target === e.currentTarget) closeModal()
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-xl">
+            <h3 id="delete-title" className="text-base font-semibold text-gray-900">
+              매수 종목 삭제
+            </h3>
+            <p className="mt-2 text-sm text-gray-600">
+              <span className="font-medium text-gray-900">{pendingDelete.name}</span>{" "}
+              종목을 삭제할까요?
+            </p>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={deletingId === pendingDelete.id}
+                className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deletingId === pendingDelete.id}
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletingId === pendingDelete.id ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
