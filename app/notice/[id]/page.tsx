@@ -29,7 +29,6 @@ export function generateStaticParams() {
   return [{ id: "1" }]
 }
 
-// (선택) 존재하지 않는 id로 접근하는 경우를 막고 싶다면
 export const dynamicParams = false
 
 
@@ -38,8 +37,8 @@ export default async function NoticeDetailPage({
   }: {
     params: Promise<{ id: string }>
   }) {
-    const { id } = await params        // ✅ 여기!
-    const notice = noticesData[id]     // ✅ 이제 안전
+    const { id } = await params        
+    const notice = noticesData[id]   
 
 
   if (!notice) {
