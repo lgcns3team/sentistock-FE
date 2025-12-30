@@ -9,9 +9,3 @@ firebase.initializeApp({
     appId: "1:497799441530:web:d326193dfed6588e491fc3"
 });
 const messaging = firebase.messaging();
-messaging.onBackgroundMessage((payload) => {
-    self.registration.showNotification(
-        payload.notification.title,
-        { body: payload.notification.body }
-    );
-});
