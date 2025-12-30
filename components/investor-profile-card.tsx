@@ -1,3 +1,5 @@
+"use client"
+
 // components/investor-profile-card.tsx
 
 type Props = {
@@ -15,13 +17,15 @@ const levels: InvestorLevel[] = [
   {
     grade: "1등급",
     name: "공격투자형",
-    description: "높은 수익을 위해 큰 폭의 가격 변동도 적극적으로 감수하는 투자 성향입니다.",
+    description:
+      "높은 수익을 위해 큰 폭의 가격 변동도 적극적으로 감수하는 투자 성향입니다.",
     range: "30점 이상",
   },
   {
     grade: "2등급",
     name: "적극투자형",
-    description: "수익을 우선시하며, 일정 수준의 손실 위험도 함께 감수하는 투자 성향입니다.",
+    description:
+      "수익을 우선시하며, 일정 수준의 손실 위험도 함께 감수하는 투자 성향입니다.",
     range: "25~29점",
   },
   {
@@ -67,6 +71,10 @@ export default function InvestorProfileCard({ investorType }: Props) {
   const currentLevelIndex = getLevelIndex(investorType)
   const currentLevel = levels[currentLevelIndex]
 
+  // 막대는 왼쪽(안정형) -> 오른쪽(공격투자형) 라벨 방향이라서
+  // levels 인덱스(공격=0, 안정=4)를 반대로 뒤집어서 채움
+  const barIndex = levels.length - 1 - currentLevelIndex
+
   return (
     <section className="rounded-2xl border border-gray-200 bg-white px-8 py-6 shadow-sm">
       <h3 className="text-base font-semibold text-gray-900">투자 성향 결과</h3>
@@ -74,7 +82,7 @@ export default function InvestorProfileCard({ investorType }: Props) {
       <div className="mt-4 space-y-2">
         <p className="text-xs text-gray-500">나의 투자 성향</p>
 
-        <div className="inline-flex items-center rounded-full bg-[#E8F0FF] px-3 py-1 text-[#2563EB] text-xs font-medium">
+        <div className="inline-flex items-center rounded-full bg-[#E8F0FF] px-3 py-1 text-xs font-medium text-[#2563EB]">
           {currentLevel.grade} · {currentLevel.name}
           <span className="ml-1 text-[10px] text-[#1E40AF]">
             ({currentLevel.range})
@@ -95,7 +103,7 @@ export default function InvestorProfileCard({ investorType }: Props) {
             <div
               key={idx}
               className={`h-1.5 flex-1 rounded-full ${
-                idx <= currentLevelIndex ? "bg-[#2563EB]" : "bg-gray-200"
+                idx <= barIndex ? "bg-[#2563EB]" : "bg-gray-200"
               }`}
             />
           ))}
