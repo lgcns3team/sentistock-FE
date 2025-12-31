@@ -238,6 +238,7 @@ export default function Header() {
         open={showNotifications}
         onOpenChange={setShowNotifications}
         onMarkAllRead={() => setHasUnread(false)}
+        onUnreadChange={setHasUnread}
       />
     </header>
   )
