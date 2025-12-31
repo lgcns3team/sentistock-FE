@@ -30,7 +30,7 @@ export default function AccountSecurityPage() {
 
     const fetchMe = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/users/me", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -63,7 +63,7 @@ export default function AccountSecurityPage() {
       <div className="flex-1 px-10 py-8">
         <h2 className="text-xl font-semibold mb-2">서버 연결 실패</h2>
         <p className="text-sm text-gray-600">
-          백엔드 서버가 실행 중인지 확인해주세요. (예: http://localhost:8080)
+          백엔드 서버가 실행 중인지 확인해주세요.
         </p>
       </div>
     )
