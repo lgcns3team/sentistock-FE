@@ -33,7 +33,7 @@ export default function KakaoCallbackClient() {
     (async () => {
       try {
         const res = await fetch(
-          `http://localhost:8080/api/auth/oauth/kakao?code=${encodeURIComponent(code)}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/oauth/kakao?code=${encodeURIComponent(code)}`,
           { method: "GET" }
         );
 
