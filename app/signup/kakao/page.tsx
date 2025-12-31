@@ -35,7 +35,7 @@ export default function KakaoSignupPage() {
       }
 
       const res = await fetch(
-        "http://localhost:8080/api/users/me/onboarding",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/onboarding`,
         {
           method: "PATCH",
           headers: {
