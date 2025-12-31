@@ -1,5 +1,5 @@
 export async function saveFcmToken(fcmToken: string, accessToken: string) {
-  await fetch("http://localhost:8080/api/users/me/fcm-token", {
+  await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/fcm-token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -8,13 +8,11 @@ export async function saveFcmToken(fcmToken: string, accessToken: string) {
     body: JSON.stringify({ fcmToken }),
   });
 }
-// lib/api.ts
 
 // =====================
 // Types
 // =====================
 export type SubscriptionInfoResponseDto = {
-  // 백엔드가 어떤 키로 내려주든 대응하려고 optional로 둠
   subscribe?: boolean
   isSubscribe?: boolean
   subscribeAt?: string | null
@@ -28,8 +26,6 @@ export type FavoriteStatusResponse = {
 // =====================
 // Base Request Helper
 // =====================
-// 컨벤션: .env의 NEXT_PUBLIC_API_BASE_URL 에 /api 까지 포함한다.
-// 예) NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 function getAccessToken() {
@@ -79,8 +75,6 @@ async function request<T>(path: string, options: RequestInit = {}) {
 // =====================
 // Subscription APIs
 // =====================
-// 주의: BASE_URL에 이미 /api 가 포함되어 있으므로,
-// 여기서는 절대 /api를 또 붙이지 않는다.
 export function getMySubscription() {
   return request<SubscriptionInfoResponseDto>("/subscriptions/me", {
     method: "GET",

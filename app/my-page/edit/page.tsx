@@ -33,11 +33,6 @@ export default function EditProfilePage() {
     confirmPassword: "",
   })
 
-  // BASE_URL: .env.local의 NEXT_PUBLIC_API_BASE_URL 사용
-  // 예) NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api"
-
   useEffect(() => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
@@ -49,8 +44,7 @@ export default function EditProfilePage() {
 
     const fetchMe = async () => {
       try {
-        // BASE_URL에 /api가 이미 있으므로, 여기서는 /users... 만 붙임
-        const res = await fetch(`${BASE_URL}/users/me`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         })
@@ -87,7 +81,7 @@ export default function EditProfilePage() {
     }
 
     fetchMe()
-  }, [BASE_URL])
+  }, [])
 
   if (loading) {
     return <div className="flex-1 px-10 py-8">로딩 중...</div>
@@ -117,7 +111,7 @@ export default function EditProfilePage() {
     }
 
     try {
-      const res = await fetch(`${BASE_URL}/users/me/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/profile`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

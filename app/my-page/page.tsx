@@ -1,10 +1,7 @@
-// app/my-page/page.tsx
 "use client"
 
 import { useEffect, useState } from "react"
 import InvestorProfileCard from "@/components/investor-profile-card"
-
-const BASE_URL = "http://localhost:8080"
 
 type MyInfo = {
   userId: string
@@ -26,7 +23,7 @@ export default function MyPageInfoPage() {
 
     const fetchMe = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/users/me`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

@@ -8,10 +8,8 @@ export interface SignupRequest {
   favoriteSectorIds: number[]
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? ""
-
 export async function signup(request: SignupRequest) {
-  const res = await fetch(`${BASE_URL}/auth/signup`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
