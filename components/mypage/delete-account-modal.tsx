@@ -22,7 +22,7 @@ export function DeleteAccountModal({ open, onOpenChange }: DeleteAccountModalPro
   const handleDelete = async () => {
     if (inputValue !== confirmText) return
 
-    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api"
+    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL 
     const token =
       typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
@@ -35,7 +35,6 @@ export function DeleteAccountModal({ open, onOpenChange }: DeleteAccountModalPro
     setErrorMsg(null)
 
     try {
-      // BASE_URL에 /api가 이미 있으므로, 여기서는 /users... 만 붙인다
       const res = await fetch(`${BASE_URL}/users/me/delete`, {
         method: "DELETE",
         headers: {
