@@ -116,7 +116,7 @@ export function Sidebar() {
         <div className="mb-6 flex flex-col items-center sm:mb-8">
           <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100 sm:h-20 sm:w-20">
             <Image
-              src="/placeholder-user.jpg"
+              src="/minsu.png"
               alt="프로필 이미지"
               width={80}
               height={80}
