@@ -33,18 +33,47 @@ export default function LoginSection() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg("");
+
+    const id = userId.trim();
+    const pw = password;
+
+    if (!id) {
+      alert("아이디를 입력해 주세요.");
+      return;
+    }
+    if (!pw) {
+      alert("비밀번호를 입력해 주세요.");
+      return;
+    }
+
+    const idRegex = /^[A-Za-z0-9]{6,12}$/
+    if (!idRegex.test(id)) {
+      alert("아이디는 영문/숫자 6~12자입니다.")
+      return
+    }
+
+    const pwRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^*+=-])[A-Za-z\d!@#$%^*+=-]{8,12}$/
+
+    if (!pwRegex.test(pw)) {
+      alert("비밀번호는 영문, 숫자, 특수문자 포함 8~12자입니다.")
+      return
+    }
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, password }),
+        body: JSON.stringify({ userId: id, password: pw }),
       });
       const contentType = res.headers.get("content-type") ?? "";
       const text = await res.text();
       const data = text && contentType.includes("application/json") ? JSON.parse(text) : null;
       if (!res.ok) {
-        throw new Error(data?.message ?? "아이디 또는 비밀번호를 확인해 주세요.");
+        const msg = "아이디 또는 비밀번호를 확인해주세요."
+        setErrorMsg(msg)
+        alert(msg)
+        return
       }
       // 1) 토큰/유저정보 저장
       localStorage.setItem("accessToken", data.accessToken);
@@ -64,7 +93,9 @@ export default function LoginSection() {
       // 3) 라우팅 이동
       window.location.href = data.onboardingRequired ? "/signup/kakao" : "/main-page";
     } catch (err) {
-      setErrorMsg(getErrorMessage(err));
+      const msg = getErrorMessage(err);
+      setErrorMsg(msg);
+      alert(msg);
     } finally {
       setLoading(false);
     }
