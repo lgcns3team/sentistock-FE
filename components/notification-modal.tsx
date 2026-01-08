@@ -72,9 +72,7 @@ export function NotificationModal({
         const data: ApiNotification[] = await res.json()
         if (ignore) return
 
-        setNotifications(
-          [...data].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)),
-        )
+        setNotifications([...data].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
       } catch (e: any) {
         if (!ignore) setError(e?.message ?? "알림을 불러오지 못했어요.")
       } finally {
@@ -150,7 +148,7 @@ export function NotificationModal({
     <>
       <div className="fixed inset-0 bg-black/20 z-40" onClick={() => onOpenChange(false)} />
 
-      <div className="fixed top-16 right-6 w-97 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
+      <div className="fixed top-16 left-4 right-4 md:left-auto md:right-6 md:w-97 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="font-semibold text-gray-900">알림</h3>
           <button
@@ -192,15 +190,12 @@ export function NotificationModal({
               <div
                 key={n.id}
                 onClick={() => handleClickNotification(n.id)}
-                className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-                  isNew ? "bg-red-50" : ""
-                }`}
+                className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${isNew ? "bg-red-50" : ""}`}
               >
                 <div className="flex items-start gap-2">
                   <span
                     className={
-                      "mt-1 text-xs font-semibold w-2 text-center " +
-                      (isNew ? "text-red-500" : "text-transparent")
+                      "mt-1 text-xs font-semibold w-2 text-center " + (isNew ? "text-red-500" : "text-transparent")
                     }
                   >
                     •
