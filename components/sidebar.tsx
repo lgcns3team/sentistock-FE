@@ -29,7 +29,7 @@ function safeDecodeJwtPayload(token: string): any | null {
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     )
     return JSON.parse(jsonPayload)
   } catch {
@@ -41,6 +41,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [nickname, setNickname] = useState<string>("")
+  const [profileImage, setProfileImage] = useState<string | null>(null)
 
   useEffect(() => {
     const syncNickname = () => {
@@ -62,23 +63,30 @@ export function Sidebar() {
 
       const payload = safeDecodeJwtPayload(token)
       const nick =
-        payload?.nickname ??
-        payload?.nickName ??
-        payload?.name ??
-        payload?.username ??
-        payload?.userName ??
-        ""
+        payload?.nickname ?? payload?.nickName ?? payload?.name ?? payload?.username ?? payload?.userName ?? ""
 
       setNickname(nick)
     }
 
+    const syncProfileImage = () => {
+      if (typeof window === "undefined") return
+      const savedImage = localStorage.getItem("profileImage")
+      setProfileImage(savedImage)
+    }
+
     syncNickname()
+    syncProfileImage()
+
     window.addEventListener("profile-updated", syncNickname)
     window.addEventListener("storage", syncNickname)
+    window.addEventListener("profile-updated", syncProfileImage)
+    window.addEventListener("storage", syncProfileImage)
 
     return () => {
       window.removeEventListener("profile-updated", syncNickname)
       window.removeEventListener("storage", syncNickname)
+      window.removeEventListener("profile-updated", syncProfileImage)
+      window.removeEventListener("storage", syncProfileImage)
     }
   }, [])
 
@@ -97,9 +105,7 @@ export function Sidebar() {
   const itemClass = (href: string) =>
     clsx(
       "block w-full rounded-lg px-3 py-2 text-sm text-center transition-colors",
-      isActive(href)
-        ? "bg-gray-900 text-white font-medium"
-        : "text-gray-700 hover:bg-gray-50"
+      isActive(href) ? "bg-gray-900 text-white font-medium" : "text-gray-700 hover:bg-gray-50",
     )
 
   return (
@@ -109,19 +115,27 @@ export function Sidebar() {
           "h-full w-full",
           "rounded-2xl border border-gray-200 bg-white shadow-sm",
           "px-5 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10",
-          "overflow-y-auto"
+          "overflow-y-auto",
         )}
       >
         {/* 프로필 영역 */}
         <div className="mb-6 flex flex-col items-center sm:mb-8">
           <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100 sm:h-20 sm:w-20">
-            <Image
-              src="/minsu.png"
-              alt="프로필 이미지"
-              width={80}
-              height={80}
-              className="h-full w-full object-cover"
-            />
+            {profileImage ? (
+              <img
+                src={profileImage || "/placeholder.svg"}
+                alt="프로필 이미지"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Image
+                src="/user-default.png"
+                alt="프로필 이미지"
+                width={80}
+                height={80}
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
 
           <span className="mt-3 text-sm font-medium text-gray-800 sm:mt-4">
@@ -132,9 +146,7 @@ export function Sidebar() {
         {/* 메뉴 */}
         <nav className="w-full space-y-5 text-sm sm:space-y-6">
           <div>
-            <div className="mb-2 text-[11px] font-semibold tracking-wide text-gray-400">
-              마이페이지
-            </div>
+            <div className="mb-2 text-[11px] font-semibold tracking-wide text-gray-400">마이페이지</div>
             <div className="space-y-1">
               {myPageItems.map((item) => (
                 <Link key={item.href} href={item.href} className={itemClass(item.href)}>
@@ -145,9 +157,7 @@ export function Sidebar() {
           </div>
 
           <div className="border-t border-gray-200 pt-4">
-            <div className="mb-2 text-[11px] font-semibold tracking-wide text-gray-400">
-              자산 / 관심
-            </div>
+            <div className="mb-2 text-[11px] font-semibold tracking-wide text-gray-400">자산 / 관심</div>
             <div className="space-y-1">
               {assetItems.map((item) => (
                 <Link key={item.href} href={item.href} className={itemClass(item.href)}>
