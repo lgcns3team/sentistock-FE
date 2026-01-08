@@ -226,7 +226,7 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
             <li>• 즐겨찾기 종목 수 무제한</li>
             <li>• 즐겨찾기 종목 매수 알림 기능</li>
             <li className="flex items-center gap-1">
-              <span>• 금융 특화 AI 요약 모델 선택 가능</span>
+              <span>• 금융 특화 AI 요약 모델 변경 가능</span>
               <HelpTooltip text="기본 요약은 GPT-4o-mini로 제공되며, 프리미엄 구독 시 금융 분석에 특화된 LLM으로 요약 모델을 변경할 수 있어요." />
             </li>
           </ul>
