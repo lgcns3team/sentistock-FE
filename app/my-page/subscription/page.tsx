@@ -31,7 +31,7 @@ export default function SubscriptionManagementPage() {
   const [subscription, setSubscription] = useState<UiSubscription>({
     status: "NONE",
     planName: "SentiStock 프리미엄",
-    price: 1900,
+    price: 2990,
     firstMonthPrice: 100,
     renewInterval: "1개월",
     nextBillingDate: "-",
