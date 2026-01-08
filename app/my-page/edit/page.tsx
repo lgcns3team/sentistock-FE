@@ -1,7 +1,8 @@
-// app/my-page/edit/page.tsx
 "use client"
 
-import { useEffect, useState } from "react"
+import type React from "react"
+
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -24,6 +25,8 @@ type User = {
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,8 +37,7 @@ export default function EditProfilePage() {
   })
 
   useEffect(() => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
     if (!token) {
       setLoading(false)
@@ -73,6 +75,11 @@ export default function EditProfilePage() {
         // A 방식: 초기 로딩 시에도 profileNickname 저장(동기화)
         localStorage.setItem("profileNickname", mapped.nickname)
         window.dispatchEvent(new Event("profile-updated"))
+
+        const savedImage = localStorage.getItem("profileImage")
+        if (savedImage) {
+          setProfileImage(savedImage)
+        }
       } catch (e) {
         console.error(e)
       } finally {
@@ -82,6 +89,43 @@ export default function EditProfilePage() {
 
     fetchMe()
   }, [])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("파일 크기는 5MB 이하여야 합니다.")
+        return
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("이미지 파일만 업로드 가능합니다.")
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setProfileImage(result)
+        localStorage.setItem("profileImage", result)
+        window.dispatchEvent(new Event("profile-updated"))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleImageButtonClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleRemoveImage = () => {
+    setProfileImage(null)
+    localStorage.removeItem("profileImage")
+    window.dispatchEvent(new Event("profile-updated"))
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
 
   if (loading) {
     return <div className="flex-1 px-10 py-8">로딩 중...</div>
@@ -94,16 +138,14 @@ export default function EditProfilePage() {
   const isKakao = user.provider === "KAKAO"
   const providerLabel = isKakao ? "카카오 로그인" : "센티스톡 로그인"
 
-  const handleChange =
-    (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [field]: e.target.value })
-    }
+  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [field]: e.target.value })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
     if (!token) {
       alert("로그인이 필요합니다.")
@@ -175,6 +217,50 @@ export default function EditProfilePage() {
       </p>
 
       <form className="max-w-2xl space-y-6" onSubmit={handleSubmit}>
+        <div className="flex flex-col items-center gap-4 py-4">
+          <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100">
+            {profileImage ? (
+              <img
+                src={profileImage || "/placeholder.svg"}
+                alt="프로필 이미지"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-3xl text-gray-400">
+                <svg className="h-12 w-12" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleImageButtonClick}
+                className="bg-transparent text-sm"
+              >
+                이미지 변경
+              </Button>
+              {profileImage && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemoveImage}
+                  className="text-sm text-red-600 hover:text-red-700"
+                >
+                  이미지 삭제
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-gray-500">JPG, PNG (최대 5MB)</p>
+          </div>
+        </div>
+
         <div className="flex items-center gap-4">
           <label className="w-24 text-sm text-gray-700">아이디</label>
           <input

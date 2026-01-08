@@ -209,7 +209,7 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
 
         <div className="mb-4">
           <div className="flex items-end gap-2">
-            <span className="text-2xl font-bold">월 1,900원</span>
+            <span className="text-2xl font-bold">월 2,990원</span>
             <span className="mb-1 text-xs text-gray-500">첫 달 100원 체험</span>
           </div>
           <div className="mt-2 inline-flex items-center rounded-full bg-blue-50 px-3 py-1">
@@ -246,7 +246,7 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
         </button>
 
         <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
-          첫 달 이후 해지하지 않으면 매월 1,900원이
+          첫 달 이후 해지하지 않으면 매월 2,990원이
           <br />
           자동 결제돼요.
           <br />
@@ -300,14 +300,14 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
 
                   <div className="mb-4 space-y-1 rounded-lg bg-gray-50 p-4 text-sm text-gray-800">
                     <p>
-                      <span className="font-semibold">요금제:</span> 월 1,900원{" "}
+                      <span className="font-semibold">요금제:</span> 월 2,990원{" "}
                       <span className="text-gray-500">(첫 달 100원)</span>
                     </p>
                     <p>
                       <span className="font-semibold">갱신 주기:</span> 1개월 자동 결제
                     </p>
                     <p className="text-xs text-gray-500">
-                      첫 달 이후 해지하지 않으면 매월 1,900원이 자동 결제됩니다.
+                      첫 달 이후 해지하지 않으면 매월 2,990원이 자동 결제됩니다.
                     </p>
                   </div>
 
@@ -518,7 +518,7 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
                   <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
                     <p>
                       <span className="font-semibold">요금제:</span> SentiStock 프리미엄
-                      (월 1,900원, 첫 달 100원)
+                      (월 2,990원, 첫 달 100원)
                     </p>
                     <p>
                       <span className="font-semibold">결제 수단:</span>{" "}
@@ -526,7 +526,7 @@ export default function SubscriptionCard({ onSubscribed }: Props) {
                     </p>
                     <p className="text-xs text-gray-600">카드 번호: {cardNumber}</p>
                     <p className="text-xs text-gray-500">
-                      첫 달은 100원으로 결제되며, 이후 매월 1,900원이 자동 결제됩니다.
+                      첫 달은 100원으로 결제되며, 이후 매월 2,990원이 자동 결제됩니다.
                     </p>
                   </div>
 
