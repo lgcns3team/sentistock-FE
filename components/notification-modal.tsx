@@ -150,7 +150,7 @@ export function NotificationModal({
     <>
       <div className="fixed inset-0 bg-black/20 z-40" onClick={() => onOpenChange(false)} />
 
-      <div className="fixed top-16 right-6 w-110 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
+      <div className="fixed top-16 right-6 w-97 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="font-semibold text-gray-900">알림</h3>
           <button
@@ -167,7 +167,7 @@ export function NotificationModal({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-4 py-3 text-sm ${
+              className={`flex-1 px-4 py-3 text-[13px] ${
                 activeTab === tab
                   ? "text-red-500 border-b-2 border-red-500 font-medium"
                   : "text-gray-500 hover:text-gray-700"
