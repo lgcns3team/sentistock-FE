@@ -79,7 +79,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
 
     router.push(`/stock/${code}`)
   }
-  
+
   return (
     <div
       className="
@@ -107,7 +107,9 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
         <Button
           type="button"
           size="sm"
-          className="absolute right-2 top-1.5 h-7"
+          className="absolute right-2 top-1.5 h-7
+                    bg-[#061F5B] hover:bg-[#061F5B]/90
+                    text-white"
           onClick={goToDetail}
         >
           이동
@@ -117,7 +119,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
       {errorMsg && (
         <p className="text-xs text-red-500 -mt-4">{errorMsg}</p>
       )}
-      
+
 
       {/* Categories */}
       <div className="flex flex-col space-y-2">
