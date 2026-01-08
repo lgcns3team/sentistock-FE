@@ -54,15 +54,52 @@ type NewsRecentScoreItem = {
   url: string
 }
 
-type ValueChainItem = {
-  toCompanyId: string
-  toCompanyName: string
-  relationship: string
+type MockValueChainItem = {
+  code: string
+  name: string
+  relation: string
   currentPrice: number
   changeRate: number
 }
 
 type CompaniesMap = Record<string, string>
+
+const VALUE_CHAIN_MOCK: Record<string, MockValueChainItem[]> = {
+  // 005930 삼성전자
+  "005930": [
+    { code: "240810", name: "원익IPS", relation: "공급업체", currentPrice: 79100, changeRate: 0.25 },
+    { code: "005290", name: "동진쎄미켐", relation: "공급업체", currentPrice: 42350, changeRate: 3.04 },
+    { code: "042700", name: "한미반도체", relation: "공급업체", currentPrice: 199100, changeRate: 6.71 },
+  ],
+
+  // 005380 현대차
+  "005380": [
+    { code: "012330", name: "현대모비스", relation: "공급업체", currentPrice: 393500, changeRate: 0.25 },
+    { code: "004020", name: "현대제철", relation: "공급업체", currentPrice: 29550, changeRate: 1.37 },
+    { code: "307950", name: "현대오토에버", relation: "공급업체", currentPrice: 398500, changeRate: 1.01 },
+  ],
+
+  // 373220 LG에너지솔루션
+  "373220": [
+    { code: "003670", name: "포스코퓨처엠", relation: "공급업체", currentPrice: 178400, changeRate: -0.88 },
+    { code: "361610", name: "SK아이이테크놀로지(SKIET)", relation: "공급업체", currentPrice: 23250, changeRate: -3.32 },
+    { code: "020150", name: "롯데에너지머티리얼즈", relation: "공급업체", currentPrice: 29100, changeRate: -1.52 },
+  ],
+
+  // 034020 두산에너빌리티
+  "034020": [
+    { code: "052690", name: "한국전력기술", relation: "파트너", currentPrice: 96000, changeRate: 0.52 },
+    { code: "083650", name: "비에이치아이", relation: "공급업체", currentPrice: 54700, changeRate: -0.72 },
+    { code: "336260", name: "두산퓨얼셀", relation: "파트너", currentPrice: 30500, changeRate: -1.13 },
+  ],
+
+  // 009830 한화솔루션
+  "009830": [
+    { code: "010060", name: "OCI홀딩스", relation: "공급업체", currentPrice: 103500, changeRate: -0.67 },
+    { code: "010120", name: "LS ELECTRIC", relation: "공급업체", currentPrice: 480000, changeRate: 0.94 },
+    { code: "011930", name: "신성이엔지", relation: "파트너", currentPrice: 1592, changeRate: -1.66 },
+  ],
+}
 
 export default function StockDetailClient({
   stockId,
@@ -172,6 +209,21 @@ export default function StockDetailClient({
     }, [companyId, isSubscribed])
 
   useEffect(() => {
+    const mock = VALUE_CHAIN_MOCK[companyId] ?? []
+    setValueChain(
+      mock.map((x, i) => ({
+        id: i,
+        code: x.code,
+        name: x.name,
+        price: x.currentPrice.toLocaleString(),
+        change: `${x.changeRate.toFixed(2)}%`,
+        isUp: x.changeRate >= 0,
+        relation: x.relation,
+      }))
+    )
+  }, [companyId])
+
+  useEffect(() => {
     if (!companyId) return
 
     Promise.all([
@@ -180,8 +232,7 @@ export default function StockDetailClient({
       apiFetch(`/sentiment/score/${companyId}`),
       apiFetch(`/sentiment/ratio/${companyId}`),
       apiFetch(`/news/recent-score/${companyId}`),
-      apiFetch(`/valuechains/${companyId}`),
-    ]).then(async ([s, c, sc, r, n, v]) => {
+    ]).then(async ([s, c, sc, r, n]) => {
       if (s.ok) setSnapshot(await s.json())
       if (c.ok) {
         const d: CandleHourlyResItem[] = await c.json()
@@ -202,20 +253,6 @@ export default function StockDetailClient({
       if (n.ok) {
         const d: NewsRecentScoreItem[] = await n.json()
         setArticles(d.map((x) => ({ id: x.newsId, title: x.title, url: x.url, score: x.score })))
-      }
-      if (v.ok) {
-        const d: ValueChainItem[] = await v.json()
-        setValueChain(
-          d.map((x, i) => ({
-            id: i,
-            code: x.toCompanyId,
-            name: x.toCompanyName,
-            price: x.currentPrice.toLocaleString(),
-            change: `${x.changeRate.toFixed(2)}%`,
-            isUp: x.changeRate >= 0,
-            relation: x.relationship,
-          }))
-        )
       }
     })
   }, [companyId])
