@@ -101,12 +101,14 @@ export default function FavoritesPage() {
                   <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-8">
                     <div className="h-8 w-20">
                       <svg viewBox="0 0 80 32" className="h-full w-full">
-                        <polyline
-                          points="0,28 20,24 40,18 60,22 80,8"
-                          fill="none"
-                          stroke={changeRate >= 0 ? "#ef4444" : "#3b82f6"}
-                          strokeWidth={2}
-                        />
+                        <g transform={changeRate < 0 ? "translate(0 32) scale(1 -1)" : undefined}>
+                          <polyline
+                            points="0,28 20,24 40,18 60,22 80,8"
+                            fill="none"
+                            stroke={changeRate >= 0 ? "#ef4444" : "#3b82f6"}
+                            strokeWidth={2}
+                          />
+                        </g>
                       </svg>
                     </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
 
@@ -17,6 +17,7 @@ export function MyPageMobileBar() {
           </SheetTrigger>
 
           <SheetContent side="left" className="w-80 p-0">
+            <SheetTitle className="sr-only">사이드바 메뉴</SheetTitle>
             <Sidebar />
           </SheetContent>
         </Sheet>
