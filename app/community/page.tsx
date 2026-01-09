@@ -686,7 +686,7 @@ export default function StockCommunityPage() {
       {/* Sector Tabs */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 lg:max-w-7xl">
-          <div className="flex justify-center gap-2 overflow-x-auto py-4">
+          <div className="flex gap-2 overflow-x-auto py-4 justify-start md:justify-center">
             {sectors.map((sector) => (
               <Button
                 key={sector}
