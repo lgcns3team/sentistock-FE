@@ -9,3 +9,13 @@ firebase.initializeApp({
     appId: "1:497799441530:web:d326193dfed6588e491fc3"
 });
 const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log("[firebase-messaging-sw] Received background message", payload);
+  const title = payload.data?.title || "센티스톡 알림";
+  const body = payload.data?.body || "";
+  self.registration.showNotification(title, {
+    body,
+    icon: "/public/sentistock-icon.svg",
+  });
+});
