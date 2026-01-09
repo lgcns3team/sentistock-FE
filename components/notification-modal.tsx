@@ -165,7 +165,7 @@ export function NotificationModal({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-4 py-3 text-[13px] ${
+              className={`flex-1 px-2 py-3 text-[13px] ${
                 activeTab === tab
                   ? "text-red-500 border-b-2 border-red-500 font-medium"
                   : "text-gray-500 hover:text-gray-700"
