@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { issueFcmToken } from "@/hooks/useFcmToken";
+import { saveFcmToken } from "@/lib/api";
 
 type LoginResponseDto = {
   accessToken: string;
@@ -48,6 +50,18 @@ export default function KakaoCallbackClient() {
         localStorage.setItem("investorType", data.investorType);
         localStorage.setItem("onboardingRequired", String(data.onboardingRequired));
 
+        try {
+          console.log("[FCM] 카카오 로그인 성공, 토큰 발급 시도");
+          const fcmToken = await issueFcmToken();
+          console.log("[FCM] issueFcmToken result =", fcmToken);
+          if (fcmToken) {
+            await saveFcmToken(fcmToken, data.accessToken);
+          } else {
+            console.warn("[FCM] 토큰 발급 실패/없음");
+          }
+        } catch (e) {
+          console.warn("[FCM] save token failed:", e);
+        }
         router.replace(data.onboardingRequired ? "/signup/kakao" : "/main-page");
       } catch (e) {
         setError(e instanceof Error ? e.message : "카카오 로그인 실패");
