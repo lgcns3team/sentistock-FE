@@ -1,5 +1,6 @@
 export async function saveFcmToken(fcmToken: string, accessToken: string) {
-  await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/fcm-token`, {
+  console.log("[FCM] save token request:", fcmToken);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/fcm-token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -7,6 +8,15 @@ export async function saveFcmToken(fcmToken: string, accessToken: string) {
     },
     body: JSON.stringify({ fcmToken }),
   });
+  const text = await res.text(); // 백엔드가 void여도 에러 응답은 text로 옴
+  console.log("[FCM] save token response:", {
+    ok: res.ok,
+    status: res.status,
+    body: text,
+  });
+  if (!res.ok) {
+    throw new Error(`[FCM] saveFcmToken failed: ${res.status} ${text}`);
+  }
 }
 
 // =====================
