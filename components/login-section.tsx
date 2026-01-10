@@ -10,12 +10,18 @@ const getErrorMessage = (err: unknown) => {
   if (typeof err === "string") return err;
   return "로그인 실패";
 };
+
 async function onLoginSuccess(accessToken: string) {
+  console.log("[FCM] 로그인 성공, 토큰 발급 시도");
   const fcmToken = await issueFcmToken();
-  if (fcmToken) {
-    await saveFcmToken(fcmToken, accessToken);
+  console.log("[FCM] issueFcmToken result =", fcmToken);
+  if (!fcmToken) {
+    console.warn("[FCM] 토큰 발급 실패/없음");
+    return;
   }
+  await saveFcmToken(fcmToken, accessToken);
 }
+
 const handleKakaoStart = () => {
   const params = new URLSearchParams({
     client_id: process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID!, // REST API 키
