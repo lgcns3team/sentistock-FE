@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button"
 import  Header from "@/components/header"
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ServiceIntro() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-
       <main>
         <div className="max-w-6xl mx-auto">
-        {/* Section 1*/}
         <section id="about" className="px-6 py-20 scroll-mt-16">
           <h1 className="text-4xl font-bold text-foreground mb-10">회사소개</h1>
           <div className="w-full h-px bg-gray-200 mb-12"></div>
@@ -22,14 +21,12 @@ export default function ServiceIntro() {
           />
           <div className=" text-center space-y-6 mb-13">
             <h2 className="text-2xl font-bold">
-              " <span className="text-[#0065F4]">감정 데이터</span>
-              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다. "
+              <span className="text-[#0065F4]">감정 데이터</span>
+              {" "}로 투자자의 확신을 높이고, 더 나은 선택을 돕습니다.
             </h2>
             <p className="text-[#999999] text-lg">숫자에 감정을 더한, 새로운 투자 의사결정 파트너</p>
           </div>
         </section>
-
-        {/* Section 2*/}
         <section className="px-6 py-5">
           <div className="text-center space-y-8">
             <h2 className="text-3xl font-bold text-foreground">회사 목표</h2>
@@ -47,8 +44,6 @@ export default function ServiceIntro() {
             </div>
           </div>
         </section>
-
-        {/* Section 3*/}
         <section className="px-6 py-40">
           <Image
             src="/info_image1.png"
@@ -118,7 +113,6 @@ export default function ServiceIntro() {
           </div>
         </section>
 
-        {/* Section 4 */}
         <section className="px-6 py-20">
           <div className="text-center space-y-6">
             <Image
@@ -142,8 +136,6 @@ export default function ServiceIntro() {
           </div>
         </section>
         </div>
-
-        {/* Section 5*/}
         <section className="px-6 py-20 bg-[linear-gradient(180deg,#ffffff_0%,#f9fcfe_17%,#f6fafd_25%,#f2f8fc_37%,#eff6fc_46%,#ebf5fb_55%,#e7f2fa_68%,#98c9ea_100%)]">
           <div className="max-w-6xl mx-auto">
             <div className="max-w-3xl mx-auto text-center space-y-8">
@@ -178,8 +170,9 @@ export default function ServiceIntro() {
                   지금, 당신의 투자 여정을 더 선명하게 비춰줄 <span className="font-bold">포트폴리오 분석 페이지</span>로
                   이동해보세요.
                 </p>
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-3 rounded-full font-medium">
-                  → 포트폴리오 분석 페이지
+                <Button
+                      asChild className="bg-gray-900 hover:bg-gray-800 text-white px-10 py-3 rounded-full font-medium">
+                  <Link href="/backtest">→ 포트폴리오 분석 페이지</Link>
                 </Button>
               </div>
             </div>
