@@ -34,7 +34,7 @@ function formatDate(dateStr: string) {
 
 function typeToTab(type: string) {
   const t = (type ?? "").toUpperCase()
-  //if (t === "BUY") return "매수"
+  if (t === "BUY") return "매수"
   if (t === "SELL") return "매도"
   if (t === "WARNING") return "경고"
   if (t === "INTEREST") return "즐겨찾기" // 이름 변경 가능
