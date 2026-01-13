@@ -258,11 +258,12 @@ export default function StockDetailClient({
   }, [companyId])
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background overflow-x-hidden">
       <Header />
       <StockSearch />
-      <div className="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 py-4 sm:py-6">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
           <StockInfoContainer
             stockName={snapshot?.name ?? companyId}
             stockCode={companyId}
@@ -270,13 +271,19 @@ export default function StockDetailClient({
             change={snapshot?.changeRate ?? 0}
             subscribe={isSubscribed}
           />
-          <ChartsSection
-            candles={candles}
-            sentimentHistory={sentimentHistory}
-            isSubscribed={isSubscribed}
-          />
+
+          {/* 차트 영역 */}
+          <div className="w-full min-w-0 overflow-hidden">
+            <ChartsSection
+              candles={candles}
+              sentimentHistory={sentimentHistory}
+              isSubscribed={isSubscribed}
+            />
+          </div>
         </div>
-        <div className="space-y-6">
+
+        {/* 오른쪽(사이드) */}
+        <div className="space-y-4 sm:space-y-6 min-w-0">
           <SentimentScore
             sentiment={{
               score: scoreAvg ?? 0,
@@ -289,6 +296,6 @@ export default function StockDetailClient({
           <ValueChain relatedStocks={valueChain} />
         </div>
       </div>
-    </main>
-  )
-}
+    </div>
+  </main>
+)}
