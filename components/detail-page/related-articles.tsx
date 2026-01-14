@@ -24,7 +24,7 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:text-blue-800 hover:underline truncate"
+                className="text-xs text-blue-600 hover:text-blue-800 hover:underline break-all"
               >
                 {article.url}
               </a>
