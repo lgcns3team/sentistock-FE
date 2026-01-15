@@ -116,6 +116,15 @@ export default function ServiceIntro() {
             </div>
           </div>
         </section>
+        <div className=" text-center space-y-6 mb-13">
+            <div className="flex flex-row items-center justify-center gap-4 mt-10">
+                <div className="w-2 h-2 rounded-full bg-[#97C9FC] animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-[#007EFF] animate-pulse delay-100" />
+                <div className="w-2 h-2 rounded-full bg-[#007EFF] animate-pulse delay-200" />
+            </div>
+            <h1 className="text-xl font-bold text-foreground mt-10"> 투자 시장을 읽고 감정으로 타이밍을 포착하는, 감정 기반 투자 인사이트 서비스</h1>
+            <h1 className="text-xl font-bold text-foreground mb-30"> <span className="text-[#007EFF]">'센티스톡'</span> 입니다</h1>
+          </div>
         </div>
       </main>
     </div>
