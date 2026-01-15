@@ -64,11 +64,11 @@
 ### 4. 상세페이지
 **구독 전**에는 제한된 감정 지표와 기본 정보만 제공하여 서비스 체험이 가능하도록 구성했습니다.
 
-<img width="800" alt="상세페이지-구독 전" src="https://github.com/user-attachments/assets/5f330b3c-0162-471c-a68c-d41b6d89663a" />
+<img width="800" alt="상세페이지-구독후" src="https://github.com/user-attachments/assets/2a6f90db-b62b-4670-ab9b-0e3049ece3f0" />
 
 **구독 후**에는 감정점수 히스토리 그래프를 제공하여 보다 정교한 의사결정을 지원합니다.
 
-<img width="800" alt="상세페이지-구독후" src="https://github.com/user-attachments/assets/2a6f90db-b62b-4670-ab9b-0e3049ece3f0" />
+<img width="800" alt="상세페이지-구독 전" src="https://github.com/user-attachments/assets/5f330b3c-0162-471c-a68c-d41b6d89663a" />
 
 
 ### 5. 커뮤니티페이지
@@ -77,13 +77,9 @@
 시장 이슈에 대한 다양한 관점을 통해 투자 판단의 참고 자료를 제공합니다.
 
 <img width="800" alt="커뮤니티1" src="https://github.com/user-attachments/assets/47ccb672-a9ea-4fa2-b3f3-4bc78990388d" />
-
 <img width="800" alt="커뮤니티2" src="https://github.com/user-attachments/assets/4d4b7f02-4822-4055-9450-ca08da3747c7" />
-
 <img width="800" alt="커뮤니티3" src="https://github.com/user-attachments/assets/6aeeec34-7819-4511-addc-f2cd035e1382" />
-
 <img width="800" alt="커뮤니티4" src="https://github.com/user-attachments/assets/fe935230-9b31-4306-8bcb-7a8c027c1d9b" />
-
 
 ### 6. 마이페이지
 사용자 정보, 구독 상태, 관심 종목 등을 관리할 수 있는 개인화 페이지입니다.
@@ -91,21 +87,20 @@
 개인 투자 성향에 맞춘 서비스 이용을 지원합니다.
 
 <img width="800" alt="마이페이지1" src="https://github.com/user-attachments/assets/b026f626-27cc-439b-8d36-771676538826" />
-
 <img width="800" alt="마이페이지2" src="https://github.com/user-attachments/assets/d222ceda-b1d1-42f0-8914-4f6552dee366" />
-
 <img width="800" alt="마이페이지3" src="https://github.com/user-attachments/assets/1303d360-6411-41d8-94e0-159b457802bc" />
-
 <img width="800" alt="마이페이지4" src="https://github.com/user-attachments/assets/213c0ca3-2baf-4c10-9bda-d1bb50e8cced" />
 
-<img width="800" alt="마이페이지5" src="https://github.com/user-attachments/assets/d3fe8547-3f3c-4123-9879-087f7996fcd5" />
+**구독 전** 화면
 
 <img width="800" alt="마이페이지9" src="https://github.com/user-attachments/assets/9d4500bf-b95b-4b74-9a6f-ab9bd72cfe49" />
 
+**구독 후** 화면
+
+<img width="800" alt="마이페이지5" src="https://github.com/user-attachments/assets/d3fe8547-3f3c-4123-9879-087f7996fcd5" />
+
 <img width="800" alt="마이페이지6" src="https://github.com/user-attachments/assets/c5b0143f-8cbd-45ab-83c4-bc3af7c0e0c6" />
-
 <img width="800" alt="마이페이지7" src="https://github.com/user-attachments/assets/a5c55a92-0f2c-422f-b967-cac0ad7dba21" />
-
 <img width="800" alt="마이페이지8" src="https://github.com/user-attachments/assets/07f23ad0-049c-4ace-b739-fd002b4347f1" />
 
 
