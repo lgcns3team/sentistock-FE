@@ -1,4 +1,6 @@
 ## sentistock-FE
+> <img width="130" alt="센티스톡 로고" src="https://github.com/user-attachments/assets/8139df09-6e61-43d1-9dfd-5784d9dedcbf" />
+> 
 > **센티스톡_SENTISTOCK**  
 > *투자 시장을 읽고 감정으로 타이밍을 포착하는, 감정 기반 투자 인사이트 서비스*
 
