@@ -1,0 +1,8 @@
+node_modules
+
+.history
+.next
+
+.env.local
+.env
+out

@@ -1,0 +1,122 @@
+export async function saveFcmToken(fcmToken: string, accessToken: string) {
+  console.log("[FCM] save token request:", fcmToken);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me/fcm-token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ fcmToken }),
+  });
+  const text = await res.text(); // 백엔드가 void여도 에러 응답은 text로 옴
+  console.log("[FCM] save token response:", {
+    ok: res.ok,
+    status: res.status,
+    body: text,
+  });
+  if (!res.ok) {
+    throw new Error(`[FCM] saveFcmToken failed: ${res.status} ${text}`);
+  }
+}
+
+// =====================
+// Types
+// =====================
+export type SubscriptionInfoResponseDto = {
+  subscribe?: boolean
+  isSubscribe?: boolean
+  subscribeAt?: string | null
+  subscribedAt?: string | null
+}
+
+export type FavoriteStatusResponse = {
+  favorite: boolean
+}
+
+// =====================
+// Base Request Helper
+// =====================
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+function getAccessToken() {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem("accessToken")
+}
+
+async function request<T>(path: string, options: RequestInit = {}) {
+  if (!BASE_URL) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set")
+
+  const token = getAccessToken()
+  const url = `${BASE_URL}${path}`
+
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> | undefined),
+  }
+
+  // body가 있을 때만 Content-Type을 세팅 (불필요한 preflight 줄이기)
+  const hasBody = options.body !== undefined && options.body !== null
+  if (hasBody && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json"
+  }
+
+  if (token && !headers["Authorization"]) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    cache: "no-store",
+    headers,
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "")
+    throw new Error(`${res.status} ${res.statusText} - ${text}`)
+  }
+
+  const contentType = res.headers.get("content-type") || ""
+  if (!contentType.includes("application/json")) {
+    return {} as T
+  }
+
+  return (await res.json()) as T
+}
+
+// =====================
+// Subscription APIs
+// =====================
+export function getMySubscription() {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/me", {
+    method: "GET",
+  })
+}
+
+export function startSubscription() {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/start", {
+    method: "POST",
+  })
+}
+
+export function cancelSubscription() {
+  return request<SubscriptionInfoResponseDto>("/subscriptions/cancel", {
+    method: "POST",
+  })
+}
+
+// =====================
+// Favorite APIs
+// =====================
+
+// 즐겨찾기 여부 조회
+export function getFavoriteStatus(companyId: string) {
+  return request<FavoriteStatusResponse>(`/companies/${companyId}/favorite`, {
+    method: "GET",
+  })
+}
+
+// 즐겨찾기 토글(등록/해제)
+export function toggleFavorite(companyId: string) {
+  return request<FavoriteStatusResponse>(`/companies/${companyId}/favorite/star`, {
+    method: "POST",
+  })
+}
